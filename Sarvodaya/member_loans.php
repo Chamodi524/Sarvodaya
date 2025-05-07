@@ -592,44 +592,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         function calculateTotalAmount() {
-            const loanType = document.getElementById('loan_type');
-            const amount = document.getElementById('amount').value;
-            const interestRate = loanType.getAttribute('data-interest-rate');
-            const maxPeriod = loanType.getAttribute('data-max-period');
-            const maximumAmount = loanType.getAttribute('data-maximum-amount');
-
-            if (amount && interestRate && maxPeriod && maximumAmount) {
-                const amountNum = parseFloat(amount);
-                const interestRateNum = parseFloat(interestRate);
-                const maxPeriodNum = parseFloat(maxPeriod);
-                const maximumAmountNum = parseFloat(maximumAmount);
-
-                if (!isNaN(amountNum) && !isNaN(interestRateNum) && !isNaN(maxPeriodNum) && !isNaN(maximumAmountNum)) {
-                    if (amountNum <= 0) {
-                        alert('Loan amount must be greater than 0.');
-                        document.getElementById('amount').value = '';
-                        document.getElementById('total_amount').value = '';
-                        return;
-                    }
-
-                    if (amountNum > maximumAmountNum) {
-                        alert('Loan amount exceeds the maximum allowed amount of ' + maximumAmountNum + '.');
-                        document.getElementById('amount').value = '';
-                        document.getElementById('total_amount').value = '';
-                        return;
-                    }
-
-                    const totalAmount = amountNum + ((amountNum * interestRateNum / 100) * maxPeriodNum);
-                    document.getElementById('total_amount').value = totalAmount.toFixed(2);
-                } else {
-                    console.error('Invalid input values. Amount, interest rate, max period, or maximum amount is not a number.');
-                    document.getElementById('total_amount').value = '';
-                }
-            } else {
-                console.error('Missing required inputs. Amount, interest rate, max period, or maximum amount is not provided.');
+    const loanType = document.getElementById('loan_type');
+    const amount = document.getElementById('amount').value;
+    const interestRate = loanType.getAttribute('data-interest-rate');
+    const maxPeriod = loanType.getAttribute('data-max-period');
+    const maximumAmount = loanType.getAttribute('data-maximum-amount');
+    
+    if (amount && interestRate && maxPeriod && maximumAmount) {
+        const principal = parseFloat(amount);
+        const monthlyRate = parseFloat(interestRate) / 100; // Convert to decimal
+        const term = parseInt(maxPeriod);
+        const maximumAmountNum = parseFloat(maximumAmount);
+        
+        if (!isNaN(principal) && !isNaN(monthlyRate) && !isNaN(term) && !isNaN(maximumAmountNum)) {
+            if (principal <= 0) {
+                alert('Loan amount must be greater than 0.');
+                document.getElementById('amount').value = '';
                 document.getElementById('total_amount').value = '';
+                return;
             }
+            
+            if (principal > maximumAmountNum) {
+                alert('Loan amount exceeds the maximum allowed amount of ' + maximumAmountNum + '.');
+                document.getElementById('amount').value = '';
+                document.getElementById('total_amount').value = '';
+                return;
+            }
+            
+            // Calculate monthly payment using amortization formula
+            let monthlyPayment;
+            if (monthlyRate === 0) {
+                monthlyPayment = principal / term;
+            } else {
+                monthlyPayment = principal * monthlyRate * Math.pow(1 + monthlyRate, term) / (Math.pow(1 + monthlyRate, term) - 1);
+            }
+            
+            // Calculate total amount to repay
+            const totalAmount = monthlyPayment * term;
+            document.getElementById('total_amount').value = totalAmount.toFixed(2);
+        } else {
+            console.error('Invalid input values. Amount, interest rate, max period, or maximum amount is not a number.');
+            document.getElementById('total_amount').value = '';
         }
+    } else {
+        console.error('Missing required inputs. Amount, interest rate, max period, or maximum amount is not provided.');
+        document.getElementById('total_amount').value = '';
+    }
+}
 
         function fetchGuarantor1Details() {
             const guardianId = document.getElementById('guarantor1_id').value;

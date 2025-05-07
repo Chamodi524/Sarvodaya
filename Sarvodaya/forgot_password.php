@@ -1,3 +1,7 @@
+<?php
+// Start session
+session_start();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Forgot Password | Sarvodaya</title>
     <style>
-        /* Use the same styles as the login page */
+        /* Your existing CSS */
         * {
             margin: 0;
             padding: 0;
@@ -122,6 +126,25 @@
         .login-link a:hover {
             text-decoration: underline;
         }
+        
+        /* Added styles for messages */
+        .error {
+            color: #e74c3c;
+            font-size: 14px;
+            padding: 10px;
+            background-color: rgba(231, 76, 60, 0.1);
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .success {
+            background-color: rgba(46, 204, 113, 0.2);
+            color: #27ae60;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -131,6 +154,29 @@
             <div class="divider"></div>
             <p>Enter your email to reset your password</p>
         </div>
+        
+        <?php if (isset($_SESSION['error_message'])): ?>
+            <div class="error">
+                <?php echo $_SESSION['error_message']; unset($_SESSION['error_message']); ?>
+            </div>
+        <?php endif; ?>
+        
+        <?php if (isset($_SESSION['success_message'])): ?>
+            <div class="success">
+                <?php echo $_SESSION['success_message']; unset($_SESSION['success_message']); ?>
+            </div>
+        <?php endif; ?>
+        
+        <?php if (isset($_SESSION['error_messages']) && is_array($_SESSION['error_messages'])): ?>
+            <div class="error">
+                <?php 
+                foreach ($_SESSION['error_messages'] as $error) {
+                    echo $error . "<br>";
+                }
+                unset($_SESSION['error_messages']); 
+                ?>
+            </div>
+        <?php endif; ?>
         
         <form action="reset_password.php" method="post">
             <div class="form-group">

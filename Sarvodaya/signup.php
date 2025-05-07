@@ -375,11 +375,23 @@
                 <p>Create your account in just a few steps</p>
             </div>
             
-            <form action="signup_process.php" method="post">
+            <?php if (!empty($errors)): ?>
+                <div class="error">
+                    <?php foreach ($errors as $error): ?>
+                        <p><?= htmlspecialchars($error) ?></p>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+            
+            <form action="signup_process.php" method="post" id="registrationForm">
+                <!-- CSRF Token -->
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                
                 <div class="form-group">
                     <label for="username">Username</label>
                     <div class="input-wrapper">
-                        <input type="text" id="username" name="username" class="form-control" required placeholder="Choose a unique username">
+                        <input type="text" id="username" name="username" class="form-control" required 
+                               placeholder="Choose a unique username" value="<?= htmlspecialchars($form_data['username'] ?? '') ?>">
                         <div class="input-icon">
                             <i class="fas fa-user"></i>
                         </div>
@@ -389,7 +401,8 @@
                 <div class="form-group">
                     <label for="email">Email Address</label>
                     <div class="input-wrapper">
-                        <input type="email" id="email" name="email" class="form-control" required placeholder="Enter your email address">
+                        <input type="email" id="email" name="email" class="form-control" required 
+                               placeholder="Enter your email address" value="<?= htmlspecialchars($form_data['email'] ?? '') ?>">
                         <div class="input-icon">
                             <i class="fas fa-envelope"></i>
                         </div>
@@ -400,11 +413,11 @@
                     <label for="position">Position</label>
                     <div class="input-wrapper">
                         <select id="position" name="position" class="form-control" required>
-                            <option value="" disabled selected>Select your position</option>
-                            <option value="loan_handling_clerk">Loan Handling Clerk</option>
-                            <option value="membership_handling_clerk">Membership Handling Clerk</option>
-                            <option value="transaction_handling_clerk">Transaction Handling Clerk</option>
-                            <option value="manager">Manager</option>
+                            <option value="" disabled <?= empty($form_data['position']) ? 'selected' : '' ?>>Select your position</option>
+                            <option value="loan_handling_clerk" <?= ($form_data['position'] ?? '') === 'loan_handling_clerk' ? 'selected' : '' ?>>Loan Handling Clerk</option>
+                            <option value="membership_handling_clerk" <?= ($form_data['position'] ?? '') === 'membership_handling_clerk' ? 'selected' : '' ?>>Membership Handling Clerk</option>
+                            <option value="transaction_handling_clerk" <?= ($form_data['position'] ?? '') === 'transaction_handling_clerk' ? 'selected' : '' ?>>Transaction Handling Clerk</option>
+                            <option value="manager" <?= ($form_data['position'] ?? '') === 'manager' ? 'selected' : '' ?>>Manager</option>
                         </select>
                         <div class="input-icon">
                             <i class="fas fa-briefcase"></i>
@@ -415,18 +428,21 @@
                 <div class="form-group">
                     <label for="password">Password</label>
                     <div class="password-wrapper">
-                        <input type="password" id="password" name="password" class="form-control" required placeholder="Create a secure password">
+                        <input type="password" id="password" name="password" class="form-control" required 
+                               placeholder="Create a secure password">
                         <div class="input-icon">
                             <i class="fas fa-lock"></i>
                         </div>
                     </div>
                     <small>Password must be at least 8 characters long with letters and numbers</small>
+                    <div class="password-strength" id="passwordStrength"></div>
                 </div>
                 
                 <div class="form-group">
                     <label for="confirm_password">Confirm Password</label>
                     <div class="password-wrapper">
-                        <input type="password" id="confirm_password" name="confirm_password" class="form-control" required placeholder="Confirm your password">
+                        <input type="password" id="confirm_password" name="confirm_password" class="form-control" required 
+                               placeholder="Confirm your password">
                         <div class="input-icon">
                             <i class="fas fa-lock"></i>
                         </div>
@@ -443,8 +459,76 @@
     </div>
     
     <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" 
+          integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" 
+          crossorigin="anonymous" referrerpolicy="no-referrer">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        // Client-side validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('registrationForm');
+            const password = document.getElementById('password');
+            const confirmPassword = document.getElementById('confirm_password');
+            const passwordStrength = document.getElementById('passwordStrength');
+            
+            // Password strength meter
+            password.addEventListener('input', function() {
+                const value = password.value;
+                let strength = 0;
+                let feedback = '';
+                
+                if (value.length >= 8) strength += 1;
+                if (value.match(/[A-Z]/)) strength += 1;
+                if (value.match(/[a-z]/)) strength += 1;
+                if (value.match(/[0-9]/)) strength += 1;
+                if (value.match(/[^A-Za-z0-9]/)) strength += 1;
+                
+                switch (strength) {
+                    case 0:
+                    case 1:
+                        feedback = '<span style="color: #e74c3c;">Weak password</span>';
+                        break;
+                    case 2:
+                    case 3:
+                        feedback = '<span style="color: #f39c12;">Medium password</span>';
+                        break;
+                    case 4:
+                    case 5:
+                        feedback = '<span style="color: #27ae60;">Strong password</span>';
+                        break;
+                }
+                
+                passwordStrength.innerHTML = feedback;
+            });
+            
+            // Form submission validation
+            form.addEventListener('submit', function(e) {
+                let isValid = true;
+                
+                // Check password and confirm password
+                if (password.value !== confirmPassword.value) {
+                    alert("Passwords do not match!");
+                    isValid = false;
+                }
+                
+                // Check password strength
+                if (password.value.length < 8) {
+                    alert("Password must be at least 8 characters long.");
+                    isValid = false;
+                }
+                
+                if (!password.value.match(/[A-Za-z]/) || !password.value.match(/[0-9]/)) {
+                    alert("Password must contain both letters and numbers.");
+                    isValid = false;
+                }
+                
+                if (!isValid) {
+                    e.preventDefault();
+                }
+            });
+        });
+    </script>
 </body>
 </html>

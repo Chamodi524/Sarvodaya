@@ -99,5 +99,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['register'])) {
     }
 }
 
+// If there are errors or if the form wasn't submitted correctly, redirect back to the signup page with error messages
+if (!empty($errors)) {
+    $_SESSION['errors'] = $errors;
+    header("Location: signup.php");
+    exit();
+}
+
 $conn->close();
 ?>
