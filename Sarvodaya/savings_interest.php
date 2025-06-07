@@ -631,8 +631,8 @@ try {
                             <th>Member ID</th>
                             <th>Member Name</th>
                             <th>Account Type</th>
-                            <th class="numeric">Balance</th>
-                            <th class="numeric">Min. Balance</th>
+                            <th class="numeric">Balance (Rs.)</th>
+                            <th class="numeric">Min. Balance (Rs.)</th>
                             <th class="numeric">Monthly Rate</th>
                             <th class="numeric">Interest Amount</th>
                             <th>Status</th>

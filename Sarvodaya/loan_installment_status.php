@@ -756,10 +756,10 @@ if ($member_id > 0) {
                                     <td class="loan-type"><?php echo htmlspecialchars($row['loan_name']); ?></td>
                                     <td><?php echo $row['installment_number']; ?></td>
                                     <td><?php echo $row['payment_date']; ?></td>
-                                    <td>$<?php echo number_format($row['payment_amount'], 2); ?></td>
-                                    <td>$<?php echo number_format($row['principal_amount'], 2); ?></td>
-                                    <td>$<?php echo number_format($row['interest_amount'], 2); ?></td>
-                                    <td>$<?php echo number_format($row['remaining_balance'], 2); ?></td>
+                                    <td>Rs.<?php echo number_format($row['payment_amount'], 2); ?></td>
+                                    <td>Rs.<?php echo number_format($row['principal_amount'], 2); ?></td>
+                                    <td>Rs.<?php echo number_format($row['interest_amount'], 2); ?></td>
+                                    <td>Rs.<?php echo number_format($row['remaining_balance'], 2); ?></td>
                                     <td>
                                         <?php if ($row['payment_status'] == 'paid'): ?>
                                             <span style="color: #4caf50;"><i class="fas fa-check-circle"></i> Paid</span>
@@ -772,7 +772,7 @@ if ($member_id > 0) {
                                     <td>
                                         <?php if ($row['actual_payment_date']): ?>
                                             <i class="fas fa-calendar-check"></i> <?php echo $row['actual_payment_date']; ?><br>
-                                            <i class="fas fa-money-bill-wave"></i> $<?php echo number_format($row['actual_payment_amount'], 2); ?>
+                                            <i class="fas fa-money-bill-wave"></i> Rs.<?php echo number_format($row['actual_payment_amount'], 2); ?>
                                         <?php else: ?>
                                             <i class="fas fa-times-circle"></i> Not paid yet
                                         <?php endif; ?>
@@ -839,7 +839,7 @@ if ($member_id > 0) {
                 </div>
                 
                 <div class="form-group">
-                    <label for="actual_payment_amount"><i class="fas fa-dollar-sign"></i> Payment Amount ($):</label>
+                    <label for="actual_payment_amount"><i class="fas fa-dollar-sign"></i> Payment Amount (Rs.):</label>
                     <input type="number" name="actual_payment_amount" id="actual_payment_amount" step="0.01" required>
                 </div>
                 

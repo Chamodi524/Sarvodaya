@@ -1,5 +1,4 @@
 <?php
-// Start session
 session_start();
 ?>
 <!DOCTYPE html>
@@ -9,7 +8,6 @@ session_start();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Forgot Password | Sarvodaya</title>
     <style>
-        /* Your existing CSS */
         * {
             margin: 0;
             padding: 0;
@@ -44,12 +42,23 @@ session_start();
             margin-bottom: 30px;
         }
         
+        .header img {
+            width: 120px;
+            margin-bottom: 20px;
+        }
+        
         .header h2 {
             color: #FF6600;
-            font-size: 32px;
+            font-size: 28px;
             font-weight: 700;
             margin-bottom: 10px;
             letter-spacing: 0.5px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
         }
         
         .divider {
@@ -110,85 +119,78 @@ session_start();
             box-shadow: 0 7px 15px rgba(255, 140, 0, 0.35);
         }
         
-        .login-link {
+        .back-link {
             text-align: center;
             margin-top: 25px;
             color: #666;
             font-size: 15px;
         }
         
-        .login-link a {
+        .back-link a {
             color: #FF8C00;
             text-decoration: none;
             font-weight: 600;
         }
         
-        .login-link a:hover {
+        .back-link a:hover {
             text-decoration: underline;
         }
         
-        /* Added styles for messages */
-        .error {
-            color: #e74c3c;
-            font-size: 14px;
-            padding: 10px;
-            background-color: rgba(231, 76, 60, 0.1);
-            border-radius: 10px;
+        .alert {
+            padding: 12px;
             margin-bottom: 20px;
+            border-radius: 8px;
+            font-size: 14px;
         }
         
-        .success {
-            background-color: rgba(46, 204, 113, 0.2);
-            color: #27ae60;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            text-align: center;
+        .alert-success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        
+        .alert-error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
+            <img src="Sarwodaya logo.jpg" alt="Sarvodaya Logo">
             <h2>Forgot Password</h2>
+            <p>Enter your email address and we'll send you a link to reset your password.</p>
             <div class="divider"></div>
-            <p>Enter your email to reset your password</p>
         </div>
         
-        <?php if (isset($_SESSION['error_message'])): ?>
-            <div class="error">
-                <?php echo $_SESSION['error_message']; unset($_SESSION['error_message']); ?>
-            </div>
-        <?php endif; ?>
-        
-        <?php if (isset($_SESSION['success_message'])): ?>
-            <div class="success">
-                <?php echo $_SESSION['success_message']; unset($_SESSION['success_message']); ?>
-            </div>
-        <?php endif; ?>
-        
-        <?php if (isset($_SESSION['error_messages']) && is_array($_SESSION['error_messages'])): ?>
-            <div class="error">
+        <?php if (isset($_SESSION['message'])): ?>
+            <div class="alert alert-<?php echo $_SESSION['msg_type']; ?>">
                 <?php 
-                foreach ($_SESSION['error_messages'] as $error) {
-                    echo $error . "<br>";
-                }
-                unset($_SESSION['error_messages']); 
+                echo $_SESSION['message']; 
+                unset($_SESSION['message']);
+                unset($_SESSION['msg_type']);
                 ?>
             </div>
         <?php endif; ?>
         
-        <form action="reset_password.php" method="post">
+        <form action="forgot_password_process.php" method="post">
             <div class="form-group">
                 <label for="email">Email Address</label>
-                <input type="email" id="email" name="email" class="form-control" required placeholder="Enter your email">
+                <input type="email" id="email" name="email" class="form-control" required placeholder="Enter your email address">
             </div>
             
-            <button type="submit" name="reset" class="btn">Reset Password</button>
+            <button type="submit" name="forgot_password" class="btn">Send Reset Link</button>
         </form>
         
-        <div class="login-link">
-            Remember your password? <a href="login.php">Log in here</a>
+        <div class="back-link">
+            Remember your password? <a href="login.php">Back to Login</a>
         </div>
     </div>
 </body>

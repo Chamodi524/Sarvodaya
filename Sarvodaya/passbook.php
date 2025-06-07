@@ -437,9 +437,9 @@ $current_balance = !empty($transactions) ? end($transactions)['running_balance']
                                 <tr>
                                     <th style="width: 20%;">Date</th>
                                     <th style="width: 20%;">Type</th>
-                                    <th style="width: 20%;" class="text-end">Deposit</th>
-                                    <th style="width: 20%;" class="text-end">Withdrawal</th>
-                                    <th style="width: 20%;" class="text-end">Balance</th>
+                                    <th style="width: 20%;" class="text-end">Deposit(Rs.)</th>
+                                    <th style="width: 20%;" class="text-end">Withdrawal(RS.)</th>
+                                    <th style="width: 20%;" class="text-end">Balance(Rs.)</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -467,15 +467,15 @@ $current_balance = !empty($transactions) ? end($transactions)['running_balance']
                     <div class="summary-box">
                         <div class="row">
                             <div class="col-md-4">
-                                <h5>Total Deposits</h5>
+                                <h5>Total Deposits(Rs.)</h5>
                                 <p class="deposit fw-bold fs-4"><?php echo number_format($total_deposits, 2); ?></p>
                             </div>
                             <div class="col-md-4">
-                                <h5>Total Withdrawals</h5>
+                                <h5>Total Withdrawals(Rs.)</h5>
                                 <p class="withdrawal fw-bold fs-4"><?php echo number_format($total_withdrawals, 2); ?></p>
                             </div>
                             <div class="col-md-4">
-                                <h5>Current Balance</h5>
+                                <h5>Current Balance(Rs.)</h5>
                                 <p class="fw-bold fs-4"><?php echo number_format($current_balance, 2); ?></p>
                             </div>
                         </div>
