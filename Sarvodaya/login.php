@@ -1,3 +1,6 @@
+<?php 
+session_start();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -58,6 +61,30 @@
             background: linear-gradient(to right, #FF8C00, #FFCF40);
             margin: 15px auto;
             border-radius: 5px;
+        }
+        
+        .error-message {
+            background-color: #ffe6e6;
+            border: 1px solid #ff9999;
+            color: #cc0000;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .success-message {
+            background-color: #e6ffe6;
+            border: 1px solid #99ff99;
+            color: #009900;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 500;
         }
         
         .form-group {
@@ -141,21 +168,44 @@
         .forgot-password a:hover {
             text-decoration: underline;
         }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <!-- Sarvodaya Logo -->
-            <img src="Sarwodaya logo.jpg" alt="Sarodaya Logo">
+            <img src="Sarwodaya logo.jpg" alt="Sarvodaya Logo">
             <h2>Login to Sarvodaya</h2>
             <div class="divider"></div>
         </div>
         
+        <!-- Error Message Display -->
+        <?php 
+        if (isset($_SESSION['error_message'])) {
+            echo '<div class="error-message">' . $_SESSION['error_message'] . '</div>';
+            unset($_SESSION['error_message']); // Clear the message after displaying
+        }
+        if (isset($_SESSION['success_message'])) {
+            echo '<div class="success-message">' . $_SESSION['success_message'] . '</div>';
+            unset($_SESSION['success_message']); // Clear the message after displaying
+        }
+        ?>
+        
         <form action="login_process.php" method="post">
             <div class="form-group">
                 <label for="email">User email</label>
-                <input type="text" id="email" name="email" class="form-control" required placeholder="Enter your email">
+                <input type="text" id="email" name="email" class="form-control" required placeholder="Enter your email" value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>">
             </div>
             
             <div class="form-group">

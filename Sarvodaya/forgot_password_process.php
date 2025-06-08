@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['forgot_password'])) {
                 $mail->Port       = 587;
                 
                 // Recipients
-                $mail->setFrom('kaushalyachamo256@gmail.com', 'Sarvodaya Support');
+                $mail->setFrom('youremail@gmail.com', 'Sarvodaya Support');
                 $mail->addAddress($email, $user_data['username']);
                 
                 // Content
