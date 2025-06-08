@@ -315,7 +315,7 @@ $account_types_result = $conn->query("SELECT * FROM savings_account_types");
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="phone" class="form-label">Phone</label>
-                            <input type="text" class="form-control" id="phone" name="phone" required>
+                            <input type="tel" class="form-control" id="phone" name="phone" maxlength="10" pattern="[0-9]{10}" title="Please enter exactly 10 digits" required>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="account_type" class="form-label">Account Type</label>
@@ -347,7 +347,7 @@ $account_types_result = $conn->query("SELECT * FROM savings_account_types");
                                 </div>
                                 <div class="col-md-6 mb-2">
                                     <label for="guardian_nic" class="form-label">Guardian's NIC</label>
-                                    <input type="text" class="form-control" id="guardian_nic" name="guardian_nic">
+                                    <input type="tel" class="form-control" id="guardian_nic" name="guardian_nic" maxlength="12" pattern="[0-9]{12}" title="Please enter exactly 12 digits">
                                 </div>
                             </div>
                             <div class="mb-2">
@@ -367,7 +367,7 @@ $account_types_result = $conn->query("SELECT * FROM savings_account_types");
                             <div class="row">
                                 <div class="col-md-6 mb-2">
                                     <label for="nic" class="form-label">NIC Number</label>
-                                    <input type="text" class="form-control" id="nic" name="nic">
+                                    <input type="tel" class="form-control" id="nic" name="nic" maxlength="12" pattern="[0-9]{12}" title="Please enter exactly 12 digits">
                                 </div>
                                 <div class="col-md-6 mb-2">
                                     <label for="occupation" class="form-label">Occupation</label>
@@ -514,6 +514,7 @@ $account_types_result = $conn->query("SELECT * FROM savings_account_types");
                 accountTypeSelect.dispatchEvent(new Event('change'));
             }
         });
+    
 
         // File size validation
         const fileInputs = document.querySelectorAll('input[type="file"]');
@@ -530,6 +531,235 @@ $account_types_result = $conn->query("SELECT * FROM savings_account_types");
                 }
             });
         });
+        
+        // Add this JavaScript code to your existing script section in member_management.php
+
+// Phone number validation function
+function validatePhoneNumber(phoneInput) {
+    const phoneValue = phoneInput.value.replace(/\D/g, ''); // Remove non-digits
+    
+    if (phoneValue.length > 10) {
+        alert('Phone number cannot exceed 10 digits!');
+        phoneInput.value = phoneValue.substring(0, 10); // Trim to 10 digits
+        return false;
+    } else if (phoneValue.length < 10 && phoneValue.length > 0) {
+        phoneInput.setCustomValidity('Phone number must be exactly 10 digits');
+        return false;
+    } else if (phoneValue.length === 10) {
+        phoneInput.setCustomValidity(''); // Clear any previous validation message
+        phoneInput.value = phoneValue; // Set cleaned value
+        return true;
+    } else {
+        phoneInput.setCustomValidity(''); // Clear validation message for empty field
+        return true;
+    }
+}
+
+// Add event listeners for phone number validation
+document.addEventListener('DOMContentLoaded', function() {
+    const phoneInput = document.getElementById('phone');
+    
+    // Validate on input (as user types)
+    phoneInput.addEventListener('input', function() {
+        validatePhoneNumber(this);
+    });
+    
+    // Validate on blur (when user leaves the field)
+    phoneInput.addEventListener('blur', function() {
+        const phoneValue = this.value.replace(/\D/g, '');
+        if (phoneValue.length > 0 && phoneValue.length !== 10) {
+            this.setCustomValidity('Phone number must be exactly 10 digits');
+        } else {
+            this.setCustomValidity('');
+        }
+    });
+    
+    // Prevent non-numeric characters
+    phoneInput.addEventListener('keypress', function(e) {
+        // Allow backspace, delete, tab, escape, enter
+        if ([8, 9, 27, 13, 46].indexOf(e.keyCode) !== -1 ||
+            // Allow Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+            (e.keyCode === 65 && e.ctrlKey === true) ||
+            (e.keyCode === 67 && e.ctrlKey === true) ||
+            (e.keyCode === 86 && e.ctrlKey === true) ||
+            (e.keyCode === 88 && e.ctrlKey === true)) {
+            return;
+        }
+        
+        // Ensure that it is a number and stop the keypress
+        if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+            e.preventDefault();
+        }
+        
+        // Check if adding this digit would exceed 10 digits
+        const currentLength = this.value.replace(/\D/g, '').length;
+        if (currentLength >= 10) {
+            e.preventDefault();
+            alert('Phone number cannot exceed 10 digits!');
+        }
+    });
+});
+
+// Form submission validation
+document.querySelector('form').addEventListener('submit', function(e) {
+    const phoneInput = document.getElementById('phone');
+    const phoneValue = phoneInput.value.replace(/\D/g, '');
+    
+    if (phoneValue.length > 0 && phoneValue.length !== 10) {
+        e.preventDefault();
+        alert('Phone number must be exactly 10 digits!');
+        phoneInput.focus();
+        return false;
+    }
+}); 
+// Add this JavaScript code to your existing script section in member_management.php
+
+// NIC validation function
+function validateNIC(nicInput) {
+    const nicValue = nicInput.value.replace(/\D/g, ''); // Remove non-digits
+    
+    if (nicValue.length > 12) {
+        alert('NIC number must be exactly 12 digits!');
+        nicInput.value = nicValue.substring(0, 12); // Trim to 12 digits
+        return false;
+    } else if (nicValue.length < 12 && nicValue.length > 0) {
+        nicInput.setCustomValidity('NIC number must be exactly 12 digits');
+        return false;
+    } else if (nicValue.length === 12) {
+        nicInput.setCustomValidity(''); // Clear any previous validation message
+        nicInput.value = nicValue; // Set cleaned value
+        return true;
+    } else {
+        nicInput.setCustomValidity(''); // Clear validation message for empty field
+        return true;
+    }
+}
+
+// Check for duplicate NIC numbers
+function checkDuplicateNIC(nicValue, currentNicInput) {
+    // Get all NIC input fields
+    const nicInputs = document.querySelectorAll('#nic, #guardian_nic');
+    
+    for (let input of nicInputs) {
+        if (input !== currentNicInput && input.value.replace(/\D/g, '') === nicValue && nicValue.length === 12) {
+            alert('This NIC number is already entered! Each NIC must be unique.');
+            currentNicInput.value = '';
+            currentNicInput.focus();
+            return false;
+        }
+    }
+    return true;
+}
+
+// Add event listeners for NIC validation
+document.addEventListener('DOMContentLoaded', function() {
+    const nicInput = document.getElementById('nic');
+    const guardianNicInput = document.getElementById('guardian_nic');
+    
+    // Function to add NIC validation to an input field
+    function addNICValidation(inputField) {
+        if (!inputField) return; // Skip if field doesn't exist
+        
+        // Validate on input (as user types)
+        inputField.addEventListener('input', function() {
+            validateNIC(this);
+        });
+        
+        // Validate on blur (when user leaves the field)
+        inputField.addEventListener('blur', function() {
+            const nicValue = this.value.replace(/\D/g, '');
+            if (nicValue.length > 0 && nicValue.length !== 12) {
+                this.setCustomValidity('NIC number must be exactly 12 digits');
+            } else if (nicValue.length === 12) {
+                // Check for duplicates
+                checkDuplicateNIC(nicValue, this);
+                this.setCustomValidity('');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+        
+        // Prevent non-numeric characters
+        inputField.addEventListener('keypress', function(e) {
+            // Allow backspace, delete, tab, escape, enter
+            if ([8, 9, 27, 13, 46].indexOf(e.keyCode) !== -1 ||
+                // Allow Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+                (e.keyCode === 65 && e.ctrlKey === true) ||
+                (e.keyCode === 67 && e.ctrlKey === true) ||
+                (e.keyCode === 86 && e.ctrlKey === true) ||
+                (e.keyCode === 88 && e.ctrlKey === true)) {
+                return;
+            }
+            
+            // Ensure that it is a number and stop the keypress
+            if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                e.preventDefault();
+            }
+            
+            // Check if adding this digit would exceed 12 digits
+            const currentLength = this.value.replace(/\D/g, '').length;
+            if (currentLength >= 12) {
+                e.preventDefault();
+                alert('NIC number must be exactly 12 digits!');
+            }
+        });
+    }
+    
+    // Apply validation to both NIC fields
+    addNICValidation(nicInput);
+    addNICValidation(guardianNicInput);
+});
+
+// Update form submission validation to include NIC validation
+document.querySelector('form').addEventListener('submit', function(e) {
+    const phoneInput = document.getElementById('phone');
+    const nicInput = document.getElementById('nic');
+    const guardianNicInput = document.getElementById('guardian_nic');
+    
+    // Phone validation (existing)
+    const phoneValue = phoneInput.value.replace(/\D/g, '');
+    if (phoneValue.length > 0 && phoneValue.length !== 10) {
+        e.preventDefault();
+        alert('Phone number must be exactly 10 digits!');
+        phoneInput.focus();
+        return false;
+    }
+    
+    // NIC validation
+    if (nicInput && nicInput.style.display !== 'none') {
+        const nicValue = nicInput.value.replace(/\D/g, '');
+        if (nicValue.length > 0 && nicValue.length !== 12) {
+            e.preventDefault();
+            alert('NIC number must be exactly 12 digits!');
+            nicInput.focus();
+            return false;
+        }
+    }
+    
+    // Guardian NIC validation
+    if (guardianNicInput && guardianNicInput.style.display !== 'none') {
+        const guardianNicValue = guardianNicInput.value.replace(/\D/g, '');
+        if (guardianNicValue.length > 0 && guardianNicValue.length !== 12) {
+            e.preventDefault();
+            alert('Guardian NIC number must be exactly 12 digits!');
+            guardianNicInput.focus();
+            return false;
+        }
+    }
+    
+    // Check for duplicate NICs before submission
+    if (nicInput && guardianNicInput) {
+        const nicValue = nicInput.value.replace(/\D/g, '');
+        const guardianNicValue = guardianNicInput.value.replace(/\D/g, '');
+        
+        if (nicValue.length === 12 && guardianNicValue.length === 12 && nicValue === guardianNicValue) {
+            e.preventDefault();
+            alert('NIC and Guardian NIC cannot be the same!');
+            guardianNicInput.focus();
+            return false;
+        }
+    }
+});
     </script>
 </body>
 </html>
