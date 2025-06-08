@@ -1,65 +1,55 @@
 <?php
-// Database configuration
-$db_host = 'localhost';
-$db_user = 'root';
-$db_pass = '';
-$db_name = 'sarvodaya';
-$conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
+session_start();
+
+// Set timezone to Sri Lanka
+date_default_timezone_set('Asia/Colombo');
+
+// Database connection
+$host = 'localhost';
+$db = 'sarvodaya';
+$user = 'root';
+$pass = '';
+
+$conn = new mysqli($host, $user, $pass, $db);
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Start session
-session_start();
+// Set MySQL timezone to Sri Lanka time
+$conn->query("SET time_zone = '+05:30'");
 
-// Process form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $token = $_POST['token'] ?? '';
-    $new_password = $_POST['new_password'] ?? '';
-    $confirm_password = $_POST['confirm_password'] ?? '';
+$token = '';
+$valid_token = false;
+$expired = false;
 
-    // Validate inputs
-    if (empty($new_password) || empty($confirm_password)) {
-        $error = "Please fill in all fields";
-    } elseif ($new_password !== $confirm_password) {
-        $error = "Passwords do not match";
-    } elseif (strlen($new_password) < 8 || !preg_match("#[0-9]+#", $new_password) || !preg_match("#[a-zA-Z]+#", $new_password)) {
-        $error = "Password must be at least 8 characters long and contain at least one number and one letter";
-    } else {
-        // Check if token is valid
-        $stmt = $conn->prepare("SELECT id, email FROM users WHERE reset_token = ? AND reset_expires > NOW()");
-        $stmt->bind_param("s", $token);
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        if ($result->num_rows === 0) {
-            $error = "Invalid or expired token";
+if (isset($_GET['token'])) {
+    $token = $_GET['token'];
+    
+    // Check if token exists and is not expired
+    $current_time = date('Y-m-d H:i:s');
+    $stmt = $conn->prepare("SELECT id, username, reset_expires FROM users WHERE reset_token = ?");
+    $stmt->bind_param("s", $token);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows > 0) {
+        $user_data = $result->fetch_assoc();
+        $reset_expires = $user_data['reset_expires'];
+        
+        // Check if token has expired
+        if ($reset_expires && strtotime($reset_expires) > strtotime($current_time)) {
+            $valid_token = true;
         } else {
-            $user = $result->fetch_assoc();
-            
-            // Hash the new password
-            $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
-            
-            // Update user's password and clear reset token
-            $update_stmt = $conn->prepare("UPDATE users SET password = ?, reset_token = NULL, reset_expires = NULL WHERE id = ?");
-            $update_stmt->bind_param("si", $hashed_password, $user['id']);
-            
-            if ($update_stmt->execute()) {
-                $success = "Password has been reset successfully! You can now login with your new password.";
-            } else {
-                $error = "Failed to reset password. Please try again.";
-            }
-            
-            $update_stmt->close();
+            $expired = true;
         }
-        $stmt->close();
     }
+    $stmt->close();
 }
 
-// Get token from URL if present
-$token = $_GET['token'] ?? '';
+$conn->close();
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -108,10 +98,16 @@ $token = $_GET['token'] ?? '';
         
         .header h2 {
             color: #FF6600;
-            font-size: 32px;
+            font-size: 28px;
             font-weight: 700;
             margin-bottom: 10px;
             letter-spacing: 0.5px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
         }
         
         .divider {
@@ -172,49 +168,83 @@ $token = $_GET['token'] ?? '';
             box-shadow: 0 7px 15px rgba(255, 140, 0, 0.35);
         }
         
-        .login-link {
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .back-link {
             text-align: center;
             margin-top: 25px;
             color: #666;
             font-size: 15px;
         }
         
-        .login-link a {
+        .back-link a {
             color: #FF8C00;
             text-decoration: none;
             font-weight: 600;
         }
         
-        .login-link a:hover {
+        .back-link a:hover {
             text-decoration: underline;
         }
         
-        .message {
-            text-align: center;
+        .alert {
             padding: 12px;
-            border-radius: 8px;
             margin-bottom: 20px;
+            border-radius: 8px;
             font-size: 14px;
-            font-weight: 500;
         }
         
-        .error-message {
-            background-color: #ffebee;
-            color: #c62828;
-            border: 1px solid #ef9a9a;
+        .alert-success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
         }
         
-        .success-message {
-            background-color: #e8f5e9;
-            color: #2e7d32;
-            border: 1px solid #a5d6a7;
+        .alert-error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        
+        .alert-warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
         }
         
         .password-requirements {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
             font-size: 13px;
-            color: #666;
-            margin-top: 5px;
-            padding-left: 5px;
+        }
+        
+        .password-requirements h4 {
+            color: #495057;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .password-requirements ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .password-requirements li {
+            color: #6c757d;
+            margin-bottom: 3px;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
@@ -222,46 +252,116 @@ $token = $_GET['token'] ?? '';
     <div class="container">
         <div class="header">
             <img src="Sarwodaya logo.jpg" alt="Sarvodaya Logo">
-            <h2>Reset Your Password</h2>
+            <h2>Reset Password</h2>
+            <?php if ($valid_token): ?>
+                <p>Hello <?php echo htmlspecialchars($user_data['username']); ?>, please enter your new password.</p>
+            <?php endif; ?>
             <div class="divider"></div>
         </div>
         
-        <?php if (isset($error)): ?>
-            <div class="message error-message"><?php echo htmlspecialchars($error); ?></div>
+        <?php if (isset($_SESSION['message'])): ?>
+            <div class="alert alert-<?php echo $_SESSION['msg_type']; ?>">
+                <?php 
+                echo $_SESSION['message']; 
+                unset($_SESSION['message']);
+                unset($_SESSION['msg_type']);
+                ?>
+            </div>
         <?php endif; ?>
         
-        <?php if (isset($success)): ?>
-            <div class="message success-message"><?php echo htmlspecialchars($success); ?></div>
-            <div class="login-link">
-                <a href="login.php">Return to Login</a>
+        <?php if (!isset($_GET['token']) || empty($_GET['token'])): ?>
+            <div class="alert alert-error">
+                <strong>Invalid Request:</strong> No reset token provided.
             </div>
+            <div class="back-link">
+                <a href="forgot_password.php">Request a new password reset</a> | 
+                <a href="login.php">Back to Login</a>
+            </div>
+        
+        <?php elseif ($expired): ?>
+            <div class="alert alert-warning">
+                <strong>Token Expired:</strong> This password reset link has expired. Please request a new one.
+            </div>
+            <div class="back-link">
+                <a href="forgot_password.php">Request a new password reset</a> | 
+                <a href="login.php">Back to Login</a>
+            </div>
+        
+        <?php elseif (!$valid_token): ?>
+            <div class="alert alert-error">
+                <strong>Invalid Token:</strong> This password reset link is invalid or has already been used.
+            </div>
+            <div class="back-link">
+                <a href="forgot_password.php">Request a new password reset</a> | 
+                <a href="login.php">Back to Login</a>
+            </div>
+        
         <?php else: ?>
-            <form method="POST">
+            <div class="password-requirements">
+                <h4>Password Requirements:</h4>
+                <ul>
+                    <li>At least 8 characters long</li>
+                    <li>Contains at least one uppercase letter</li>
+                    <li>Contains at least one lowercase letter</li>
+                    <li>Contains at least one number</li>
+                    <li>Contains at least one special character (!@#$%^&*)</li>
+                </ul>
+            </div>
+            
+            <form action="reset_password_process.php" method="post">
                 <input type="hidden" name="token" value="<?php echo htmlspecialchars($token); ?>">
                 
                 <div class="form-group">
-                    <label for="new_password">New Password</label>
-                    <input type="password" id="new_password" name="new_password" class="form-control" required placeholder="Enter new password">
-                    <div class="password-requirements">
-                        Must be at least 8 characters with at least one number and one letter
-                    </div>
+                    <label for="password">New Password</label>
+                    <input type="password" id="password" name="password" class="form-control" required 
+                           placeholder="Enter your new password" minlength="8">
                 </div>
                 
                 <div class="form-group">
-                    <label for="confirm_password">Confirm Password</label>
-                    <input type="password" id="confirm_password" name="confirm_password" class="form-control" required placeholder="Confirm new password">
+                    <label for="confirm_password">Confirm New Password</label>
+                    <input type="password" id="confirm_password" name="confirm_password" class="form-control" required 
+                           placeholder="Confirm your new password" minlength="8">
                 </div>
                 
-                <button type="submit" class="btn">Reset Password</button>
+                <button type="submit" name="reset_password" class="btn">Reset Password</button>
             </form>
             
-            <div class="login-link">
-                Remember your password? <a href="login.php">Login here</a>
+            <div class="back-link">
+                Remember your password? <a href="login.php">Back to Login</a>
             </div>
         <?php endif; ?>
     </div>
+    
+    <script>
+        // Client-side password validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const password = document.getElementById('password');
+            const confirmPassword = document.getElementById('confirm_password');
+            
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    const passwordValue = password.value;
+                    const confirmPasswordValue = confirmPassword.value;
+                    
+                    // Check if passwords match
+                    if (passwordValue !== confirmPasswordValue) {
+                        e.preventDefault();
+                        alert('Passwords do not match. Please try again.');
+                        return;
+                    }
+                    
+                    // Password strength validation
+                    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+                    
+                    if (!passwordRegex.test(passwordValue)) {
+                        e.preventDefault();
+                        alert('Password does not meet the requirements. Please check the password requirements and try again.');
+                        return;
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>
-<?php
-$conn->close();
-?>

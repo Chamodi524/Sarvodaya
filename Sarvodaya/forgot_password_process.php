@@ -1,6 +1,9 @@
 <?php
 session_start();
 
+// Set timezone to Sri Lanka
+date_default_timezone_set('Asia/Colombo');
+
 // Include PHPMailer classes
 require 'PHPMailer-master/src/Exception.php';
 require 'PHPMailer-master/src/PHPMailer.php';
@@ -22,6 +25,9 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+// Set MySQL timezone to Sri Lanka time
+$conn->query("SET time_zone = '+05:30'");
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['forgot_password'])) {
     $email = trim($_POST['email']);
     
@@ -36,6 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['forgot_password'])) {
         
         // Generate a unique reset token
         $reset_token = bin2hex(random_bytes(16));
+        // Set expiration to 1 hour from now in Sri Lanka time
         $reset_expires = date('Y-m-d H:i:s', strtotime('+1 hour'));
         
         // Update user record with reset token
@@ -52,12 +59,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['forgot_password'])) {
                 $mail->Host       = 'smtp.gmail.com'; // Change to your SMTP server
                 $mail->SMTPAuth   = true;
                 $mail->Username   = 'youremail@gmail.com'; // Your email
-                $mail->Password   = 'abcdefghijklmnop'; // Your email app password
+                $mail->Password   = 'abcd efgh ijkl mnop'; // Your email app password
                 $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
                 $mail->Port       = 587;
                 
                 // Recipients
-                $mail->setFrom('your-email@gmail.com', 'Sarvodaya Support');
+                $mail->setFrom('kaushalyachamo256@gmail.com', 'Sarvodaya Support');
                 $mail->addAddress($email, $user_data['username']);
                 
                 // Content
@@ -65,6 +72,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['forgot_password'])) {
                 $mail->Subject = 'Password Reset Request - Sarvodaya';
                 
                 $reset_link = "http://localhost/Sarvodaya/Sarvodaya/Sarvodaya/reset_password.php?token=" . $reset_token;
+                
+                // Show current Sri Lanka time in email for debugging
+                $current_sl_time = date('Y-m-d H:i:s T');
+                $expires_sl_time = date('Y-m-d H:i:s T', strtotime($reset_expires));
                 
                 $mail->Body = "
                 <html>
@@ -77,6 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['forgot_password'])) {
                         .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
                         .btn { background: linear-gradient(to right, #FF8C00, #FFCF40); color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; margin: 20px 0; }
                         .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
+                        .debug-info { background: #e9ecef; padding: 10px; border-radius: 5px; margin: 10px 0; font-size: 12px; }
                     </style>
                 </head>
                 <body>
@@ -92,7 +104,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['forgot_password'])) {
                             <a href='" . $reset_link . "' class='btn'>Reset Password</a>
                             <p>Or copy and paste this link into your browser:</p>
                             <p style='word-break: break-all;'>" . $reset_link . "</p>
-                            <p><strong>This link will expire in 1 hour.</strong></p>
+                            <p><strong>This link will expire in 1 hour (Sri Lanka Time).</strong></p>
+                            <div class='debug-info'>
+                                <strong>Debug Information:</strong><br>
+                                Email sent at: " . $current_sl_time . "<br>
+                                Link expires at: " . $expires_sl_time . "
+                            </div>
                             <p>If you have any questions, please contact our support team.</p>
                         </div>
                         <div class='footer'>
@@ -106,13 +123,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['forgot_password'])) {
                 $mail->AltBody = "Hello " . $user_data['username'] . ",\n\n" .
                                "We received a request to reset your password.\n\n" .
                                "To reset your password, visit this link: " . $reset_link . "\n\n" .
-                               "This link will expire in 1 hour.\n\n" .
+                               "This link will expire in 1 hour (Sri Lanka Time).\n\n" .
+                               "Email sent at: " . $current_sl_time . "\n" .
+                               "Link expires at: " . $expires_sl_time . "\n\n" .
                                "If you didn't request this, please ignore this email.\n\n" .
                                "Sarvodaya Support Team";
                 
                 $mail->send();
                 
-                $_SESSION['message'] = 'Password reset link has been sent to your email address.';
+                $_SESSION['message'] = 'Password reset link has been sent to your email address. The link will expire in 1 hour (Sri Lanka Time).';
                 $_SESSION['msg_type'] = 'success';
                 
             } catch (Exception $e) {
