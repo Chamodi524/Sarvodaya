@@ -25,6 +25,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit();
     }
 
+    // Validate phone number (exactly 10 digits)
+    if (!preg_match('/^\d{10}$/', $phone)) {
+        $_SESSION['error'] = "Phone number must be exactly 10 digits.";
+        header("Location: edit_member.php?id=$id&error=1");
+        exit();
+    }
+
     // File upload handling
     $file_path = '';
     if (!empty($_FILES['file']['name'])) {
@@ -68,6 +75,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $guardian_nic = $conn->real_escape_string($_POST['guardian_nic'] ?? '');
         $guardian_occupation = $conn->real_escape_string($_POST['guardian_occupation'] ?? '');
         
+        // Validate Guardian's NIC (exactly 12 digits)
+        if (!preg_match('/^\d{12}$/', $guardian_nic)) {
+            $_SESSION['error'] = "Guardian's NIC must be exactly 12 digits.";
+            header("Location: edit_member.php?id=$id&error=1");
+            exit();
+        }
+
+        // Check if Guardian's NIC already exists (excluding current member)
+        $nic_check = $conn->prepare("SELECT id FROM members WHERE guardian_nic = ? AND id != ?");
+        $nic_check->bind_param("si", $guardian_nic, $id);
+        $nic_check->execute();
+        if ($nic_check->get_result()->num_rows > 0) {
+            $_SESSION['error'] = "Guardian's NIC already exists in the system.";
+            header("Location: edit_member.php?id=$id&error=1");
+            exit();
+        }
+        
         $additional_fields = ", guardian_name = ?, guardian_nic = ?, guardian_occupation = ?";
         $additional_values = [
             $guardian_name, 
@@ -78,6 +102,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Normal account fields
         $nic = $conn->real_escape_string($_POST['nic'] ?? '');
         $occupation = $conn->real_escape_string($_POST['occupation'] ?? '');
+        
+        // Validate NIC (exactly 12 digits)
+        if (!preg_match('/^\d{12}$/', $nic)) {
+            $_SESSION['error'] = "NIC must be exactly 12 digits.";
+            header("Location: edit_member.php?id=$id&error=1");
+            exit();
+        }
+
+        // Check if NIC already exists (excluding current member)
+        $nic_check = $conn->prepare("SELECT id FROM members WHERE nic = ? AND id != ?");
+        $nic_check->bind_param("si", $nic, $id);
+        $nic_check->execute();
+        if ($nic_check->get_result()->num_rows > 0) {
+            $_SESSION['error'] = "NIC already exists in the system.";
+            header("Location: edit_member.php?id=$id&error=1");
+            exit();
+        }
         
         $additional_fields = ", nic = ?, occupation = ?";
         $additional_values = [
@@ -292,6 +333,17 @@ if (!$member) {
             border-color: #ffa726;
             box-shadow: 0 0 0 0.2rem rgba(255, 167, 38, 0.2);
         }
+        .form-control.is-invalid {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.2);
+        }
+        .invalid-feedback {
+            display: block;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 0.8rem;
+            color: #dc3545;
+        }
         .alert {
             border-radius: 8px;
             border: none;
@@ -413,7 +465,7 @@ if (!$member) {
         ?>
 
         <div class="card p-4">
-            <form action="edit_member.php" method="POST" enctype="multipart/form-data">
+            <form action="edit_member.php" method="POST" enctype="multipart/form-data" id="memberForm">
                 <input type="hidden" name="id" value="<?php echo $member_id; ?>">
                 
                 <div class="row">
@@ -439,7 +491,10 @@ if (!$member) {
                             <i class="bi bi-telephone me-1"></i> Phone Number
                         </label>
                         <input type="text" class="form-control" id="phone" name="phone" 
-                               value="<?php echo htmlspecialchars($member['phone']); ?>" required>
+                               value="<?php echo htmlspecialchars($member['phone']); ?>" 
+                               pattern="\d{10}" maxlength="10" required>
+                        <div class="invalid-feedback" id="phoneError"></div>
+                        <small class="form-text text-muted">Enter exactly 10 digits</small>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label for="account_type" class="form-label">
@@ -485,7 +540,10 @@ if (!$member) {
                                 <label for="guardian_nic" class="form-label">Guardian's NIC</label>
                                 <input type="text" class="form-control" id="guardian_nic" 
                                        name="guardian_nic" value="<?php 
-                                       echo htmlspecialchars($member['guardian_nic'] ?? ''); ?>">
+                                       echo htmlspecialchars($member['guardian_nic'] ?? ''); ?>"
+                                       pattern="\d{12}" maxlength="12">
+                                <div class="invalid-feedback" id="guardianNicError"></div>
+                                <small class="form-text text-muted">Enter exactly 12 digits</small>
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label for="guardian_occupation" class="form-label">Guardian's Occupation</label>
@@ -518,7 +576,10 @@ if (!$member) {
                                 <label for="nic" class="form-label">NIC Number</label>
                                 <input type="text" class="form-control" id="nic" 
                                        name="nic" value="<?php 
-                                       echo htmlspecialchars($member['nic'] ?? ''); ?>">
+                                       echo htmlspecialchars($member['nic'] ?? ''); ?>"
+                                       pattern="\d{12}" maxlength="12">
+                                <div class="invalid-feedback" id="nicError"></div>
+                                <small class="form-text text-muted">Enter exactly 12 digits</small>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="occupation" class="form-label">Occupation</label>
@@ -557,6 +618,95 @@ if (!$member) {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Phone number validation
+        function validatePhone() {
+            const phoneInput = document.getElementById('phone');
+            const phoneError = document.getElementById('phoneError');
+            const phoneValue = phoneInput.value.trim();
+            
+            if (phoneValue.length === 0) {
+                phoneInput.classList.remove('is-invalid');
+                phoneError.textContent = '';
+                return true;
+            }
+            
+            if (!/^\d{10}$/.test(phoneValue)) {
+                phoneInput.classList.add('is-invalid');
+                phoneError.textContent = 'Phone number must be exactly 10 digits';
+                return false;
+            }
+            
+            phoneInput.classList.remove('is-invalid');
+            phoneError.textContent = '';
+            return true;
+        }
+
+        // NIC validation
+        function validateNIC() {
+            const nicInput = document.getElementById('nic');
+            const nicError = document.getElementById('nicError');
+            const nicValue = nicInput.value.trim();
+            
+            if (nicValue.length === 0) {
+                nicInput.classList.remove('is-invalid');
+                nicError.textContent = '';
+                return true;
+            }
+            
+            if (!/^\d{12}$/.test(nicValue)) {
+                nicInput.classList.add('is-invalid');
+                nicError.textContent = 'NIC must be exactly 12 digits';
+                return false;
+            }
+            
+            nicInput.classList.remove('is-invalid');
+            nicError.textContent = '';
+            return true;
+        }
+
+        // Guardian NIC validation
+        function validateGuardianNIC() {
+            const guardianNicInput = document.getElementById('guardian_nic');
+            const guardianNicError = document.getElementById('guardianNicError');
+            const guardianNicValue = guardianNicInput.value.trim();
+            
+            if (guardianNicValue.length === 0) {
+                guardianNicInput.classList.remove('is-invalid');
+                guardianNicError.textContent = '';
+                return true;
+            }
+            
+            if (!/^\d{12}$/.test(guardianNicValue)) {
+                guardianNicInput.classList.add('is-invalid');
+                guardianNicError.textContent = 'Guardian\'s NIC must be exactly 12 digits';
+                return false;
+            }
+            
+            guardianNicInput.classList.remove('is-invalid');
+            guardianNicError.textContent = '';
+            return true;
+        }
+
+        // Add event listeners for real-time validation
+        document.getElementById('phone').addEventListener('input', function(e) {
+            // Only allow digits
+            this.value = this.value.replace(/\D/g, '');
+            validatePhone();
+        });
+
+        document.getElementById('nic').addEventListener('input', function(e) {
+            // Only allow digits
+            this.value = this.value.replace(/\D/g, '');
+            validateNIC();
+        });
+
+        document.getElementById('guardian_nic').addEventListener('input', function(e) {
+            // Only allow digits
+            this.value = this.value.replace(/\D/g, '');
+            validateGuardianNIC();
+        });
+
+        // Account type change handler
         document.getElementById('account_type').addEventListener('change', function() {
             const selectedOption = this.options[this.selectedIndex];
             const detailNo = selectedOption.getAttribute('data-detail-no');
@@ -593,6 +743,44 @@ if (!$member) {
             }
         });
 
+        // Form submission validation
+        document.getElementById('memberForm').addEventListener('submit', function(e) {
+            let isValid = true;
+            
+            // Validate phone
+            if (!validatePhone()) {
+                isValid = false;
+            }
+            
+            // Validate based on account type
+            const accountType = document.getElementById('account_type');
+            const selectedOption = accountType.options[accountType.selectedIndex];
+            const detailNo = selectedOption.getAttribute('data-detail-no');
+            
+            if (detailNo == 1) {
+                // Validate guardian NIC for children's account
+                if (!validateGuardianNIC()) {
+                    isValid = false;
+                }
+            } else {
+                // Validate NIC for normal account
+                if (!validateNIC()) {
+                    isValid = false;
+                }
+            }
+            
+            if (!isValid) {
+                e.preventDefault();
+                alert('Please correct the validation errors before submitting.');
+                return false;
+            }
+            
+            // Show loading state
+            const submitBtn = document.querySelector('button[type="submit"]');
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Updating...';
+            submitBtn.disabled = true;
+        });
+
         // File size validation
         const fileInput = document.querySelector('input[type="file"]');
         const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
@@ -609,11 +797,11 @@ if (!$member) {
             });
         }
 
-        // Animation for form submission
-        document.querySelector('form').addEventListener('submit', function(e) {
-            const submitBtn = document.querySelector('button[type="submit"]');
-            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Updating...';
-            submitBtn.disabled = true;
+        // Initialize validation on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            validatePhone();
+            validateNIC();
+            validateGuardianNIC();
         });
     </script>
 </body>
