@@ -196,7 +196,23 @@ if (isset($_GET['fetch']) && $_GET['fetch'] === 'member_info' && isset($_GET['me
     }
     
     $memberId = (int)$_GET['member_id'];
+    
+    // Check if member ID is valid (greater than 0)
+    if ($memberId <= 0) {
+        echo json_encode(['error' => 'Please enter a valid member ID']);
+        $conn->close();
+        exit;
+    }
+    
     $memberInfo = getMemberInfo($memberId, $conn);
+    
+    // Check if member was found
+    if ($memberInfo === null) {
+        echo json_encode(['error' => 'Member not found. Please check the member ID and try again.']);
+        $conn->close();
+        exit;
+    }
+    
     $loans = getActiveLoansByMember($memberId, $conn);
     
     $conn->close();
@@ -207,7 +223,6 @@ if (isset($_GET['fetch']) && $_GET['fetch'] === 'member_info' && isset($_GET['me
     ]);
     exit;
 }
-
 // Handle form submission to save schedule
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['saveSchedule'])) {
     // Create database connection
@@ -739,6 +754,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['saveSchedule'])) {
 
         // Load member information when selected
         // Load member information when selected
+// Load member information when selected
 async function loadMemberInfo() {
     const memberId = document.getElementById('memberId').value;
     
@@ -748,76 +764,81 @@ async function loadMemberInfo() {
         return;
     }
     
-    // More code follows...
-            
-            try {
-                const response = await fetch(`?fetch=member_info&member_id=${memberId}`);
-                
-                if (!response.ok) {
-                    throw new Error('Failed to fetch member info');
-                }
-                
-                const data = await response.json();
-                
-                if (data.error) {
-                    alert(data.error);
-                    return;
-                }
-                
-                // Update member info
-                const member = data.member;
-                if (member) {
-                    document.getElementById('memberDetails').textContent = 
-                        `Member ID: ${member.id} | Name: ${member.name} | NIC: ${member.nic}`;
-                    document.getElementById('memberInfoContainer').style.display = 'block';
-                    selectedMemberName = member.name;
-                }
-                
-                // Process existing loans
-                memberLoans = data.loans || [];
-                
-                if (memberLoans.length > 0) {
-                    const loansList = document.getElementById('existingLoansList');
-                    loansList.innerHTML = '';
-                    
-                    memberLoans.forEach(loan => {
-                        // Find loan type name
-                        const loanType = loanTypes.find(type => type.id === parseInt(loan.loan_type_id));
-                        const loanTypeName = loanType ? loanType.loan_name : 'Unknown Loan Type';
-                        
-                        const loanItem = document.createElement('div');
-                        loanItem.className = 'existing-loan-item';
-                        loanItem.dataset.loanId = loan.id;
-                        loanItem.dataset.loanAmount = loan.amount;
-                        loanItem.dataset.interestRate = loan.interest_rate;
-                        loanItem.dataset.loanTerm = loan.max_period;
-                        loanItem.dataset.startDate = loan.start_date;
-                        loanItem.dataset.loanTypeId = loan.loan_type_id;
-                        
-                        loanItem.innerHTML = `
-                            <strong>Loan ID: ${loan.id}</strong> - ${loanTypeName}<br>
-                            Amount: ${formatCurrency(loan.amount)} | Interest: ${loan.interest_rate}% | 
-                            Term: ${loan.max_period} months | Start Date: ${formatDateString(loan.start_date)}
-                        `;
-                        
-                        loanItem.addEventListener('click', function() {
-                            selectLoan(this);
-                        });
-                        
-                        loansList.appendChild(loanItem);
-                    });
-                    
-                    document.getElementById('existingLoansContainer').style.display = 'block';
-                } else {
-                    document.getElementById('existingLoansContainer').style.display = 'none';
-                }
-                
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Failed to load member information. Please try again.');
-            }
+    try {
+        const response = await fetch(`?fetch=member_info&member_id=${memberId}`);
+        
+        if (!response.ok) {
+            throw new Error('Failed to fetch member info');
         }
         
+        const data = await response.json();
+        
+        if (data.error) {
+            // Hide member info containers
+            document.getElementById('memberInfoContainer').style.display = 'none';
+            document.getElementById('existingLoansContainer').style.display = 'none';
+            
+            // Show error message
+            alert(data.error);
+            return;
+        }
+        
+        // Update member info
+        const member = data.member;
+        if (member) {
+            document.getElementById('memberDetails').textContent = 
+                `Member ID: ${member.id} | Name: ${member.name} | NIC: ${member.nic}`;
+            document.getElementById('memberInfoContainer').style.display = 'block';
+            selectedMemberName = member.name;
+        }
+        
+        // Process existing loans
+        memberLoans = data.loans || [];
+        
+        if (memberLoans.length > 0) {
+            const loansList = document.getElementById('existingLoansList');
+            loansList.innerHTML = '';
+            
+            memberLoans.forEach(loan => {
+                // Find loan type name
+                const loanType = loanTypes.find(type => type.id === parseInt(loan.loan_type_id));
+                const loanTypeName = loanType ? loanType.loan_name : 'Unknown Loan Type';
+                
+                const loanItem = document.createElement('div');
+                loanItem.className = 'existing-loan-item';
+                loanItem.dataset.loanId = loan.id;
+                loanItem.dataset.loanAmount = loan.amount;
+                loanItem.dataset.interestRate = loan.interest_rate;
+                loanItem.dataset.loanTerm = loan.max_period;
+                loanItem.dataset.startDate = loan.start_date;
+                loanItem.dataset.loanTypeId = loan.loan_type_id;
+                
+                loanItem.innerHTML = `
+                    <strong>Loan ID: ${loan.id}</strong> - ${loanTypeName}<br>
+                    Amount: ${formatCurrency(loan.amount)} | Interest: ${loan.interest_rate}% | 
+                    Term: ${loan.max_period} months | Start Date: ${formatDateString(loan.start_date)}
+                `;
+                
+                loanItem.addEventListener('click', function() {
+                    selectLoan(this);
+                });
+                
+                loansList.appendChild(loanItem);
+            });
+            
+            document.getElementById('existingLoansContainer').style.display = 'block';
+        } else {
+            document.getElementById('existingLoansContainer').style.display = 'none';
+        }
+        
+    } catch (error) {
+        console.error('Error:', error);
+        // Hide member info containers
+        document.getElementById('memberInfoContainer').style.display = 'none';
+        document.getElementById('existingLoansContainer').style.display = 'none';
+        alert('Failed to load member information. Please try again.');
+    }
+}  
         // Format date string from database (YYYY-MM-DD)
         function formatDateString(dateStr) {
             if (!dateStr) return 'N/A';
