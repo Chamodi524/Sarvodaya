@@ -240,10 +240,7 @@ if ($conn->connect_error) {
                         <h2>Loan Ledger for Member ID: ' . htmlspecialchars($member_id) . '</h2>
                         <p>Period: ' . date('d/m/Y', strtotime($start_date)) . ' to ' . date('d/m/Y', strtotime($end_date)) . '</p>';
 
-                    echo '<div class="loan-details mb-3">
-                        <h4>Outstanding Balance as of ' . date('d/m/Y', strtotime($start_date)) . ': 
-                        <span class="text-primary">Rs.' . number_format($outstanding_balance, 2) . '</span></h4>
-                    </div>';
+                    
 
                     echo '<table class="table table-bordered">
                             <thead>
@@ -255,7 +252,7 @@ if ($conn->connect_error) {
                                     <th>Principal</th>
                                     <th>Interest</th>
                                     <th>Status</th>
-                                    <th>Outstanding Balance</th>
+                                    
                                 </tr>
                             </thead>
                             <tbody>';
@@ -303,7 +300,7 @@ if ($conn->connect_error) {
                                 <td>' . ($principal > 0 ? 'Rs. ' . number_format($principal, 2) : '') . '</td>
                                 <td>' . ($interest > 0 ? 'Rs. ' . number_format($interest, 2) : '') . '</td>
                                 <td>' . ucfirst($row['payment_status']) . '</td>
-                                <td>Rs. ' . number_format($row['remaining_balance'], 2) . '</td>
+                                
                             </tr>';
                         }
                     } else {
@@ -397,8 +394,8 @@ if ($conn->connect_error) {
                         <td><strong>Rs. ' . number_format($total_payments, 2) . '</strong></td>
                         <td><strong>Rs. ' . number_format($total_principal, 2) . '</strong></td>
                         <td><strong>Rs. ' . number_format($total_interest, 2) . '</strong></td>
-                        <td><strong>Rs. ' . number_format($total_fees + $total_adjustments, 2) . '</strong></td>
-                        <td><strong>Rs. ' . number_format($closing_balance, 2) . '</strong></td>
+                        
+                        
                     </tr>';
 
                     echo '</tbody>
