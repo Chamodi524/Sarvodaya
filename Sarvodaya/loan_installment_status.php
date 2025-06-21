@@ -47,50 +47,165 @@ function getMemberLoanTypes($conn, $member_id) {
 // Get loan types for this member
 $member_loan_types = getMemberLoanTypes($conn, $member_id);
 
+
+
+
 // Process status update
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
     $installment_id = $_POST['installment_id'];
     $new_status = $_POST['new_status'];
     $actual_payment_date = null;
     $actual_payment_amount = null;
+    $late_fee_amount = null;
     
-    // If status is changed to paid, record actual payment date and amount
-    if ($new_status == 'paid') {
-        $actual_payment_date = isset($_POST['actual_payment_date']) ? $_POST['actual_payment_date'] : date('Y-m-d');
-        $actual_payment_amount = isset($_POST['actual_payment_amount']) ? $_POST['actual_payment_amount'] : 0;
+    // Start transaction for data consistency
+    $conn->begin_transaction();
+    
+    try {
+        // Get installment and loan details
+        $installment_sql = "SELECT li.loan_id, l.member_id, li.principal_amount, li.interest_amount, 
+                           li.payment_status as current_status, l.loan_type_id, lt.late_fee, lt.loan_name
+                           FROM loan_installments li 
+                           JOIN loans l ON li.loan_id = l.id 
+                           JOIN loan_types lt ON l.loan_type_id = lt.id
+                           WHERE li.id = ?";
+        $installment_stmt = $conn->prepare($installment_sql);
+        $installment_stmt->bind_param("i", $installment_id);
+        $installment_stmt->execute();
+        $installment_result = $installment_stmt->get_result();
         
-        // Update the status and payment details
-        $sql = "UPDATE loan_installments 
-                SET payment_status = ?, 
-                    actual_payment_date = ?, 
-                    actual_payment_amount = ? 
-                WHERE id = ?";
+        if ($installment_result->num_rows > 0) {
+            $installment_data = $installment_result->fetch_assoc();
+            $loan_id = $installment_data['loan_id'];
+            $member_id_from_loan = $installment_data['member_id'];
+            $principal_amount = $installment_data['principal_amount'];
+            $interest_amount = $installment_data['interest_amount'];
+            $current_status = $installment_data['current_status'];
+            $loan_type_late_fee = $installment_data['late_fee'];
+            $loan_name = $installment_data['loan_name'];
+            
+            if ($new_status == 'paid') {
+                // Handle payment
+                $actual_payment_date = isset($_POST['actual_payment_date']) ? $_POST['actual_payment_date'] : date('Y-m-d');
+                $actual_payment_amount = isset($_POST['actual_payment_amount']) ? $_POST['actual_payment_amount'] : 0;
+                
+                // If changing from pending/overdue to paid, first delete any existing receipts
+                if ($current_status != 'paid') {
+                    $delete_receipts_sql = "DELETE FROM receipts WHERE loan_id = ? AND member_id = ? AND receipt_date >= (SELECT payment_date FROM loan_installments WHERE id = ?)";
+                    $delete_stmt = $conn->prepare($delete_receipts_sql);
+                    $delete_stmt->bind_param("iii", $loan_id, $member_id_from_loan, $installment_id);
+                    $delete_stmt->execute();
+                    $delete_stmt->close();
+                }
+                
+                // Update the installment status and payment details
+                $sql = "UPDATE loan_installments 
+                        SET payment_status = ?, 
+                            actual_payment_date = ?, 
+                            actual_payment_amount = ?,
+                            late_fee = 0
+                        WHERE id = ?";
+                
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("ssdi", $new_status, $actual_payment_date, $actual_payment_amount, $installment_id);
+                $stmt->execute();
+                
+                // Record principal payment receipt
+                if ($principal_amount > 0) {
+                    $receipt_sql = "INSERT INTO receipts (member_id, loan_id, receipt_type, amount, receipt_date) 
+                                   VALUES (?, ?, 'loan_repayment', ?, ?)";
+                    $receipt_stmt = $conn->prepare($receipt_sql);
+                    $receipt_stmt->bind_param("iids", $member_id_from_loan, $loan_id, $principal_amount, $actual_payment_date);
+                    $receipt_stmt->execute();
+                    $receipt_stmt->close();
+                }
+                
+                // Record interest payment receipt
+                if ($interest_amount > 0) {
+                    $interest_receipt_sql = "INSERT INTO receipts (member_id, loan_id, receipt_type, amount, receipt_date) 
+                                           VALUES (?, ?, 'loan_interest', ?, ?)";
+                    $interest_receipt_stmt = $conn->prepare($interest_receipt_sql);
+                    $interest_receipt_stmt->bind_param("iids", $member_id_from_loan, $loan_id, $interest_amount, $actual_payment_date);
+                    $interest_receipt_stmt->execute();
+                    $interest_receipt_stmt->close();
+                }
+                
+                $stmt->close();
+                $success_message = "Payment recorded successfully for installment!";
+                
+            } elseif ($new_status == 'overdue') {
+                // Handle overdue with late fee
+                $late_fee_amount = isset($_POST['late_fee_amount']) ? $_POST['late_fee_amount'] : $loan_type_late_fee;
+                
+                // If changing from paid to overdue, first delete any existing receipts for this installment
+                if ($current_status == 'paid') {
+                    $delete_receipts_sql = "DELETE FROM receipts WHERE loan_id = ? AND member_id = ? AND receipt_date >= (SELECT payment_date FROM loan_installments WHERE id = ?)";
+                    $delete_stmt = $conn->prepare($delete_receipts_sql);
+                    $delete_stmt->bind_param("iii", $loan_id, $member_id_from_loan, $installment_id);
+                    $delete_stmt->execute();
+                    $delete_stmt->close();
+                }
+                
+                // Update the installment status with late fee
+                $sql = "UPDATE loan_installments 
+                        SET payment_status = ?, 
+                            late_fee = ?,
+                            actual_payment_date = NULL,
+                            actual_payment_amount = NULL
+                        WHERE id = ?";
+                
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("sdi", $new_status, $late_fee_amount, $installment_id);
+                $stmt->execute();
+                $stmt->close();
+                
+                $success_message = "Installment marked as overdue with late fee of Rs." . number_format($late_fee_amount, 2);
+                
+            } elseif ($new_status == 'pending') {
+                // Handle changing back to pending
+                
+                // Delete any existing receipts for this installment
+                $delete_receipts_sql = "DELETE FROM receipts WHERE loan_id = ? AND member_id = ? AND receipt_date >= (SELECT payment_date FROM loan_installments WHERE id = ?)";
+                $delete_stmt = $conn->prepare($delete_receipts_sql);
+                $delete_stmt->bind_param("iii", $loan_id, $member_id_from_loan, $installment_id);
+                $delete_stmt->execute();
+                $delete_stmt->close();
+                
+                // Reset the installment to pending status
+                $sql = "UPDATE loan_installments 
+                        SET payment_status = ?, 
+                            actual_payment_date = NULL, 
+                            actual_payment_amount = NULL,
+                            late_fee = 0
+                        WHERE id = ?";
+                
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("si", $new_status, $installment_id);
+                $stmt->execute();
+                $stmt->close();
+                
+                $success_message = "Installment status changed back to pending. All related receipts have been removed.";
+            }
+            
+            $installment_stmt->close();
+        } else {
+            throw new Exception("Installment not found");
+        }
         
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ssdi", $new_status, $actual_payment_date, $actual_payment_amount, $installment_id);
-    } else {
-        // Just update the status without payment details
-        $sql = "UPDATE loan_installments 
-                SET payment_status = ? 
-                WHERE id = ?";
+        // Commit transaction
+        $conn->commit();
         
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("si", $new_status, $installment_id);
+    } catch (Exception $e) {
+        // Rollback transaction on error
+        $conn->rollback();
+        $error_message = "Error updating status: " . $e->getMessage();
     }
-    
-    if ($stmt->execute()) {
-        $success_message = "Installment status updated successfully!";
-    } else {
-        $error_message = "Error updating status: " . $conn->error;
-    }
-    
-    $stmt->close();
 }
 
 // Get installments based on member_id and optional loan_type_id
 $result = null;
 if ($member_id > 0) {
-    $sql = "SELECT li.*, l.loan_type_id, l.member_id, lt.loan_name
+    $sql = "SELECT li.*, l.loan_type_id, l.member_id, lt.loan_name, lt.late_fee as loan_type_late_fee
             FROM loan_installments li
             JOIN loans l ON li.loan_id = l.id
             JOIN loan_types lt ON l.loan_type_id = lt.id
@@ -167,7 +282,7 @@ if ($member_id > 0) {
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 1400px; /* Increased from 1200px */
             margin: 20px auto;
             background-color: var(--white);
             padding: 25px;
@@ -304,16 +419,25 @@ if ($member_id > 0) {
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            margin-top: 0; /* Changed from 20px since table-container handles margin */
+            box-shadow: none; /* Removed since table-container handles shadow */
             border-radius: var(--border-radius);
             overflow: hidden;
+            min-width: 1200px; /* Ensure minimum width for proper column spacing */
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
         
         table th, table td {
-            padding: 15px;
+            padding: 12px 8px; /* Reduced horizontal padding slightly */
             border: 1px solid #eee;
             text-align: left;
+            white-space: nowrap; /* Prevent text wrapping in cells */
         }
         
         table th {
@@ -644,6 +768,13 @@ if ($member_id > 0) {
         }
         
         /* Responsive design */
+        @media screen and (max-width: 1450px) {
+            .container {
+                margin: 10px;
+                padding: 20px;
+            }
+        }
+
         @media screen and (max-width: 768px) {
             .container {
                 padding: 15px;
@@ -651,25 +782,24 @@ if ($member_id > 0) {
                 width: auto;
             }
             
+            .table-container {
+                margin: 10px -15px; /* Extend table container to container edges on mobile */
+                border-radius: 0;
+            }
+            
             table {
-                display: block;
-                overflow-x: auto;
-                white-space: nowrap;
+                min-width: 1000px; /* Reduced minimum width for mobile */
             }
             
-            .filter-section form {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .filter-form-group {
-                margin-right: 0;
-                margin-bottom: 15px;
+            table th, table td {
+                padding: 8px 6px;
+                font-size: 0.9em;
             }
             
             .action-btn {
-                padding: 6px 10px;
+                padding: 6px 8px;
                 font-size: 0.75em;
+                margin: 2px;
             }
         }
     </style>
@@ -729,83 +859,94 @@ if ($member_id > 0) {
                     </div>
                     
                     <?php if ($result && $result->num_rows > 0): ?>
-                        <h2><i class="fas fa-calendar-alt"></i> Loan Installments</h2>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Loan ID</th>
-                                    <th>Loan Type</th>
-                                    <th>Installment #</th>
-                                    <th>Payment Date</th>
-                                    <th>Payment Amount</th>
-                                    <th>Principal</th>
-                                    <th>Interest</th>
-                                    <th>Balance</th>
-                                    <th>Status</th>
-                                    <th>Actual Payment</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php 
-                                while($row = $result->fetch_assoc()): 
-                                    $status_class = 'status-' . $row['payment_status'];
-                                ?>
-                                <tr class="<?php echo $status_class; ?>">
-                                    <td class="loan-id"><?php echo $row['loan_id']; ?></td>
-                                    <td class="loan-type"><?php echo htmlspecialchars($row['loan_name']); ?></td>
-                                    <td><?php echo $row['installment_number']; ?></td>
-                                    <td><?php echo $row['payment_date']; ?></td>
-                                    <td>Rs.<?php echo number_format($row['payment_amount'], 2); ?></td>
-                                    <td>Rs.<?php echo number_format($row['principal_amount'], 2); ?></td>
-                                    <td>Rs.<?php echo number_format($row['interest_amount'], 2); ?></td>
-                                    <td>Rs.<?php echo number_format($row['remaining_balance'], 2); ?></td>
-                                    <td>
-                                        <?php if ($row['payment_status'] == 'paid'): ?>
-                                            <span style="color: #4caf50;"><i class="fas fa-check-circle"></i> Paid</span>
-                                        <?php elseif ($row['payment_status'] == 'pending'): ?>
-                                            <span style="color: #ff9800;"><i class="fas fa-clock"></i> Pending</span>
-                                        <?php else: ?>
-                                            <span style="color: #f44336;"><i class="fas fa-exclamation-circle"></i> Overdue</span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td>
-                                        <?php if ($row['actual_payment_date']): ?>
-                                            <i class="fas fa-calendar-check"></i> <?php echo $row['actual_payment_date']; ?><br>
+                                    <h2><i class="fas fa-calendar-alt"></i> Loan Installments</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Loan ID</th>
+                                <th>Loan Type</th>
+                                <th>Install. #</th>
+                                <th>Payment Date</th>
+                                <th>Payment Amt</th>
+                                <th>Principal</th>
+                                <th>Interest</th>
+                                <th>Late Fee</th>
+                                <th>Balance</th>
+                                <th>Status</th>
+                                <th>Actual Payment</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php 
+                            while($row = $result->fetch_assoc()): 
+                                $status_class = 'status-' . $row['payment_status'];
+                            ?>
+                            <tr class="<?php echo $status_class; ?>">
+                                <td class="loan-id"><?php echo $row['loan_id']; ?></td>
+                                <td class="loan-type"><?php echo htmlspecialchars($row['loan_name']); ?></td>
+                                <td><?php echo $row['installment_number']; ?></td>
+                                <td><?php echo date('M d, Y', strtotime($row['payment_date'])); ?></td>
+                                <td>Rs.<?php echo number_format($row['payment_amount'], 2); ?></td>
+                                <td>Rs.<?php echo number_format($row['principal_amount'], 2); ?></td>
+                                <td>Rs.<?php echo number_format($row['interest_amount'], 2); ?></td>
+                                <td>
+                                    <?php if ($row['late_fee'] > 0): ?>
+                                        <span style="color: #f44336;">Rs.<?php echo number_format($row['late_fee'], 2); ?></span>
+                                    <?php else: ?>
+                                        <span style="color: #4caf50;">Rs.0.00</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>Rs.<?php echo number_format($row['remaining_balance'], 2); ?></td>
+                                <td>
+                                    <?php if ($row['payment_status'] == 'paid'): ?>
+                                        <span style="color: #4caf50; font-size: 0.9em;"><i class="fas fa-check-circle"></i> Paid</span>
+                                    <?php elseif ($row['payment_status'] == 'pending'): ?>
+                                        <span style="color: #ff9800; font-size: 0.9em;"><i class="fas fa-clock"></i> Pending</span>
+                                    <?php else: ?>
+                                        <span style="color: #f44336; font-size: 0.9em;"><i class="fas fa-exclamation-circle"></i> Overdue</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <?php if ($row['actual_payment_date']): ?>
+                                        <div style="font-size: 0.85em;">
+                                            <i class="fas fa-calendar-check"></i> <?php echo date('M d, Y', strtotime($row['actual_payment_date'])); ?><br>
                                             <i class="fas fa-money-bill-wave"></i> Rs.<?php echo number_format($row['actual_payment_amount'], 2); ?>
-                                        <?php else: ?>
-                                            <i class="fas fa-times-circle"></i> Not paid yet
-                                        <?php endif; ?>
-                                    </td>
-                                    <td>
+                                        </div>
+                                    <?php else: ?>
+                                        <span style="font-size: 0.85em; color: #999;"><i class="fas fa-times-circle"></i> Not paid</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <div style="display: flex; flex-direction: column; gap: 3px;">
                                         <?php if ($row['payment_status'] != 'paid'): ?>
-                                            <button class="action-btn btn-paid" onclick="showPaymentModal(<?php echo $row['id']; ?>, <?php echo $row['payment_amount']; ?>)">Mark Paid</button>
+                                            <button class="action-btn btn-paid" onclick="showPaymentModal(<?php echo $row['id']; ?>, <?php echo $row['payment_amount']; ?>)" style="font-size: 0.8em;">Mark Paid</button>
                                         <?php endif; ?>
                                         
                                         <?php if ($row['payment_status'] != 'pending'): ?>
                                             <form method="post" style="display:inline;">
                                                 <input type="hidden" name="installment_id" value="<?php echo $row['id']; ?>">
                                                 <input type="hidden" name="new_status" value="pending">
-                                                <button type="submit" name="update_status" class="action-btn btn-pending">Mark Pending</button>
+                                                <button type="submit" name="update_status" class="action-btn btn-pending" style="font-size: 0.8em;">Mark Pending</button>
                                             </form>
                                         <?php endif; ?>
                                         
                                         <?php if ($row['payment_status'] != 'overdue'): ?>
-                                            <form method="post" style="display:inline;">
-                                                <input type="hidden" name="installment_id" value="<?php echo $row['id']; ?>">
-                                                <input type="hidden" name="new_status" value="overdue">
-                                                <button type="submit" name="update_status" class="action-btn btn-overdue">Mark Overdue</button>
-                                            </form>
+                                            <button class="action-btn btn-overdue" onclick="showOverdueModal(<?php echo $row['id']; ?>, <?php echo $row['loan_type_late_fee'] ? $row['loan_type_late_fee'] : 0; ?>)" style="font-size: 0.8em;">Mark Overdue</button>
                                         <?php endif; ?>
-                                    </td>
-                                </tr>
-                                <?php endwhile; ?>
-                            </tbody>
-                        </table>
-                    <?php else: ?>
-                        <div class="no-results">
-                            <p>No installments found for the selected loan type.</p>
-                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <?php endwhile; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php else: ?>
+                <div class="no-results">
+                    <p>No installments found for the selected loan type.</p>
+                </div>
+            
                     <?php endif; ?>
                 <?php else: ?>
                     <div class="no-results">
@@ -850,90 +991,175 @@ if ($member_id > 0) {
             </form>
         </div>
     </div>
+
+    <div id="overdueModal" class="payment-modal">
+    <div class="modal-content">
+        <h3><i class="fas fa-exclamation-triangle"></i> Mark as Overdue</h3>
+        <form method="post" id="overdueForm">
+            <input type="hidden" name="installment_id" id="overdue_installment_id">
+            <input type="hidden" name="new_status" value="overdue">
+            <input type="hidden" name="member_id" value="<?php echo $member_id; ?>">
+            <input type="hidden" name="loan_type_id" value="<?php echo $selected_loan_type; ?>">
+            
+            <div class="form-group">
+                <label for="late_fee_amount"><i class="fas fa-exclamation-circle"></i> Late Fee Amount (Rs.):</label>
+                <input type="number" name="late_fee_amount" id="late_fee_amount" step="0.01" min="0" required>
+                <small style="color: #666; display: block; margin-top: 5px;">
+                    <i class="fas fa-info-circle"></i> Default late fee will be applied based on loan type settings
+                </small>
+            </div>
+            
+            <div class="alert" style="background-color: #fff3cd; border-color: #ffeaa7; color: #856404; margin: 15px 0;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <strong>Warning:</strong> This will mark the installment as overdue and apply the specified late fee.
+            </div>
+            
+            <div class="form-buttons">
+                <button type="button" class="btn-cancel" onclick="closeOverdueModal()"><i class="fas fa-times"></i> Cancel</button>
+                <button type="submit" name="update_status" class="btn-submit" style="background-color: #f44336;"><i class="fas fa-exclamation-triangle"></i> Mark Overdue</button>
+            </div>
+        </form>
+    </div>
+</div>
     
     <script>
-        // Modal functionality
-        var paymentModal = document.getElementById("paymentModal");
+    // Modal functionality
+    var paymentModal = document.getElementById("paymentModal");
+    var overdueModal = document.getElementById("overdueModal");
+    
+    function showPaymentModal(installmentId, suggestedAmount) {
+        document.getElementById("modal_installment_id").value = installmentId;
+        document.getElementById("actual_payment_amount").value = suggestedAmount;
+        paymentModal.style.display = "block";
         
-        function showPaymentModal(installmentId, suggestedAmount) {
-            document.getElementById("modal_installment_id").value = installmentId;
-            document.getElementById("actual_payment_amount").value = suggestedAmount;
-            paymentModal.style.display = "block";
+        // Add animation class to modal content
+        document.querySelector("#paymentModal .modal-content").classList.add("animate");
+        
+        // Set focus on the date field
+        setTimeout(function() {
+            document.getElementById("actual_payment_date").focus();
+        }, 300);
+    }
+    
+    function showOverdueModal(installmentId, defaultLateFee) {
+        document.getElementById("overdue_installment_id").value = installmentId;
+        document.getElementById("late_fee_amount").value = defaultLateFee;
+        overdueModal.style.display = "block";
+        
+        // Add animation class to modal content
+        document.querySelector("#overdueModal .modal-content").classList.add("animate");
+        
+        // Set focus on the late fee field
+        setTimeout(function() {
+            document.getElementById("late_fee_amount").focus();
+        }, 300);
+    }
+    
+    function closePaymentModal() {
+        // Fade out animation
+        paymentModal.style.opacity = "0";
+        setTimeout(function() {
+            paymentModal.style.display = "none";
+            paymentModal.style.opacity = "1";
+        }, 300);
+    }
+    
+    function closeOverdueModal() {
+        // Fade out animation
+        overdueModal.style.opacity = "0";
+        setTimeout(function() {
+            overdueModal.style.display = "none";
+            overdueModal.style.opacity = "1";
+        }, 300);
+    }
+
+    
+    
+    // Close modal when clicking outside of it
+    window.onclick = function(event) {
+        if (event.target == paymentModal) {
+            closePaymentModal();
+        }
+        if (event.target == overdueModal) {
+            closeOverdueModal();
+        }
+    }
+    
+    // Highlight the row that was just updated
+    document.addEventListener("DOMContentLoaded", function() {
+        // Check if there's a success message
+        var successAlert = document.querySelector(".alert-success");
+        if (successAlert) {
+            // Add a subtle highlight animation to the table
+            var tableRows = document.querySelectorAll("table tbody tr");
+            tableRows.forEach(function(row) {
+                row.style.transition = "background-color 1s";
+            });
             
-            // Add animation class to modal content
-            document.querySelector(".modal-content").classList.add("animate");
-            
-            // Set focus on the date field
-            setTimeout(function() {
-                document.getElementById("actual_payment_date").focus();
-            }, 300);
+            // Scroll to the success message
+            successAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
         
-        function closePaymentModal() {
-            // Fade out animation
-            paymentModal.style.opacity = "0";
-            setTimeout(function() {
-                paymentModal.style.display = "none";
-                paymentModal.style.opacity = "1";
-            }, 300);
-        }
-        
-        // Close modal when clicking outside of it
-        window.onclick = function(event) {
-            if (event.target == paymentModal) {
-                closePaymentModal();
-            }
-        }
-        
-        // Highlight the row that was just updated
-        document.addEventListener("DOMContentLoaded", function() {
-            // Check if there's a success message
-            var successAlert = document.querySelector(".alert-success");
-            if (successAlert) {
-                // Add a subtle highlight animation to the table
-                var tableRows = document.querySelectorAll("table tbody tr");
-                tableRows.forEach(function(row) {
-                    row.style.transition = "background-color 1s";
-                });
-                
-                // Scroll to the success message
-                successAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
+        // Add hover effect to buttons
+        var buttons = document.querySelectorAll("button");
+        buttons.forEach(function(button) {
+            button.addEventListener("mouseenter", function() {
+                this.style.transform = "translateY(-2px)";
+                this.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.1)";
+            });
             
-            // Add hover effect to buttons
-            var buttons = document.querySelectorAll("button");
-            buttons.forEach(function(button) {
-                button.addEventListener("mouseenter", function() {
-                    this.style.transform = "translateY(-2px)";
-                    this.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.1)";
-                });
-                
-                button.addEventListener("mouseleave", function() {
-                    this.style.transform = "";
-                    this.style.boxShadow = "";
-                });
+            button.addEventListener("mouseleave", function() {
+                this.style.transform = "";
+                this.style.boxShadow = "";
             });
         });
         
-        // Add responsive table functionality
-        window.addEventListener("resize", function() {
-            adjustTableResponsiveness();
+        // Add confirmation for overdue marking
+        var overdueButtons = document.querySelectorAll(".btn-overdue");
+        overdueButtons.forEach(function(button) {
+            button.addEventListener("click", function(e) {
+                // The modal will handle the confirmation, so we don't need to prevent default here
+                // Just add a subtle visual feedback
+                this.style.backgroundColor = "#d32f2f";
+            });
         });
-        
-        function adjustTableResponsiveness() {
-            var table = document.querySelector("table");
-            if (table) {
-                if (window.innerWidth < 768) {
-                    table.classList.add("responsive");
-                } else {
-                    table.classList.remove("responsive");
-                }
+    });
+    
+    // Add responsive table functionality
+    window.addEventListener("resize", function() {
+        adjustTableResponsiveness();
+    });
+    
+    function adjustTableResponsiveness() {
+        var table = document.querySelector("table");
+        if (table) {
+            if (window.innerWidth < 768) {
+                table.classList.add("responsive");
+            } else {
+                table.classList.remove("responsive");
             }
         }
+    }
+    
+    // Call once on page load
+    adjustTableResponsiveness();
+    
+    // Form validation for late fee
+    document.getElementById("overdueForm").addEventListener("submit", function(e) {
+        var lateFee = document.getElementById("late_fee_amount").value;
+        if (lateFee < 0) {
+            e.preventDefault();
+            alert("Late fee cannot be negative!");
+            return false;
+        }
         
-        // Call once on page load
-        adjustTableResponsiveness();
-    </script>
+        // Show confirmation
+        if (!confirm("Are you sure you want to mark this installment as overdue with a late fee of Rs." + parseFloat(lateFee).toFixed(2) + "?")) {
+            e.preventDefault();
+            return false;
+        }
+    });
+</script>
 </body>
 </html>
 

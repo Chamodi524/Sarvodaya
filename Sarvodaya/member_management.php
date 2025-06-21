@@ -275,7 +275,7 @@ $account_types_result = $conn->query("SELECT * FROM savings_account_types");
         <div class="container">
             <a class="navbar-brand" href="#">
                 <img src="Sarwodaya logo.jpg" alt="Sarvodaya Logo">
-                <span>Sarvodaya Member Management</span>
+                <span style="font-size: 1.5rem;">Sarvodaya Member Management</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -285,7 +285,7 @@ $account_types_result = $conn->query("SELECT * FROM savings_account_types");
                     <li class="nav-item">
                         <a class="nav-link btn-logout" href="logout.php">
                             <i class="bi bi-box-arrow-right"></i>
-                            <span class="logout-text">Logout</span>
+                            <span class="logout-text" style="font-size: 1.25rem;">Logout</span>
                         </a>
                     </li>
                 </ul>
@@ -304,23 +304,23 @@ $account_types_result = $conn->query("SELECT * FROM savings_account_types");
                 <form action="member_management_process.php" method="POST" enctype="multipart/form-data">
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="name" class="form-label">Name</label>
+                            <label for="name" class="form-label" style="font-size: 20px;">Name</label>
                             <input type="text" class="form-control" id="name" name="name" required>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="email" class="form-label">Email</label>
+                            <label for="email" class="form-label" style="font-size: 20px;">Email</label>
                             <input type="email" class="form-control" id="email" name="email" required>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="phone" class="form-label">Phone</label>
+                            <label for="phone" class="form-label" style="font-size: 20px;">Phone</label>
                             <input type="tel" class="form-control" id="phone" name="phone" maxlength="10" pattern="[0-9]{10}" title="Please enter exactly 10 digits" required>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="account_type" class="form-label">Account Type</label>
-                            <select class="form-select" id="account_type" name="account_type" required>
-                                <option value="">Select Account Type</option>
+                            <label for="account_type" class="form-label" style="font-size: 20px;">Account Type</label>
+                            <select class="form-select" id="account_type" name="account_type" style="font-size: 1.25rem;" required>
+                                <option value="" style="font-size: 20px;">Select Account Type</option>
                                 <?php
                                 $account_types_result->data_seek(0);
                                 while ($account_type = $account_types_result->fetch_assoc()) {
@@ -331,7 +331,7 @@ $account_types_result = $conn->query("SELECT * FROM savings_account_types");
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label for="address" class="form-label">Address</label>
+                        <label for="address" class="form-label" style="font-size: 20px;">Address</label>
                         <textarea class="form-control" id="address" name="address" rows="2" required></textarea>
                     </div>
                     
@@ -339,57 +339,57 @@ $account_types_result = $conn->query("SELECT * FROM savings_account_types");
                     <div id="dynamicFields" style="display: none;">
                         <!-- Fields for Detail No 1 (Guardian) -->
                         <div id="detailNo1Fields" style="display: none;" class="border rounded p-3 mb-3 bg-light">
-                            <h5 class="mb-2" style="font-size: 1.1rem;">Guardian Details</h5>
+                            <h5 class="mb-2" style="font-size: 1.25rem;" >Guardian Details</h5>
                             <div class="row">
                                 <div class="col-md-6 mb-2">
-                                    <label for="guardian_name" class="form-label">Guardian's Name</label>
-                                    <input type="text" class="form-control" id="guardian_name" name="guardian_name">
+                                    <label for="guardian_name" class="form-label" style="font-size: 1.25rem;">Guardian's Name</label>
+                                    <input type="text" class="form-control" id="guardian_name" name="guardian_name" >
                                 </div>
                                 <div class="col-md-6 mb-2">
-                                    <label for="guardian_nic" class="form-label">Guardian's NIC</label>
+                                    <label for="guardian_nic" class="form-label" style="font-size: 1.25rem;">Guardian's NIC</label>
                                     <input type="tel" class="form-control" id="guardian_nic" name="guardian_nic" maxlength="12" pattern="[0-9]{12}" title="Please enter exactly 12 digits">
                                 </div>
                             </div>
                             <div class="mb-2">
-                                <label for="guardian_occupation" class="form-label">Guardian's Occupation</label>
+                                <label for="guardian_occupation" class="form-label" style="font-size: 1.25rem;">Guardian's Occupation</label>
                                 <input type="text" class="form-control" id="guardian_occupation" name="guardian_occupation">
                             </div>
                             <div class="mb-2">
-                                <label for="birth_certificate" class="form-label">Upload Birth Certificate</label>
+                                <label for="birth_certificate" class="form-label" style="font-size: 1.25rem;">Upload Birth Certificate</label>
                                 <input type="file" class="form-control" id="birth_certificate" name="birth_certificate">
-                                <div class="file-size-note">Maximum file size: 2MB. Accepted formats: JPG, PNG, PDF</div>
+                                <div class="file-size-note" style="font-size: 1.1rem;">Maximum file size: 2MB. Accepted formats: JPG, PNG, PDF</div>
                             </div>
                         </div>
                         
                         <!-- Fields for Detail No 2 (Normal) -->
                         <div id="detailNo2Fields" style="display: none;" class="border rounded p-3 mb-3 bg-light">
-                            <h5 class="mb-2" style="font-size: 1.1rem;">Member Details</h5>
+                            <h5 class="mb-2" style="font-size: 1.25rem;">Member Details</h5>
                             <div class="row">
                                 <div class="col-md-6 mb-2">
-                                    <label for="nic" class="form-label">NIC Number</label>
+                                    <label for="nic" class="form-label" style="font-size: 1.25rem;">NIC Number</label>
                                     <input type="tel" class="form-control" id="nic" name="nic" maxlength="12" pattern="[0-9]{12}" title="Please enter exactly 12 digits">
                                 </div>
                                 <div class="col-md-6 mb-2">
-                                    <label for="occupation" class="form-label">Occupation</label>
+                                    <label for="occupation" class="form-label" style="font-size: 1.25rem;">Occupation</label>
                                     <input type="text" class="form-control" id="occupation" name="occupation">
                                 </div>
                             </div>
                             <div class="mb-2">
-                                <label for="nic_photo" class="form-label">Upload NIC Photo</label>
+                                <label for="nic_photo" class="form-label" style="font-size: 1.25rem;">Upload NIC Photo</label>
                                 <input type="file" class="form-control" id="nic_photo" name="nic_photo">
-                                <div class="file-size-note">Maximum file size: 2MB. Accepted formats: JPG, PNG, PDF</div>
+                                <div class="file-size-note" style="font-size: 1.1rem;">Maximum file size: 2MB. Accepted formats: JPG, PNG, PDF</div>
                             </div>
                         </div>
                     </div>
                     
-                    <button type="submit" class="btn btn-custom">Add Member</button>
+                    <button type="submit" class="btn btn-custom" style="font-size: 1.25rem;">Add Member</button>
                 </form>
             </div>
         </div>
 
         <div class="card">
             <div class="card-header">
-                <h2 class="mb-0">Members List</h2>
+                <h2 class="mb-0" style="font-size: 1.5rem;">Members List</h2>
             </div>
             <div class="card-body p-3">
                 <!-- Search Bar with NIC/Guardian NIC Search -->
@@ -398,45 +398,45 @@ $account_types_result = $conn->query("SELECT * FROM savings_account_types");
                     <input type="text" id="searchInput" class="form-control" placeholder="Search by NIC or Guardian NIC...">
                 </div>
                 <div class="table-responsive">
-                    <table class="table table-custom" id="membersTable">
+                    <table class="table table-custom" id="membersTable" >
                         <thead>
                             <tr>
-                                <th>ID</th>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Phone</th>
-                                <th>Address</th>
-                                <th>Account</th>
-                                <th>NIC</th>
-                                <th>Guardian NIC</th>
-                                <th>Docs</th>
-                                <th>Actions</th>
+                                <th style="font-size: 1.25rem;">ID</th>
+                                <th style="font-size: 1.25rem;">Name</th>
+                                <th style="font-size: 1.25rem;">Email</th>
+                                <th style="font-size: 1.25rem;">Phone</th>
+                                <th style="font-size: 1.25rem;">Address</th>
+                                <th style="font-size: 1.25rem;">Account</th>
+                                <th style="font-size: 1.25rem;">NIC</th>
+                                <th style="font-size: 1.25rem;">Guardian NIC</th>
+                                <th style="font-size: 1.25rem;">Docs</th>
+                                <th style="font-size: 1.25rem;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php while ($row = $members_result->fetch_assoc()): ?>
                                 <tr>
-                                    <td><?php echo $row['id']; ?></td>
-                                    <td><?php echo $row['name']; ?></td>
-                                    <td><?php echo $row['email']; ?></td>
-                                    <td><?php echo $row['phone']; ?></td>
-                                    <td><?php echo $row['address']; ?></td>
-                                    <td><?php echo $row['account_name']; ?></td>
-                                    <td><?php echo $row['nic']; ?></td>
-                                    <td><?php echo $row['guardian_nic']; ?></td>
-                                    <td>
+                                    <td style="font-size: 1.25rem;"><?php echo $row['id']; ?></td>
+                                    <td style="font-size: 1.25rem;"><?php echo $row['name']; ?></td>
+                                    <td style="font-size: 1.25rem;"><?php echo $row['email']; ?></td>
+                                    <td style="font-size: 1.25rem;"><?php echo $row['phone']; ?></td>
+                                    <td style="font-size: 1.25rem;"><?php echo $row['address']; ?></td>
+                                    <td style="font-size: 1.25rem;"><?php echo $row['account_name']; ?></td>
+                                    <td style="font-size: 1.25rem;"><?php echo $row['nic']; ?></td>
+                                    <td style="font-size: 1.25rem;"><?php echo $row['guardian_nic']; ?></td>
+                                    <td style="font-size: 1.25rem;">
                                         <?php if (!empty($row['file_path'])): ?>
-                                            <a href="view_member.php?id=<?php echo $row['id']; ?>" class="btn btn-sm btn-info">View</a>
+                                            <a href="view_member.php?id=<?php echo $row['id']; ?>" class="btn btn-sm btn-info" style="font-size: 1.25rem;">View</a>
                                         <?php else: ?>
                                             <span class="badge bg-secondary">None</span>
                                         <?php endif; ?>
                                     </td>
                                     <td class="action-buttons">
-                                        <a href="edit_member.php?id=<?php echo $row['id']; ?>" class="btn btn-sm btn-warning mb-1">
-                                            <i class="bi bi-pencil-square"></i> Edit
+                                        <a href="edit_member.php?id=<?php echo $row['id']; ?>" class="btn btn-sm btn-warning mb-1" style="font-size: 1.25rem;">
+                                            <i class="bi bi-pencil-square" style="font-size: 1.5rem;"></i> Edit
                                         </a>
-                                        <a href="delete_member.php?id=<?php echo $row['id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this member?')">
-                                            <i class="bi bi-trash"></i> Delete
+                                        <a href="delete_member.php?id=<?php echo $row['id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this member?')" style="font-size: 1.25rem;">
+                                            <i class="bi bi-trash" style="font-size: 1.5rem;"></i> Delete
                                         </a>
                                     </td>
                                 </tr>

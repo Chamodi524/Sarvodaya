@@ -182,15 +182,15 @@ session_start();
         
         <form action="forgot_password_process.php" method="post">
             <div class="form-group">
-                <label for="email">Email Address</label>
-                <input type="email" id="email" name="email" class="form-control" required placeholder="Enter your email address">
+                <label for="email" style="font-size: 1.25rem;">Email Address</label>
+                <input type="email" id="email" name="email" class="form-control" style="font-size: 1.25rem;" required placeholder="Enter your email address">
             </div>
             
-            <button type="submit" name="forgot_password" class="btn">Send Reset Link</button>
+            <button type="submit" name="forgot_password" class="btn" style="font-size: 1.25rem;">Send Reset Link</button>
         </form>
         
-        <div class="back-link">
-            Remember your password? <a href="login.php">Back to Login</a>
+        <div class="back-link" style="font-size: 1.1rem;">
+            Remember your password? <a href="login.php" style="font-size: 1.1rem;">Back to Login</a>
         </div>
     </div>
 </body>

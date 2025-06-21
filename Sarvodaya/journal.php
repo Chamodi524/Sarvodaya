@@ -27,429 +27,997 @@ if (isset($_GET['filter'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>General Journal</title>
+    <title>General Journal - Financial Overview</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --primary-color: rgb(255, 140, 0);
-            --primary-dark: rgb(230, 126, 0);
+            --primary: linear-gradient(135deg, rgb(255, 140, 0) 0%, rgb(230, 120, 0) 100%);
+            --primary-solid: rgb(255, 140, 0);
             --primary-light: rgba(255, 140, 0, 0.1);
-            --secondary-color: #2c3e50;
-            --accent-color: #e74c3c;
-            --success-color: #27ae60;
-            --info-color: #3498db;
-            --warning-color: #f39c12;
+            --primary-dark: rgb(230, 120, 0);
+            --secondary: rgb(255, 165, 50);
+            --accent: rgb(255, 180, 80);
+            --success: #00d4aa;
+            --info: #3498db;
+            --warning: #feca57;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            --purple: #9b59b6;
+            --indigo: #6c63ff;
+            --teal: #1dd1a1;
+            --shadow: 0 10px 30px rgba(255, 140, 0, 0.15);
+            --shadow-hover: 0 15px 40px rgba(255, 140, 0, 0.25);
+            --border-radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+        * {
             margin: 0;
             padding: 0;
-            background-color: #f9f9f9;
-            color: #333;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #fff8f0 0%, #ffe5cc 100%);
+            min-height: 100vh;
+            color: var(--dark);
             line-height: 1.6;
         }
-        
+
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 20px auto;
-            background: white;
-            padding: 0;
-            border-radius: 8px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            padding: 0 20px;
+        }
+
+        .header-card {
+            background: var(--primary);
+            border-radius: var(--border-radius);
+            padding: 40px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            position: relative;
             overflow: hidden;
         }
-        
-        .header {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+
+        .header-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .header-card h1 {
             color: white;
-            padding: 25px 30px;
-            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header-card .subtitle {
+            color: rgba(255,255,255,0.95);
+            font-size: 1.1rem;
+            position: relative;
+            z-index: 1;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .filter-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 140, 0, 0.1);
+        }
+
+        .filter-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            align-items: end;
+        }
+
+        .form-group {
             position: relative;
         }
-        
-        h1 {
-            margin: 0;
-            font-size: 28px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-        }
-        
-        .subtitle {
-            font-size: 14px;
-            opacity: 0.9;
-            margin-top: 5px;
-        }
-        
-        .filter-form {
-            background: white;
-            padding: 20px;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            align-items: flex-end;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-        
-        .form-group {
-            margin-bottom: 0;
-            flex: 1;
-            min-width: 200px;
-        }
-        
-        label {
+
+        .form-group label {
             display: block;
             margin-bottom: 8px;
-            font-weight: 500;
-            color: var(--secondary-color);
-            font-size: 14px;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-        
-        input[type="date"] {
+
+        .form-group input {
             width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-            transition: border-color 0.3s;
+            padding: 12px 16px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+            background: #fefcfa;
         }
-        
-        input[type="date"]:focus {
-            border-color: var(--primary-color);
+
+        .form-group input:focus {
             outline: none;
+            border-color: var(--primary-solid);
+            background: white;
             box-shadow: 0 0 0 3px var(--primary-light);
         }
-        
-        button {
-            background-color: var(--primary-color);
-            color: white;
+
+        .btn {
+            padding: 12px 24px;
             border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
             cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            height: 40px;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
         }
-        
-        button:hover {
-            background-color: var(--primary-dark);
-            transform: translateY(-1px);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);
         }
-        
-        .print-btn {
-            background-color: var(--secondary-color);
-            margin-left: auto;
+
+        .btn-secondary {
+            background: var(--dark);
+            color: white;
         }
-        
-        .print-btn:hover {
-            background-color: #1a252f;
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
         }
-        
-        .content {
-            padding: 0 20px 20px;
+
+        .btn-primary:hover {
+            box-shadow: 0 6px 20px rgba(255, 140, 0, 0.4);
         }
-        
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: var(--transition);
+            border: 1px solid rgba(255, 140, 0, 0.1);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+            border-color: rgba(255, 140, 0, 0.2);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .stat-icon.debit { 
+            background: linear-gradient(135deg, var(--success), #01a085);
+        }
+        .stat-icon.credit { 
+            background: linear-gradient(135deg, var(--dark), #1a252f);
+        }
+        .stat-icon.net { 
+            background: var(--primary);
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-value.debit { color: var(--success); }
+        .stat-value.credit { color: var(--dark); }
+        .stat-value.surplus { color: var(--success); }
+        .stat-value.deficit { color: var(--dark); }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .main-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            border: 1px solid rgba(255, 140, 0, 0.1);
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
-            font-size: 14px;
+            font-size: 0.95rem;
         }
-        
+
+        thead {
+            background: linear-gradient(135deg, #fef8f0 0%, #ffeedd 100%);
+        }
+
         th {
-            background-color: var(--primary-light);
-            color: var(--secondary-color);
-            font-weight: 600;
-            padding: 12px 15px;
+            padding: 20px 16px;
             text-align: left;
-            border-bottom: 2px solid var(--primary-color);
+            font-weight: 700;
+            color: var(--dark);
             text-transform: uppercase;
-            font-size: 13px;
+            letter-spacing: 0.5px;
+            font-size: 0.8rem;
+            border-bottom: 2px solid rgba(255, 140, 0, 0.2);
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+
+        tbody tr {
+            transition: var(--transition);
+            opacity: 0;
+            animation: slideInUp 0.6s ease forwards;
+        }
+
+        tbody tr:hover {
+            background: #fefcfa;
+            transform: scale(1.01);
+            box-shadow: 0 4px 12px rgba(255, 140, 0, 0.1);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-        
-        td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #eee;
-            vertical-align: top;
+
+        .badge-payment {
+            background: linear-gradient(135deg, var(--dark), #1a252f);
+            color: white;
         }
-        
-        tr:hover {
-            background-color: #f5f5f5;
+
+        .badge-receipt {
+            background: linear-gradient(135deg, var(--success), #01a085);
+            color: white;
         }
-        
+
+        .badge-interest {
+            background: var(--primary);
+            color: white;
+        }
+
+        .amount {
+            font-weight: 700;
+            font-size: 1.1rem;
+            text-align: right;
+        }
+
         .debit {
-            color: var(--accent-color);
-            font-weight: bold;
-            text-align: right;
+            color: var(--success);
         }
-        
+
         .credit {
-            color: var(--success-color);
-            font-weight: bold;
-            text-align: right;
+            color: var(--dark);
         }
-        
-        .payment {
-            border-left: 4px solid var(--info-color);
-        }
-        
-        .receipt {
-            border-left: 4px solid var(--success-color);
-        }
-        
-        .interest {
-            border-left: 4px solid var(--warning-color);
-        }
-        
-        .amount-cell {
-            text-align: right;
-        }
-        
+
         .zero-amount {
-            color: #bbb;
+            color: #cbd5e0;
+            font-weight: 400;
         }
-        
-        .tfoot-totals {
-            background-color: #f8f8f8;
-            font-weight: bold;
+
+        .member-id {
+            background: var(--primary);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
         }
-        
-        .tfoot-period {
-            background-color: var(--primary-light);
-            color: var(--secondary-color);
+
+        .reference {
+            font-size: 0.9rem;
         }
-        
-        .badge {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 500;
-            background-color: var(--primary-light);
-            color: var(--primary-dark);
+
+        .reference small {
+            color: #64748b;
+            font-size: 0.8rem;
         }
-        
-        @media print {
-            .filter-form, .print-btn {
-                display: none;
+
+        .details {
+            max-width: 200px;
+            word-wrap: break-word;
+            color: #475569;
+        }
+
+        tfoot {
+            background: linear-gradient(135deg, var(--primary-solid), var(--primary-dark));
+            color: white;
+        }
+
+        tfoot td {
+            padding: 16px;
+            font-weight: 600;
+            border: none;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .totals-row {
+            font-size: 1.1rem;
+        }
+
+        .net-position {
+            font-size: 1.3rem;
+            text-align: center;
+        }
+
+        .surplus {
+            color: #10b981;
+        }
+
+        .deficit {
+            color: var(--dark);
+        }
+
+        .period-row {
+            background: var(--primary) !important;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.3;
+            color: var(--primary-solid);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
             }
-            
-            body {
-                background: none;
-                padding: 0;
-                font-size: 12px;
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
-            
+        }
+
+        @media (max-width: 768px) {
             .container {
-                box-shadow: none;
-                padding: 0;
-                margin: 0;
-                width: 100%;
+                padding: 0 10px;
             }
             
-            .header {
-                padding: 15px;
-                page-break-after: avoid;
+            .header-card {
+                padding: 30px 20px;
+            }
+            
+            .header-card h1 {
+                font-size: 2rem;
+            }
+            
+            .filter-form {
+                grid-template-columns: 1fr;
+            }
+            
+            table {
+                font-size: 0.85rem;
             }
             
             th, td {
-                padding: 8px 10px;
+                padding: 12px 8px;
             }
         }
-        
-        /* Animation */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+
+        @media print {
+            @page {
+                size: A4;
+                margin: 15mm;
+            }
+
+            * {
+                -webkit-print-color-adjust: exact !important;
+                color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            body {
+                background: white;
+                font-size: 12pt;
+                line-height: 1.4;
+                color: #000;
+            }
+            
+            .filter-card {
+                display: none;
+            }
+
+            .btn {
+                display: none;
+            }
+            
+            .container {
+                max-width: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            .header-card {
+                background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%) !important;
+                -webkit-print-color-adjust: exact;
+                color: white !important;
+                padding: 25px;
+                margin-bottom: 20px;
+                border-radius: 8px;
+                page-break-inside: avoid;
+            }
+
+            .header-card h1 {
+                color: white !important;
+                font-size: 24pt;
+                margin-bottom: 8px;
+            }
+
+            .header-card .subtitle {
+                color: rgba(255,255,255,0.9) !important;
+                font-size: 12pt;
+            }
+
+            /* Print Summary Stats */
+            .stats-grid {
+                display: grid !important;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 15px;
+                margin-bottom: 25px;
+                page-break-inside: avoid;
+            }
+
+            .stat-card {
+                background: #f8f9fa !important;
+                border: 2px solid #dee2e6 !important;
+                border-radius: 8px;
+                padding: 15px;
+                text-align: center;
+                page-break-inside: avoid;
+            }
+
+            .stat-icon {
+                display: none; /* Hide icons in print for cleaner look */
+            }
+
+            .stat-value {
+                font-size: 18pt;
+                font-weight: bold;
+                margin-bottom: 5px;
+                color: #000 !important;
+            }
+
+            .stat-value.debit {
+                color: #28a745 !important;
+            }
+
+            .stat-value.credit {
+                color: #000 !important;
+            }
+
+            .stat-value.surplus {
+                color: #28a745 !important;
+            }
+
+            .stat-value.deficit {
+                color: #000 !important;
+            }
+
+            .stat-label {
+                font-size: 10pt;
+                color: #666 !important;
+                text-transform: uppercase;
+                font-weight: bold;
+            }
+
+            .main-card {
+                box-shadow: none;
+                border: 2px solid #dee2e6;
+                border-radius: 8px;
+                overflow: visible;
+            }
+
+            .table-container {
+                overflow: visible;
+            }
+
+            table {
+                width: 100%;
+                font-size: 10pt;
+                border-collapse: collapse;
+            }
+
+            thead {
+                background: #f8f9fa !important;
+                -webkit-print-color-adjust: exact;
+            }
+
+            th {
+                background: #e9ecef !important;
+                color: #000 !important;
+                padding: 12px 8px;
+                font-size: 9pt;
+                font-weight: bold;
+                text-transform: uppercase;
+                border: 1px solid #dee2e6 !important;
+                text-align: left;
+            }
+
+            td {
+                padding: 8px;
+                border: 1px solid #dee2e6 !important;
+                font-size: 10pt;
+                vertical-align: top;
+            }
+
+            tbody tr {
+                page-break-inside: avoid;
+                animation: none;
+                opacity: 1;
+            }
+
+            tbody tr:nth-child(even) {
+                background: #f8f9fa !important;
+                -webkit-print-color-adjust: exact;
+            }
+
+            .badge {
+                background: #6c757d !important;
+                color: white !important;
+                padding: 3px 8px;
+                border-radius: 4px;
+                font-size: 8pt;
+                font-weight: bold;
+                -webkit-print-color-adjust: exact;
+            }
+
+            .badge-payment {
+                background: #000 !important;
+                color: white !important;
+            }
+
+            .badge-receipt {
+                background: #28a745 !important;
+                color: white !important;
+            }
+
+            .badge-interest {
+                background: #ffc107 !important;
+                color: #000 !important;
+            }
+
+            .member-id {
+                background: #6c757d !important;
+                color: white !important;
+                padding: 2px 6px;
+                border-radius: 3px;
+                font-weight: bold;
+                font-size: 9pt;
+                -webkit-print-color-adjust: exact;
+            }
+
+            .amount {
+                font-weight: bold;
+                text-align: right;
+            }
+
+            .debit {
+                color: #28a745 !important;
+            }
+
+            .credit {
+                color: #000 !important;
+            }
+
+            .zero-amount {
+                color: #999 !important;
+            }
+
+            .details {
+                max-width: none;
+                font-size: 9pt;
+                color: #333 !important;
+            }
+
+            .reference {
+                font-size: 9pt;
+            }
+
+            .reference small {
+                color: #666 !important;
+                font-size: 8pt;
+            }
+
+            tfoot {
+                background: #2c3e50 !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact;
+                page-break-inside: avoid;
+            }
+
+            tfoot td {
+                background: #2c3e50 !important;
+                color: white !important;
+                font-weight: bold;
+                border: 1px solid #2c3e50 !important;
+                padding: 12px 8px;
+            }
+
+            .totals-row {
+                font-size: 11pt;
+            }
+
+            .net-position {
+                font-size: 12pt;
+                text-align: center;
+            }
+
+            .period-row {
+                background: #2c3e50 !important;
+                color: white !important;
+                text-align: center;
+                font-size: 11pt;
+                font-weight: bold;
+            }
+
+            .surplus {
+                color: #28a745 !important;
+            }
+
+            .deficit {
+                color: white !important;
+            }
+
+            /* Print-specific elements */
+            .print-header {
+                display: block !important;
+                text-align: center;
+                margin-bottom: 20px;
+                padding-bottom: 10px;
+                border-bottom: 2px solid #dee2e6;
+            }
+
+            .print-date {
+                display: block !important;
+                text-align: right;
+                font-size: 10pt;
+                color: #666;
+                margin-bottom: 15px;
+            }
+
+            .print-footer {
+                display: block !important;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                text-align: center;
+                font-size: 9pt;
+                color: #666;
+                padding: 10px 0;
+                border-top: 1px solid #dee2e6;
+            }
+
+            /* Page breaks */
+            .stats-grid {
+                page-break-after: avoid;
+            }
+
+            .main-card {
+                page-break-before: avoid;
+            }
+
+            tfoot {
+                page-break-inside: avoid;
+            }
+
+            /* Hide empty state in print */
+            .empty-state {
+                font-size: 12pt;
+                padding: 30px;
+            }
         }
-        
-        table tbody tr {
-            animation: fadeIn 0.3s ease forwards;
-            opacity: 0;
-        }
-        
-        table tbody tr:nth-child(1) { animation-delay: 0.1s; }
-        table tbody tr:nth-child(2) { animation-delay: 0.2s; }
-        table tbody tr:nth-child(3) { animation-delay: 0.3s; }
-        table tbody tr:nth-child(4) { animation-delay: 0.4s; }
-        table tbody tr:nth-child(5) { animation-delay: 0.5s; }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>General Journal</h1>
-            <div class="subtitle">Financial Transactions Overview</div>
+        <!-- Print-only elements -->
+        <div class="print-date" style="display: none;">
+            Generated on: <?= date('F j, Y \a\t g:i A') ?>
         </div>
+
+        <!-- Header -->
+        <div class="header-card">
+            <h1><i class="fas fa-book"></i> General Journal</h1>
+            <div class="subtitle">Financial Transactions Overview - Money Received (Debit) / Money Paid (Credit)</div>
+        </div>
+
+        <!-- Filter Form -->
+        <div class="filter-card">
+            <form method="GET" class="filter-form">
+                <div class="form-group">
+                    <label for="start_date"><i class="fas fa-calendar-alt"></i> From Date</label>
+                    <input type="date" id="start_date" name="start_date" value="<?= $start_date ?>" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="end_date"><i class="fas fa-calendar-alt"></i> To Date</label>
+                    <input type="date" id="end_date" name="end_date" value="<?= $end_date ?>" required>
+                </div>
+                
+                <button type="submit" name="filter" class="btn btn-primary">
+                    <i class="fas fa-filter"></i> Apply Filter
+                </button>
+                
+                <button type="button" class="btn btn-secondary" onclick="window.print()">
+                    <i class="fas fa-print"></i> Print Journal
+                </button>
+            </form>
+        </div>
+
+        <?php
+        // Get filtered transactions - Money received (receipts) in DEBIT, Money paid (payments & interest) in CREDIT
+        $query = "SELECT 
+                    'payment' AS transaction_type,
+                    id,
+                    member_id,
+                    payment_date AS transaction_date,
+                    0 AS debit_amount,
+                    amount AS credit_amount,
+                    description AS details,
+                    NULL AS reference_id,
+                    payment_type AS reference_type
+                  FROM payments
+                  WHERE DATE(payment_date) BETWEEN ? AND ?
+                  
+                  UNION ALL
+                  
+                  SELECT 
+                    'receipt' AS transaction_type,
+                    id,
+                    member_id,
+                    receipt_date AS transaction_date,
+                    amount AS debit_amount,
+                    0 AS credit_amount,
+                    NULL AS details,
+                    loan_id AS reference_id,
+                    receipt_type AS reference_type
+                  FROM receipts
+                  WHERE DATE(receipt_date) BETWEEN ? AND ?
+                  
+                  UNION ALL
+                  
+                  SELECT 
+                    'interest' AS transaction_type,
+                    id,
+                    member_id,
+                    created_at AS transaction_date,
+                    0 AS debit_amount,
+                    interest_amount AS credit_amount,
+                    CONCAT('Interest for ', period_start_date, ' to ', period_end_date) AS details,
+                    account_type_id AS reference_id,
+                    status AS reference_type
+                  FROM interest_calculations
+                  WHERE DATE(created_at) BETWEEN ? AND ?
+                  
+                  ORDER BY transaction_date DESC";
+
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param("ssssss", $start_date, $end_date, $start_date, $end_date, $start_date, $end_date);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        // Calculate totals for the filtered period
+        $total_query = "SELECT 
+                        SUM(debit) AS total_debit,
+                        SUM(credit) AS total_credit
+                      FROM (
+                        SELECT 0 AS debit, amount AS credit FROM payments WHERE DATE(payment_date) BETWEEN ? AND ?
+                        UNION ALL
+                        SELECT amount AS debit, 0 AS credit FROM receipts WHERE DATE(receipt_date) BETWEEN ? AND ?
+                        UNION ALL
+                        SELECT 0 AS debit, interest_amount AS credit FROM interest_calculations WHERE DATE(created_at) BETWEEN ? AND ?
+                      ) AS combined_transactions";
+
+        $total_stmt = $conn->prepare($total_query);
+        $total_stmt->bind_param("ssssss", $start_date, $end_date, $start_date, $end_date, $start_date, $end_date);
+        $total_stmt->execute();
+        $totals = $total_stmt->get_result()->fetch_assoc();
         
-        <form method="GET" class="filter-form">
-            <div class="form-group">
-                <label for="start_date">From Date</label>
-                <input type="date" id="start_date" name="start_date" value="<?= $start_date ?>" required>
+        $net_liquidity = $totals['total_debit'] - $totals['total_credit'];
+        ?>
+
+        <!-- Statistics Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon debit">
+                    <i class="fas fa-arrow-down" style="color: white;"></i>
+                </div>
+                <div class="stat-value debit"><?= number_format($totals['total_debit'], 2) ?></div>
+                <div class="stat-label">Total Receipts</div>
             </div>
             
-            <div class="form-group">
-                <label for="end_date">To Date</label>
-                <input type="date" id="end_date" name="end_date" value="<?= $end_date ?>" required>
+            <div class="stat-card">
+                <div class="stat-icon credit">
+                    <i class="fas fa-arrow-up" style="color: white;"></i>
+                </div>
+                <div class="stat-value credit"><?= number_format($totals['total_credit'], 2) ?></div>
+                <div class="stat-label">Total Payments</div>
             </div>
             
-            <button type="submit" name="filter">Apply Filter</button>
-            <button type="button" class="print-btn" onclick="window.print()">
-                <i class="fas fa-print"></i> Print Journal
-            </button>
-        </form>
-        
-        <div class="content">
-            <?php
-            // Get filtered transactions with debit and credit swapped
-            $query = "SELECT 
-                        'payment' AS transaction_type,
-                        id,
-                        member_id,
-                        payment_date AS transaction_date,
-                        0 AS debit_amount,
-                        amount AS credit_amount,
-                        description AS details,
-                        NULL AS reference_id,
-                        payment_type AS reference_type
-                      FROM payments
-                      WHERE DATE(payment_date) BETWEEN ? AND ?
-                      
-                      UNION ALL
-                      
-                      SELECT 
-                        'receipt' AS transaction_type,
-                        id,
-                        member_id,
-                        receipt_date AS transaction_date,
-                        amount AS debit_amount,
-                        0 AS credit_amount,
-                        NULL AS details,
-                        loan_id AS reference_id,
-                        receipt_type AS reference_type
-                      FROM receipts
-                      WHERE DATE(receipt_date) BETWEEN ? AND ?
-                      
-                      UNION ALL
-                      
-                      SELECT 
-                        'interest' AS transaction_type,
-                        id,
-                        member_id,
-                        created_at AS transaction_date,
-                        interest_amount AS debit_amount,
-                        0 AS credit_amount,
-                        CONCAT('Interest for ', period_start_date, ' to ', period_end_date) AS details,
-                        account_type_id AS reference_id,
-                        status AS reference_type
-                      FROM interest_calculations
-                      WHERE DATE(created_at) BETWEEN ? AND ?
-                      
-                      ORDER BY transaction_date DESC";
+            <div class="stat-card">
+                <div class="stat-icon net">
+                    <i class="fas fa-balance-scale"></i>
+                </div>
+                <div class="stat-value <?= $net_liquidity >= 0 ? 'surplus' : 'deficit' ?>">
+                    <?= number_format(abs($net_liquidity), 2) ?>
+                </div>
+                <div class="stat-label">Net Position (<?= $net_liquidity >= 0 ? 'Surplus' : 'Deficit' ?>)</div>
+            </div>
+        </div>
 
-            $stmt = $conn->prepare($query);
-            $stmt->bind_param("ssssss", $start_date, $end_date, $start_date, $end_date, $start_date, $end_date);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            ?>
-            
-            <table>
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Type</th>
-                        <th>Member</th>
-                        <th>Reference</th>
-                        <th>Details</th>
-                        <th>Debit</th>
-                        <th>Credit</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php while($row = $result->fetch_assoc()): ?>
-                    <tr class="<?= $row['transaction_type'] ?>">
-                        <td><?= date('M j, Y', strtotime($row['transaction_date'])) ?></td>
-                        <td>
-                            <?php if($row['transaction_type'] == 'payment'): ?>
-                                <span class="badge">Payment</span>
-                            <?php elseif($row['transaction_type'] == 'receipt'): ?>
-                                <span class="badge" style="background-color: rgba(39, 174, 96, 0.1); color: #27ae60;">Receipt</span>
-                            <?php else: ?>
-                                <span class="badge" style="background-color: rgba(243, 156, 18, 0.1); color: #f39c12;">Interest</span>
-                            <?php endif; ?>
-                        </td>
-                        <td>#<?= $row['member_id'] ?></td>
-                        <td>
-                            <?= $row['reference_type'] ?>
-                            <?= $row['reference_id'] ? '<br><small>Ref #' . $row['reference_id'] . '</small>' : '' ?>
-                        </td>
-                        <td><?= $row['details'] ? $row['details'] : '&mdash;' ?></td>
-                        <td class="debit amount-cell">
-                            <?= $row['debit_amount'] > 0 ? number_format($row['debit_amount'], 2) : '<span class="zero-amount">0.00</span>' ?>
-                        </td>
-                        <td class="credit amount-cell">
-                            <?= $row['credit_amount'] > 0 ? number_format($row['credit_amount'], 2) : '<span class="zero-amount">0.00</span>' ?>
-                        </td>
-                    </tr>
-                    <?php endwhile; ?>
-                    
-                    <?php if($result->num_rows === 0): ?>
-                    <tr>
-                        <td colspan="7" style="text-align: center; padding: 30px; color: #999;">
-                            No transactions found for the selected period
-                        </td>
-                    </tr>
-                    <?php endif; ?>
-                </tbody>
-                <tfoot>
-                    <?php
-                    // Calculate totals for the filtered period with debit and credit swapped
-                    $total_query = "SELECT 
-                                    SUM(debit) AS total_debit,
-                                    SUM(credit) AS total_credit
-                                  FROM (
-                                    SELECT 0 AS debit, amount AS credit FROM payments WHERE DATE(payment_date) BETWEEN ? AND ?
-                                    UNION ALL
-                                    SELECT amount AS debit, 0 AS credit FROM receipts WHERE DATE(receipt_date) BETWEEN ? AND ?
-                                    UNION ALL
-                                    SELECT interest_amount AS debit, 0 AS credit FROM interest_calculations WHERE DATE(created_at) BETWEEN ? AND ?
-                                  ) AS combined_transactions";
+        <!-- Main Table -->
+        <div class="main-card">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-calendar"></i> Date</th>
+                            <th><i class="fas fa-tag"></i> Type</th>
+                            <th><i class="fas fa-user"></i> Member</th>
+                            <th><i class="fas fa-link"></i> Reference</th>
+                            <th><i class="fas fa-info-circle"></i> Details</th>
+                            <th><i class="fas fa-plus-circle"></i> Debit</th>
+                            <th><i class="fas fa-minus-circle"></i> Credit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if($result->num_rows > 0): ?>
+                            <?php while($row = $result->fetch_assoc()): ?>
+                            <tr>
+                                <td><?= date('M j, Y', strtotime($row['transaction_date'])) ?></td>
+                                <td>
+                                    <?php if($row['transaction_type'] == 'payment'): ?>
+                                        <span class="badge badge-payment">
+                                            <i class="fas fa-credit-card"></i> Payment
+                                        </span>
+                                    <?php elseif($row['transaction_type'] == 'receipt'): ?>
+                                        <span class="badge badge-receipt">
+                                            <i class="fas fa-receipt"></i> Receipt
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="badge badge-interest">
+                                            <i class="fas fa-percentage"></i> Interest
+                                        </span>
+                                    <?php endif; ?>
+                                </td>
+                                <td><span class="member-id">#<?= $row['member_id'] ?></span></td>
+                                <td class="reference">
+                                    <?= $row['reference_type'] ?>
+                                    <?= $row['reference_id'] ? '<br><small>Ref #' . $row['reference_id'] . '</small>' : '' ?>
+                                </td>
+                                <td class="details"><?= $row['details'] ? $row['details'] : '&mdash;' ?></td>
+                                <td class="amount <?= $row['debit_amount'] > 0 ? 'debit' : 'zero-amount' ?>">
+                                    <?= $row['debit_amount'] > 0 ? number_format($row['debit_amount'], 2) : '0.00' ?>
+                                </td>
+                                <td class="amount <?= $row['credit_amount'] > 0 ? 'credit' : 'zero-amount' ?>">
+                                    <?= $row['credit_amount'] > 0 ? number_format($row['credit_amount'], 2) : '0.00' ?>
+                                </td>
+                            </tr>
+                            <?php endwhile; ?>
+                        <?php else: ?>
+                        <tr>
+                            <td colspan="7" class="empty-state">
+                                <i class="fas fa-inbox"></i>
+                                <div>No transactions found for the selected period</div>
+                            </td>
+                        </tr>
+                        <?php endif; ?>
+                    </tbody>
+                    <tfoot>
+                        <tr class="totals-row">
+                            <td colspan="5" style="text-align: right;">
+                                <i class="fas fa-calculator"></i> Totals:
+                            </td>
+                            <td class="amount debit"><?= number_format($totals['total_debit'], 2) ?></td>
+                            <td class="amount credit"><?= number_format($totals['total_credit'], 2) ?></td>
+                        </tr>
+                        <tr class="net-position">
+                            <td colspan="5" style="text-align: right;">
+                                <i class="fas fa-balance-scale"></i> Net Position:
+                            </td>
+                            <td colspan="2" class="<?= $net_liquidity >= 0 ? 'surplus' : 'deficit' ?>">
+                                <?= number_format($net_liquidity, 2) ?>
+                                <br><small>(<?= $net_liquidity >= 0 ? 'Surplus' : 'Deficit' ?>)</small>
+                            </td>
+                        </tr>
+                        <tr class="period-row">
+                            <td colspan="7">
+                                <i class="fas fa-calendar-range"></i>
+                                <?= date('F j, Y', strtotime($start_date)) ?> to <?= date('F j, Y', strtotime($end_date)) ?>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
 
-                    $total_stmt = $conn->prepare($total_query);
-                    $total_stmt->bind_param("ssssss", $start_date, $end_date, $start_date, $end_date, $start_date, $end_date);
-                    $total_stmt->execute();
-                    $totals = $total_stmt->get_result()->fetch_assoc();
-                    ?>
-                    <tr class="tfoot-totals">
-                        <td colspan="5" style="text-align: right; font-weight: bold;">Totals:</td>
-                        <td class="debit amount-cell"><?= number_format($totals['total_debit'], 2) ?></td>
-                        <td class="credit amount-cell"><?= number_format($totals['total_credit'], 2) ?></td>
-                    </tr>
-                    <tr class="tfoot-period">
-                        <td colspan="7" style="text-align: center; font-weight: bold;">
-                            <?= date('F j, Y', strtotime($start_date)) ?> to <?= date('F j, Y', strtotime($end_date)) ?>
-                        </td>
-                    </tr>
-                </tfoot>
-            </table>
+        <!-- Print-only footer -->
+        <div class="print-footer" style="display: none;">
+            General Journal Report | Sarvodaya Financial System | Page 1
         </div>
     </div>
-    
-    <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    
+
     <script>
-        // Simple animation trigger
+        // Animation delays for table rows
         document.addEventListener('DOMContentLoaded', function() {
-            // Add sequential animation delays for table rows
-            const rows = document.querySelectorAll('table tbody tr');
+            const rows = document.querySelectorAll('tbody tr');
             rows.forEach((row, index) => {
-                row.style.animationDelay = `${index * 0.05}s`;
+                row.style.animationDelay = `${(index + 1) * 0.1}s`;
             });
         });
     </script>

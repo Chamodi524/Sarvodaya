@@ -81,8 +81,8 @@
         }
         .logout-btn {
             position: absolute;
-            top: 20px;
-            right: 20px;
+            top: 30px;
+            right: 30px;
             padding: 10px 20px;
             border: none;
             border-radius: 30px;
@@ -105,16 +105,16 @@
     <!-- Sidebar -->
     <div class="sidebar">
         <!-- Sarvodaya Logo -->
-        <img src="Sarwodaya logo.jpg" alt="Sarvodaya Logo">
+        <img src="Sarwodaya logo.jpg" alt="Sarvodaya Logo" >
 
         <!-- Vertical Tabs -->
         <nav class="nav flex-column">
-            <a class="nav-link" href="loanTypes.php">Loan Types</a>
-            <a class="nav-link" href="member_loans.php">Apply a Loan</a>
-            <a class="nav-link" href="view_loans.php">View Loans and Download Application Form</a>
-            <a class="nav-link" href="change_status.php">Granting loan approval</a>
-            <a class="nav-link" href="loan_payement_handling.php">Loan Payment</a>
-            <a class="nav-link" href="loan_repayment-Schedule.php">Loan Repayment Schedule</a>
+            <a class="nav-link" href="loanTypes.php" style="font-size: 1.25rem;">Loan Types</a>
+            <a class="nav-link" href="member_loans.php" style="font-size: 1.25rem;">Apply a Loan</a>
+            <a class="nav-link" href="view_loans.php" style="font-size: 1.25rem;">View Loans and Download Application Form</a>
+            <a class="nav-link" href="change_status.php" style="font-size: 1.25rem;">Granting loan approval</a>
+            <a class="nav-link" href="loan_payement_handling.php" style="font-size: 1.25rem;">Loan Payment</a>
+            <a class="nav-link" href="loan_repayment-Schedule.php" style="font-size: 1.25rem;">Loan Repayment Schedule</a>
             
         </nav>
     </div>

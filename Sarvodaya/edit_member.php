@@ -421,7 +421,7 @@ if (!$member) {
         <div class="container">
             <a class="navbar-brand" href="#">
                 <img src="Sarwodaya logo.jpg" alt="Sarvodaya Logo">
-                <span>Sarvodaya Member Management</span>
+                <span style="font-size: 1.5rem;">Sarvodaya Member Management</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -430,12 +430,12 @@ if (!$member) {
                 <ul class="navbar-nav">
                     <li class="nav-item">
                         <a class="nav-link" href="member_management.php">
-                            <i class="bi bi-arrow-left"></i> Back to Members
+                            <i class="bi bi-arrow-left" style="font-size: 1.25rem;"></i> Back to Members
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="logout.php">
-                            <i class="bi bi-box-arrow-right"></i> Logout
+                            <i class="bi bi-box-arrow-right" style="font-size: 1.25rem;"></i> Logout
                         </a>
                     </li>
                 </ul>
@@ -444,7 +444,7 @@ if (!$member) {
     </nav>
 
     <div class="container">
-        <h1>Edit Member Information</h1>
+        <h1 style="font-size: 1.8rem;">Edit Member Information</h1>
         
         <?php 
         // Display success or error messages
@@ -470,37 +470,37 @@ if (!$member) {
                 
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label for="name" class="form-label">
-                            <i class="bi bi-person me-1"></i> Full Name
+                        <label for="name" class="form-label" style="font-size: 1.25rem;">
+                            <i class="bi bi-person me-1" style="font-size: 1.25rem;"></i> Full Name
                         </label>
-                        <input type="text" class="form-control" id="name" name="name" 
+                        <input type="text" class="form-control" id="name" name="name" style="font-size: 1.25rem;"
                                value="<?php echo htmlspecialchars($member['name']); ?>" required>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label for="email" class="form-label">
-                            <i class="bi bi-envelope me-1"></i> Email Address
+                        <label for="email" class="form-label" style="font-size: 1.25rem;">
+                            <i class="bi bi-envelope me-1" style="font-size: 1.25rem;"></i> Email Address
                         </label>
-                        <input type="email" class="form-control" id="email" name="email" 
+                        <input type="email" class="form-control" id="email" name="email" style="font-size: 1.25rem;"
                                value="<?php echo htmlspecialchars($member['email']); ?>" required>
                     </div>
                 </div>
 
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label for="phone" class="form-label">
-                            <i class="bi bi-telephone me-1"></i> Phone Number
+                        <label for="phone" class="form-label"style="font-size: 1.25rem;">
+                            <i class="bi bi-telephone me-1" style="font-size: 1.25rem;"></i> Phone Number
                         </label>
-                        <input type="text" class="form-control" id="phone" name="phone" 
+                        <input type="text" class="form-control" id="phone" name="phone" style="font-size: 1.25rem;"
                                value="<?php echo htmlspecialchars($member['phone']); ?>" 
                                pattern="\d{10}" maxlength="10" required>
                         <div class="invalid-feedback" id="phoneError"></div>
-                        <small class="form-text text-muted">Enter exactly 10 digits</small>
+                        <small class="form-text text-muted" style="font-size: 1.1rem;">Enter exactly 10 digits</small>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label for="account_type" class="form-label">
-                            <i class="bi bi-wallet2 me-1"></i> Account Type
+                        <label for="account_type" class="form-label" style="font-size: 1.25rem;">
+                            <i class="bi bi-wallet2 me-1" style="font-size: 1.25rem;"></i> Account Type
                         </label>
-                        <select class="form-select" id="account_type" name="account_type" required>
+                        <select class="form-select" id="account_type" name="account_type" style="font-size: 1.25rem;" required>
                             <?php 
                             $account_types_result->data_seek(0);
                             while ($account_type = $account_types_result->fetch_assoc()): ?>
@@ -515,10 +515,10 @@ if (!$member) {
                 </div>
 
                 <div class="mb-3">
-                    <label for="address" class="form-label">
-                        <i class="bi bi-geo-alt me-1"></i> Address
+                    <label for="address" class="form-label" style="font-size: 1.25rem;">
+                        <i class="bi bi-geo-alt me-1" style="font-size: 1.25rem;"></i> Address
                     </label>
-                    <textarea class="form-control" id="address" name="address" rows="3" required><?php 
+                    <textarea class="form-control" id="address" name="address" rows="3" style="font-size: 1.25rem;" required><?php 
                         echo htmlspecialchars($member['address']); 
                     ?></textarea>
                 </div>
@@ -528,39 +528,39 @@ if (!$member) {
                     <!-- Children Account Fields -->
                     <div id="childrenFields" class="dynamic-section" style="display: <?php 
                         echo ($member['detail_no'] == 1) ? 'block' : 'none'; ?>;">
-                        <h4><i class="bi bi-person-heart"></i> Guardian Information</h4>
+                        <h4><i class="bi bi-person-heart" style="font-size: 1.25rem;"></i> Guardian Information</h4>
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label for="guardian_name" class="form-label">Guardian's Name</label>
-                                <input type="text" class="form-control" id="guardian_name" 
+                                <label for="guardian_name" class="form-label" style="font-size: 1.25rem;">Guardian's Name</label>
+                                <input type="text" class="form-control" id="guardian_name" style="font-size: 1.25rem;"
                                        name="guardian_name" value="<?php 
                                        echo htmlspecialchars($member['guardian_name'] ?? ''); ?>">
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label for="guardian_nic" class="form-label">Guardian's NIC</label>
-                                <input type="text" class="form-control" id="guardian_nic" 
+                                <label for="guardian_nic" class="form-label" style="font-size: 1.25rem;">Guardian's NIC</label>
+                                <input type="text" class="form-control" id="guardian_nic" style="font-size: 1.25rem;"
                                        name="guardian_nic" value="<?php 
                                        echo htmlspecialchars($member['guardian_nic'] ?? ''); ?>"
                                        pattern="\d{12}" maxlength="12">
                                 <div class="invalid-feedback" id="guardianNicError"></div>
-                                <small class="form-text text-muted">Enter exactly 12 digits</small>
+                                <small class="form-text text-muted" style="font-size: 1.1rem;">Enter exactly 12 digits</small>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label for="guardian_occupation" class="form-label">Guardian's Occupation</label>
-                                <input type="text" class="form-control" id="guardian_occupation" 
+                                <label for="guardian_occupation" class="form-label" style="font-size: 1.25rem;">Guardian's Occupation</label>
+                                <input type="text" class="form-control" id="guardian_occupation" style="font-size: 1.25rem;"
                                        name="guardian_occupation" value="<?php 
                                        echo htmlspecialchars($member['guardian_occupation'] ?? ''); ?>">
                             </div>
                         </div>
                         <div class="mb-3 file-input-container">
                             <label for="file" class="form-label">
-                                <i class="bi bi-file-earmark-text me-1"></i> Birth Certificate
+                                <i class="bi bi-file-earmark-text me-1" style="font-size: 1.25rem;"></i> Birth Certificate
                             </label>
-                            <input type="file" class="form-control" id="file" 
+                            <input type="file" class="form-control" id="file" style="font-size: 1.25rem;"
                                    name="file" accept=".pdf,.jpg,.jpeg,.png,.gif">
                             <?php if (!empty($member['file_path'])): ?>
                                 <div class="file-info">
-                                    <i class="bi bi-paperclip"></i>
+                                    <i class="bi bi-paperclip" style="font-size: 1.1rem;"></i>
                                     Current file: <?php echo htmlspecialchars(basename($member['file_path'])); ?>
                                 </div>
                             <?php endif; ?>
@@ -570,33 +570,33 @@ if (!$member) {
                     <!-- Normal Account Fields -->
                     <div id="normalFields" class="dynamic-section" style="display: <?php 
                         echo ($member['detail_no'] == 2) ? 'block' : 'none'; ?>;">
-                        <h4><i class="bi bi-person-vcard"></i> Member Details</h4>
+                        <h4><i class="bi bi-person-vcard" style="font-size: 1.25rem;"></i> Member Details</h4>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="nic" class="form-label">NIC Number</label>
-                                <input type="text" class="form-control" id="nic" 
+                                <label for="nic" class="form-label" style="font-size: 1.25rem;">NIC Number</label>
+                                <input type="text" class="form-control" id="nic" style="font-size: 1.25rem;"
                                        name="nic" value="<?php 
                                        echo htmlspecialchars($member['nic'] ?? ''); ?>"
                                        pattern="\d{12}" maxlength="12">
                                 <div class="invalid-feedback" id="nicError"></div>
-                                <small class="form-text text-muted">Enter exactly 12 digits</small>
+                                <small class="form-text text-muted" style="font-size: 1.1rem;">Enter exactly 12 digits</small>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="occupation" class="form-label">Occupation</label>
-                                <input type="text" class="form-control" id="occupation" 
+                                <label for="occupation" class="form-label" style="font-size: 1.25rem;">Occupation</label>
+                                <input type="text" class="form-control" id="occupation" style="font-size: 1.25rem;"
                                        name="occupation" value="<?php 
                                        echo htmlspecialchars($member['occupation'] ?? ''); ?>">
                             </div>
                         </div>
                         <div class="mb-3 file-input-container">
-                            <label for="file" class="form-label">
-                                <i class="bi bi-file-earmark-image me-1"></i> NIC Photo
+                            <label for="file" class="form-label" style="font-size: 1.25rem;">
+                                <i class="bi bi-file-earmark-image me-1" style="font-size: 1.25rem;"></i> NIC Photo
                             </label>
-                            <input type="file" class="form-control" id="file" 
+                            <input type="file" class="form-control" id="file" style="font-size: 1.25rem;"
                                    name="file" accept=".pdf,.jpg,.jpeg,.png,.gif">
                             <?php if (!empty($member['file_path'])): ?>
                                 <div class="file-info">
-                                    <i class="bi bi-paperclip"></i>
+                                    <i class="bi bi-paperclip" style="font-size: 1.25rem;"></i>
                                     Current file: <?php echo htmlspecialchars(basename($member['file_path'])); ?>
                                 </div>
                             <?php endif; ?>
@@ -605,11 +605,11 @@ if (!$member) {
                 </div>
 
                 <div class="button-container">
-                    <button type="submit" class="btn btn-custom">
-                        <i class="bi bi-check-circle me-1"></i> Update Member
+                    <button type="submit" class="btn btn-custom" style="font-size: 1.25rem;">
+                        <i class="bi bi-check-circle me-1" style="font-size: 1.25rem;"></i> Update Member
                     </button>
-                    <a href="member_management.php" class="btn btn-secondary">
-                        <i class="bi bi-x-circle me-1"></i> Cancel
+                    <a href="member_management.php" class="btn btn-secondary" style="font-size: 1.25rem;">
+                        <i class="bi bi-x-circle me-1" style="font-size: 1.25rem;"></i> Cancel
                     </a>
                 </div>
             </form>

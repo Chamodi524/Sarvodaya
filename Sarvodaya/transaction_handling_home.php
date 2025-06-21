@@ -109,7 +109,7 @@
 
         <!-- Vertical Tabs -->
         <nav class="nav flex-column">
-            <a class="nav-link" href="Savings_account_management.php">Account information</a>
+            <a class="nav-link" href="Savings_account_management.php" >Account information</a>
             <a class="nav-link" href="receipts_options.php">Receipts</a>
             <a class="nav-link" href="payment_options.php">Payments</a>
             <a class="nav-link" href="loan_installment_status.php">View Loan Installments</a>

@@ -149,12 +149,12 @@
     <div class="container">
         <img src="Sarwodaya logo.jpg" alt="Sarvodaya Bank Logo" class="logo">
         <h1 class="title">Sarvodaya Shramadhana Society</h1>
-        <p class="subtitle">Empowering Your Financial Journey with Trust and Innovation</p>
+        <p class="subtitle" style="font-size: 1.25rem;">Empowering Your Financial Journey with Trust and Innovation</p>
         
         <div class="button-container">
-            <button class="btn" onclick="location.href='member_management.php'">Memberships</button>
-            <button class="btn" onclick="location.href='loan_handing_home.php'">Loans</button>
-            <button class="btn" onclick="location.href='transaction_handling_home.php'">Other Services</button>
+            <button class="btn" onclick="location.href='member_management.php'" style="font-size: 1.25rem;">Memberships</button>
+            <button class="btn" onclick="location.href='loan_handing_home.php'" style="font-size: 1.25rem;">Loans</button>
+            <button class="btn" onclick="location.href='transaction_handling_home.php'" style="font-size: 1.25rem;">Other Services</button>
         </div>
     </div>
 </body>

@@ -383,14 +383,14 @@
                 </div>
             <?php endif; ?>
             
-            <form action="signup_process.php" method="post" id="registrationForm">
+            <form action="signup_process.php" method="post" id="registrationForm" style="font-size: 1.25rem;">
                 <!-- CSRF Token -->
                 <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                 
                 <div class="form-group">
-                    <label for="username">Username</label>
+                    <label for="username" style="font-size: 1.25rem;">Username</label>
                     <div class="input-wrapper">
-                        <input type="text" id="username" name="username" class="form-control" required 
+                        <input type="text" id="username" name="username" style="font-size: 1.25rem;" class="form-control" required 
                                placeholder="Choose a unique username" value="<?= htmlspecialchars($form_data['username'] ?? '') ?>">
                         <div class="input-icon">
                             <i class="fas fa-user"></i>
@@ -399,9 +399,9 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="email">Email Address</label>
+                    <label for="email" style="font-size: 1.25rem;" >Email Address</label>
                     <div class="input-wrapper">
-                        <input type="email" id="email" name="email" class="form-control" required 
+                        <input type="email" id="email" name="email" style="font-size: 1.25rem;" class="form-control" required 
                                placeholder="Enter your email address" value="<?= htmlspecialchars($form_data['email'] ?? '') ?>">
                         <div class="input-icon">
                             <i class="fas fa-envelope"></i>
@@ -410,9 +410,9 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="position">Position</label>
+                    <label for="position"style="font-size: 1.25rem;">Position</label>
                     <div class="input-wrapper">
-                        <select id="position" name="position" class="form-control" required>
+                        <select id="position" name="position" style="font-size: 1.25rem;" class="form-control" required>
                             <option value="" disabled <?= empty($form_data['position']) ? 'selected' : '' ?>>Select your position</option>
                             <option value="loan_handling_clerk" <?= ($form_data['position'] ?? '') === 'loan_handling_clerk' ? 'selected' : '' ?>>Loan Handling Clerk</option>
                             <option value="membership_handling_clerk" <?= ($form_data['position'] ?? '') === 'membership_handling_clerk' ? 'selected' : '' ?>>Membership Handling Clerk</option>
@@ -426,12 +426,12 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="password">Password</label>
+                    <label for="password" style="font-size: 1.25rem;">Password</label>
                     <div class="password-wrapper">
-                        <input type="password" id="password" name="password" class="form-control" required 
+                        <input type="password" id="password" name="password" style="font-size: 1.25rem;" class="form-control" required 
                                placeholder="Create a secure password">
                         <div class="input-icon">
-                            <i class="fas fa-lock"></i>
+                            <i class="fas fa-lock" style="font-size: 1.25rem;"></i>
                         </div>
                     </div>
                     <small>Password must be at least 8 characters long with letters and numbers</small>
@@ -439,20 +439,20 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="confirm_password">Confirm Password</label>
+                    <label for="confirm_password" style="font-size: 1.25rem;"  >Confirm Password</label>
                     <div class="password-wrapper">
-                        <input type="password" id="confirm_password" name="confirm_password" class="form-control" required 
+                        <input type="password" id="confirm_password" name="confirm_password" style="font-size: 1.25rem;" class="form-control" required 
                                placeholder="Confirm your password">
-                        <div class="input-icon">
-                            <i class="fas fa-lock"></i>
+                        <div class="input-icon" style="font-size: 1.25rem;">
+                            <i class="fas fa-lock" ></i>
                         </div>
                     </div>
                 </div>
                 
-                <button type="submit" name="register" class="btn">Create Account</button>
+                <button type="submit" name="register" class="btn" style="font-size: 1.25rem;">Create Account</button>
             </form>
             
-            <div class="login-link">
+            <div class="login-link" style="font-size: 1.25rem;">
                 Already have an account? <a href="login.php">Log in now</a>
             </div>
         </div>

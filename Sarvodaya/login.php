@@ -204,23 +204,23 @@ session_start();
         
         <form action="login_process.php" method="post">
             <div class="form-group">
-                <label for="email">User email</label>
-                <input type="text" id="email" name="email" class="form-control" required placeholder="Enter your email" value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>">
+                <label for="email" style="font-size: 1.25rem;">User email</label>
+                <input type="text" id="email" name="email" class="form-control" style="font-size: 1.25rem;"required placeholder="Enter your email" value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>">
             </div>
             
             <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" class="form-control" required placeholder="Enter your password">
+                <label for="password" style="font-size: 1.25rem;">Password</label>
+                <input type="password" id="password" name="password" class="form-control" style="font-size: 1.25rem;" required placeholder="Enter your password">
             </div>
             
             <button type="submit" name="login" class="btn">Login</button>
         </form>
         
         <div class="forgot-password">
-            <a href="forgot_password.php">Forgot Password?</a>
+            <a href="forgot_password.php" style="font-size: 1.25rem;">Forgot Password?</a>
         </div>
         
-        <div class="login-link">
+        <div class="login-link" style="font-size: 1.25rem;">
             Don't have an account? <a href="signup.php">Register here</a>
         </div>
     </div>
