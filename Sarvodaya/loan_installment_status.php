@@ -134,32 +134,70 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
                 $success_message = "Payment recorded successfully for installment!";
                 
             } elseif ($new_status == 'overdue') {
-                // Handle overdue with late fee
-                $late_fee_amount = isset($_POST['late_fee_amount']) ? $_POST['late_fee_amount'] : $loan_type_late_fee;
-                
-                // If changing from paid to overdue, first delete any existing receipts for this installment
-                if ($current_status == 'paid') {
-                    $delete_receipts_sql = "DELETE FROM receipts WHERE loan_id = ? AND member_id = ? AND receipt_date >= (SELECT payment_date FROM loan_installments WHERE id = ?)";
-                    $delete_stmt = $conn->prepare($delete_receipts_sql);
-                    $delete_stmt->bind_param("iii", $loan_id, $member_id_from_loan, $installment_id);
-                    $delete_stmt->execute();
-                    $delete_stmt->close();
-                }
-                
-                // Update the installment status with late fee
-                $sql = "UPDATE loan_installments 
-                        SET payment_status = ?, 
-                            late_fee = ?,
-                            actual_payment_date = NULL,
-                            actual_payment_amount = NULL
-                        WHERE id = ?";
-                
-                $stmt = $conn->prepare($sql);
-                $stmt->bind_param("sdi", $new_status, $late_fee_amount, $installment_id);
-                $stmt->execute();
-                $stmt->close();
-                
-                $success_message = "Installment marked as overdue with late fee of Rs." . number_format($late_fee_amount, 2);
+    // Handle overdue with late fee
+    $late_fee_amount = isset($_POST['late_fee_amount']) ? $_POST['late_fee_amount'] : $loan_type_late_fee;
+    
+    // If changing from paid to overdue, first delete any existing receipts for this installment
+    if ($current_status == 'paid') {
+        $delete_receipts_sql = "DELETE FROM receipts WHERE loan_id = ? AND member_id = ? AND receipt_date >= (SELECT payment_date FROM loan_installments WHERE id = ?)";
+        $delete_stmt = $conn->prepare($delete_receipts_sql);
+        $delete_stmt->bind_param("iii", $loan_id, $member_id_from_loan, $installment_id);
+        $delete_stmt->execute();
+        $delete_stmt->close();
+    }
+    
+    // Calculate total payment amount (principal + interest + late fee)
+    $total_payment_amount = $principal_amount + $interest_amount + $late_fee_amount;
+    $today_date = date('Y-m-d');
+    
+    // Update the installment status with late fee and actual payment details
+    $sql = "UPDATE loan_installments 
+            SET payment_status = ?, 
+                late_fee = ?,
+                actual_payment_date = ?,
+                actual_payment_amount = ?
+            WHERE id = ?";
+    
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("sdsdi", $new_status, $late_fee_amount, $today_date, $total_payment_amount, $installment_id);
+    $stmt->execute();
+    $stmt->close();
+    
+    // Use today's date for all receipts when marking as overdue
+    $receipt_date = $today_date;
+    
+    // Record principal payment receipt for overdue
+    if ($principal_amount > 0) {
+        $receipt_sql = "INSERT INTO receipts (member_id, loan_id, receipt_type, amount, receipt_date) 
+                       VALUES (?, ?, 'loan_repayment', ?, ?)";
+        $receipt_stmt = $conn->prepare($receipt_sql);
+        $receipt_stmt->bind_param("iids", $member_id_from_loan, $loan_id, $principal_amount, $receipt_date);
+        $receipt_stmt->execute();
+        $receipt_stmt->close();
+    }
+    
+    // Record interest payment receipt for overdue
+    if ($interest_amount > 0) {
+        $interest_receipt_sql = "INSERT INTO receipts (member_id, loan_id, receipt_type, amount, receipt_date) 
+                               VALUES (?, ?, 'loan_interest', ?, ?)";
+        $interest_receipt_stmt = $conn->prepare($interest_receipt_sql);
+        $interest_receipt_stmt->bind_param("iids", $member_id_from_loan, $loan_id, $interest_amount, $receipt_date);
+        $interest_receipt_stmt->execute();
+        $interest_receipt_stmt->close();
+    }
+    
+    // Record late fee receipt for overdue
+    if ($late_fee_amount > 0) {
+        $late_fee_receipt_sql = "INSERT INTO receipts (member_id, loan_id, receipt_type, amount, receipt_date) 
+                               VALUES (?, ?, 'late_fee', ?, ?)";
+        $late_fee_receipt_stmt = $conn->prepare($late_fee_receipt_sql);
+        $late_fee_receipt_stmt->bind_param("iids", $member_id_from_loan, $loan_id, $late_fee_amount, $receipt_date);
+        $late_fee_receipt_stmt->execute();
+        $late_fee_receipt_stmt->close();
+    }
+    
+    $success_message = "Installment marked as overdue with late fee of Rs." . number_format($late_fee_amount, 2) . ". All receipts have been recorded with today's date (" . date('M d, Y') . ").";
+
                 
             } elseif ($new_status == 'pending') {
                 // Handle changing back to pending
