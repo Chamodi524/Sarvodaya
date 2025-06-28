@@ -609,7 +609,7 @@ if (isset($_GET['download']) && $_GET['download'] == 'csv') {
         
         <div class="download-btns">
             <a href="?download=pdf<?php echo (!empty($start_date) ? '&start_date=' . urlencode($start_date) : '') . (!empty($end_date) ? '&end_date=' . urlencode($end_date) : ''); ?>" class="download-btn">Download as PDF</a>
-            <a href="?download=csv<?php echo (!empty($start_date) ? '&start_date=' . urlencode($start_date) : '') . (!empty($end_date) ? '&end_date=' . urlencode($end_date) : ''); ?>" class="download-btn">Download as CSV</a>
+            
         </div>
     </div>
 

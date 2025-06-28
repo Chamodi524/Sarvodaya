@@ -57,9 +57,26 @@ if (isset($_GET['download']) && $_GET['download'] == 'pdf') {
     // Create PDF
     $pdf = new FPDF();
     $pdf->AddPage();
-    $pdf->SetFont('Arial','B',16);
     
-    // Title
+    // Header - Bank Name and Address
+    $pdf->SetFont('Arial','B', 18);
+    $pdf->SetTextColor(255, 140, 0);
+    $pdf->Cell(0, 10, 'SARVODAYA SHRAMADHANA SOCIETY', 0, 1, 'C');
+    
+    $pdf->SetFont('Arial','', 12);
+    $pdf->SetTextColor(0, 0, 0);
+    $pdf->Cell(0, 6, 'Samaghi Sarvodaya Shramadhana Society, Kubaloluwa, Veyangoda.', 0, 1, 'C');
+    $pdf->Cell(0, 6, 'Phone: 077 690 6605  |  Email: info@sarvodayabank.com', 0, 1, 'C');
+    
+    // Line separator
+    $pdf->Ln(5);
+    $pdf->SetLineWidth(0.5);
+    $pdf->SetDrawColor(255, 140, 0);
+    $pdf->Line(20, $pdf->GetY(), 190, $pdf->GetY());
+    $pdf->Ln(10);
+    
+    // Report Title
+    $pdf->SetFont('Arial','B',16);
     $pdf->SetFillColor(255, 140, 0);
     $pdf->SetTextColor(255);
     $pdf->Cell(0,10,'Savings Account Type Analysis',0,1,'C',true);
@@ -175,7 +192,8 @@ if (isset($_GET['download']) && $_GET['download'] == 'csv') {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Savings Account Type Analysis</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Savings Account Type Analysis - Sarvodaya Bank</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -188,16 +206,36 @@ if (isset($_GET['download']) && $_GET['download'] == 'csv') {
             background-color: white;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            padding: 20px;
-            max-width: 800px;
+            padding: 30px;
+            max-width: 1000px;
             margin: 0 auto;
         }
-        h1 {
-            color: rgb(255, 140, 0);
+        
+        /* Header Styles - matching receipt page */
+        .page-header {
+            border-bottom: 2px solid #ff8c00;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
             text-align: center;
-            border-bottom: 2px solid rgb(255, 140, 0);
-            padding-bottom: 10px;
         }
+        .bank-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff8c00;
+            margin-bottom: 5px;
+        }
+        .bank-address {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .page-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #ff8c00;
+            margin-top: 15px;
+        }
+        
         .filter-section {
             background-color: rgb(255, 248, 240);
             border: 1px solid rgb(255, 180, 100);
@@ -333,7 +371,15 @@ if (isset($_GET['download']) && $_GET['download'] == 'csv') {
 </head>
 <body>
     <div class="container">
-        <h1>Savings Account Type Analysis</h1>
+        <!-- Header Section - matching receipt page -->
+        <div class="page-header">
+            <div class="bank-name">SARVODAYA SHRAMADHANA SOCIETY</div>
+            <div class="bank-address">
+                Samaghi Sarvodaya Shramadhana Society, Kubaloluwa, Veyangoda.<br>
+                Phone: 077 690 6605 | Email: info@sarvodayabank.com
+            </div>
+            <div class="page-title">SAVINGS ACCOUNT TYPE ANALYSIS</div>
+        </div>
         
         <!-- Date Filter Section -->
         <div class="filter-section">
