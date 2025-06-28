@@ -68,7 +68,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
     try {
         // Get installment and loan details
         $installment_sql = "SELECT li.loan_id, l.member_id, li.principal_amount, li.interest_amount, 
-                           li.payment_status as current_status, l.loan_type_id, lt.late_fee, lt.loan_name
+                           li.payment_status as current_status, l.loan_type_id, lt.late_fee, lt.loan_name,
+                           l.total_repayment_amount as loan_total_amount
                            FROM loan_installments li 
                            JOIN loans l ON li.loan_id = l.id 
                            JOIN loan_types lt ON l.loan_type_id = lt.id
@@ -87,6 +88,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
             $current_status = $installment_data['current_status'];
             $loan_type_late_fee = $installment_data['late_fee'];
             $loan_name = $installment_data['loan_name'];
+            $loan_total_amount = $installment_data['loan_total_amount'];
             
             if ($new_status == 'paid') {
                 // Handle payment
@@ -100,6 +102,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
                     $delete_stmt->bind_param("iii", $loan_id, $member_id_from_loan, $installment_id);
                     $delete_stmt->execute();
                     $delete_stmt->close();
+                    
+                    // Update the loan's total repayment amount (reduce by principal + interest)
+                    $payment_amount = $principal_amount + $interest_amount;
+                    $update_loan_sql = "UPDATE loans SET total_repayment_amount = total_repayment_amount - ? WHERE id = ?";
+                    $update_stmt = $conn->prepare($update_loan_sql);
+                    $update_stmt->bind_param("di", $payment_amount, $loan_id);
+                    $update_stmt->execute();
+                    $update_stmt->close();
                 }
                 
                 // Update the installment status and payment details
@@ -146,6 +156,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
                     $delete_stmt->bind_param("iii", $loan_id, $member_id_from_loan, $installment_id);
                     $delete_stmt->execute();
                     $delete_stmt->close();
+                    
+                    // Add back the principal + interest to the loan's total repayment amount
+                    $payment_amount = $principal_amount + $interest_amount;
+                    $update_loan_sql = "UPDATE loans SET total_repayment_amount = total_repayment_amount + ? WHERE id = ?";
+                    $update_stmt = $conn->prepare($update_loan_sql);
+                    $update_stmt->bind_param("di", $payment_amount, $loan_id);
+                    $update_stmt->execute();
+                    $update_stmt->close();
                 }
                 
                 // Calculate total payment amount (principal + interest + late fee)
@@ -164,6 +182,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
                 $stmt->bind_param("sdsdi", $new_status, $late_fee_amount, $today_date, $total_payment_amount, $installment_id);
                 $stmt->execute();
                 $stmt->close();
+                
+                // Update the loan's total repayment amount (reduce by principal + interest)
+                $payment_amount = $principal_amount + $interest_amount;
+                $update_loan_sql = "UPDATE loans SET total_repayment_amount = total_repayment_amount - ? WHERE id = ?";
+                $update_stmt = $conn->prepare($update_loan_sql);
+                $update_stmt->bind_param("di", $payment_amount, $loan_id);
+                $update_stmt->execute();
+                $update_stmt->close();
                 
                 // Use today's date for all receipts when marking as overdue
                 $receipt_date = $today_date;
@@ -196,6 +222,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
                 $delete_stmt->bind_param("iii", $loan_id, $member_id_from_loan, $installment_id);
                 $delete_stmt->execute();
                 $delete_stmt->close();
+                
+                // If changing from paid to pending, add back the principal + interest to the loan's total repayment amount
+                if ($current_status == 'paid') {
+                    $payment_amount = $principal_amount + $interest_amount;
+                    $update_loan_sql = "UPDATE loans SET total_repayment_amount = total_repayment_amount + ? WHERE id = ?";
+                    $update_stmt = $conn->prepare($update_loan_sql);
+                    $update_stmt->bind_param("di", $payment_amount, $loan_id);
+                    $update_stmt->execute();
+                    $update_stmt->close();
+                }
                 
                 // Reset the installment to pending status
                 $sql = "UPDATE loan_installments 
