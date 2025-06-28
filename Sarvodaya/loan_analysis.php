@@ -74,10 +74,22 @@ if (isset($_GET['download']) && $_GET['download'] == 'pdf') {
     $pdf->AddPage();
     $pdf->SetFont('Arial','B',16);
     
-    // Title
+    // Add Sarvodaya Header to PDF
     $pdf->SetFillColor(255, 140, 0);
     $pdf->SetTextColor(255);
-    $pdf->Cell(0,10,'Loan Type Analysis',0,1,'C',true);
+    $pdf->Cell(0,10,'SARVODAYA SHRAMADHANA SOCIETY',0,1,'C',true);
+    
+    $pdf->SetFont('Arial','',10);
+    $pdf->SetTextColor(0);
+    $pdf->Cell(0,5,'Samaghi Sarvodaya Shramadhana Society, Kubaloluwa, Veyangoda.',0,1,'C');
+    $pdf->Cell(0,5,'Phone: 077 690 6605 | Email: info@sarvodayabank.com',0,1,'C');
+    $pdf->Ln(10);
+    
+    // Title
+    $pdf->SetFont('Arial','B',16);
+    $pdf->SetFillColor(255, 140, 0);
+    $pdf->SetTextColor(255);
+    $pdf->Cell(0,10,'Loan Type Analysis Report',0,1,'C',true);
     
     // Add date range info if filters are applied
     if (!empty($start_date) || !empty($end_date)) {
@@ -211,11 +223,11 @@ if (isset($_GET['download']) && $_GET['download'] == 'csv') {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Loan Type Analysis</title>
+    <title>Loan Type Analysis - Sarvodaya Bank</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: rgb(255, 240, 220);
+            background-color: rgb(248, 249, 250);
             margin: 0;
             padding: 20px;
             color: rgb(50, 50, 50);
@@ -228,12 +240,50 @@ if (isset($_GET['download']) && $_GET['download'] == 'csv') {
             max-width: 1200px;
             margin: 0 auto;
         }
+        
+        /* Sarvodaya Header Styles */
+        .sarvodaya-header {
+            text-align: center;
+            border-bottom: 3px solid rgb(255, 140, 0);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #fff5e6 0%, #ffe0b3 100%);
+            border-radius: 8px 8px 0 0;
+            padding: 20px;
+            margin: -20px -20px 30px -20px;
+        }
+        .bank-logo {
+            margin-bottom: 15px;
+        }
+        .bank-name {
+            font-size: 28px;
+            font-weight: bold;
+            color: rgb(255, 140, 0);
+            margin-bottom: 8px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        .bank-address {
+            font-size: 14px;
+            color: rgb(100, 100, 100);
+            line-height: 1.6;
+            margin-bottom: 5px;
+        }
+        .bank-contact {
+            font-size: 13px;
+            color: rgb(120, 120, 120);
+            font-style: italic;
+        }
+        
+        /* Report Title */
         h1 {
             color: rgb(255, 140, 0);
             text-align: center;
             border-bottom: 2px solid rgb(255, 140, 0);
             padding-bottom: 10px;
+            margin-top: 0;
+            font-size: 24px;
         }
+        
         .filter-section {
             background-color: rgb(255, 250, 240);
             border: 2px solid rgb(255, 200, 150);
@@ -396,12 +446,42 @@ if (isset($_GET['download']) && $_GET['download'] == 'csv') {
             .filter-buttons {
                 justify-content: center;
             }
+            .bank-name {
+                font-size: 22px;
+            }
+        }
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+            }
+            .container {
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+            .filter-section, .download-btns, .charts-container {
+                display: none;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Loan Type Analysis</h1>
+        <!-- Sarvodaya Header -->
+        <div class="sarvodaya-header">
+            <div class="bank-logo">
+                <!-- Bank Logo would go here -->
+            </div>
+            <div class="bank-name">SARVODAYA SHRAMADHANA SOCIETY</div>
+            <div class="bank-address">
+                Samaghi Sarvodaya Shramadhana Society, Kubaloluwa, Veyangoda.
+            </div>
+            <div class="bank-contact">
+                Phone: 077 690 6605 | Email: info@sarvodayabank.com
+            </div>
+        </div>
+        
+        <h1>Loan Type Analysis Report</h1>
         
         <!-- Date Filter Section -->
         <div class="filter-section">
@@ -529,7 +609,7 @@ if (isset($_GET['download']) && $_GET['download'] == 'csv') {
         
         <div class="download-btns">
             <a href="?download=pdf<?php echo (!empty($start_date) ? '&start_date=' . urlencode($start_date) : '') . (!empty($end_date) ? '&end_date=' . urlencode($end_date) : ''); ?>" class="download-btn">Download as PDF</a>
-
+            <a href="?download=csv<?php echo (!empty($start_date) ? '&start_date=' . urlencode($start_date) : '') . (!empty($end_date) ? '&end_date=' . urlencode($end_date) : ''); ?>" class="download-btn">Download as CSV</a>
         </div>
     </div>
 
