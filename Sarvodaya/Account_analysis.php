@@ -15,11 +15,29 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+// Get date filter parameters
+$start_date = isset($_GET['start_date']) ? $_GET['start_date'] : '';
+$end_date = isset($_GET['end_date']) ? $_GET['end_date'] : '';
+
+// Build WHERE clause for date filtering
+$date_condition = "";
+$date_params = "";
+if (!empty($start_date) && !empty($end_date)) {
+    $date_condition = "AND m.created_at BETWEEN '$start_date 00:00:00' AND '$end_date 23:59:59'";
+    $date_params = "&start_date=$start_date&end_date=$end_date";
+} elseif (!empty($start_date)) {
+    $date_condition = "AND m.created_at >= '$start_date 00:00:00'";
+    $date_params = "&start_date=$start_date";
+} elseif (!empty($end_date)) {
+    $date_condition = "AND m.created_at <= '$end_date 23:59:59'";
+    $date_params = "&end_date=$end_date";
+}
+
 // Handle PDF download request
 if (isset($_GET['download']) && $_GET['download'] == 'pdf') {
     require('fpdf/fpdf.php');
     
-    // Query to get account data
+    // Query to get account data with date filter
     $sql = "SELECT 
                 sat.account_name, 
                 COUNT(m.id) as member_count, 
@@ -28,7 +46,7 @@ if (isset($_GET['download']) && $_GET['download'] == 'pdf') {
             FROM 
                 savings_account_types sat
             LEFT JOIN 
-                members m ON m.account_type = sat.id
+                members m ON m.account_type = sat.id $date_condition
             GROUP BY 
                 sat.id, sat.account_name, sat.minimum_balance, sat.interest_rate
             ORDER BY 
@@ -45,6 +63,18 @@ if (isset($_GET['download']) && $_GET['download'] == 'pdf') {
     $pdf->SetFillColor(255, 140, 0);
     $pdf->SetTextColor(255);
     $pdf->Cell(0,10,'Savings Account Type Analysis',0,1,'C',true);
+    
+    // Add date range info if filtered
+    if (!empty($start_date) || !empty($end_date)) {
+        $pdf->Ln(5);
+        $pdf->SetFont('Arial','B',12);
+        $pdf->SetTextColor(0);
+        $dateRange = "Date Range: ";
+        if (!empty($start_date)) $dateRange .= "From $start_date ";
+        if (!empty($end_date)) $dateRange .= "To $end_date";
+        $pdf->Cell(0,10,$dateRange,0,1,'C');
+    }
+    
     $pdf->Ln(10);
     
     // Table header
@@ -91,14 +121,17 @@ if (isset($_GET['download']) && $_GET['download'] == 'pdf') {
     $pdf->Cell(70,0,'','B',1,'L'); // Bottom border only for signature line
     
     // Output PDF
-    $pdf->Output('D', 'savings_account_analysis_'.date('Y-m-d').'.pdf');
+    $filename = 'savings_account_analysis_'.date('Y-m-d');
+    if (!empty($start_date) || !empty($end_date)) {
+        $filename .= '_filtered';
+    }
+    $pdf->Output('D', $filename.'.pdf');
     exit();
-    
 }
 
 // Handle CSV download request
 if (isset($_GET['download']) && $_GET['download'] == 'csv') {
-    // Query to get account data
+    // Query to get account data with date filter
     $sql = "SELECT 
                 sat.account_name, 
                 COUNT(m.id) as member_count, 
@@ -107,7 +140,7 @@ if (isset($_GET['download']) && $_GET['download'] == 'csv') {
             FROM 
                 savings_account_types sat
             LEFT JOIN 
-                members m ON m.account_type = sat.id
+                members m ON m.account_type = sat.id $date_condition
             GROUP BY 
                 sat.id, sat.account_name, sat.minimum_balance, sat.interest_rate
             ORDER BY 
@@ -126,8 +159,12 @@ if (isset($_GET['download']) && $_GET['download'] == 'csv') {
     }
     
     // Output CSV
+    $filename = 'savings_account_analysis_'.date('Y-m-d');
+    if (!empty($start_date) || !empty($end_date)) {
+        $filename .= '_filtered';
+    }
     header('Content-Type: text/csv');
-    header('Content-Disposition: attachment; filename="savings_account_analysis_'.date('Y-m-d').'.csv"');
+    header('Content-Disposition: attachment; filename="'.$filename.'.csv"');
     echo $csvData;
     exit();
 }
@@ -160,6 +197,82 @@ if (isset($_GET['download']) && $_GET['download'] == 'csv') {
             text-align: center;
             border-bottom: 2px solid rgb(255, 140, 0);
             padding-bottom: 10px;
+        }
+        .filter-section {
+            background-color: rgb(255, 248, 240);
+            border: 1px solid rgb(255, 180, 100);
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .filter-title {
+            color: rgb(255, 140, 0);
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        .filter-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .filter-group label {
+            font-weight: bold;
+            color: rgb(80, 80, 80);
+            font-size: 14px;
+        }
+        .filter-group input[type="date"] {
+            padding: 8px;
+            border: 1px solid rgb(255, 180, 100);
+            border-radius: 3px;
+            font-size: 14px;
+        }
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .filter-btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .filter-btn.apply {
+            background-color: rgb(255, 140, 0);
+            color: white;
+        }
+        .filter-btn.apply:hover {
+            background-color: rgb(230, 120, 0);
+        }
+        .filter-btn.clear {
+            background-color: rgb(220, 220, 220);
+            color: rgb(80, 80, 80);
+        }
+        .filter-btn.clear:hover {
+            background-color: rgb(200, 200, 200);
+        }
+        .active-filter {
+            background-color: rgb(255, 252, 245);
+            border: 1px solid rgb(255, 140, 0);
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        .active-filter strong {
+            color: rgb(255, 140, 0);
         }
         table {
             width: 100%;
@@ -207,14 +320,59 @@ if (isset($_GET['download']) && $_GET['download'] == 'csv') {
             transform: translateY(0);
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
+        @media (max-width: 600px) {
+            .filter-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .filter-buttons {
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Savings Account Type Analysis</h1>
         
+        <!-- Date Filter Section -->
+        <div class="filter-section">
+            <div class="filter-title">📅 Filter by Member Registration Date</div>
+            <form method="GET" action="">
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label for="start_date">Start Date:</label>
+                        <input type="date" id="start_date" name="start_date" value="<?php echo htmlspecialchars($start_date); ?>">
+                    </div>
+                    <div class="filter-group">
+                        <label for="end_date">End Date:</label>
+                        <input type="date" id="end_date" name="end_date" value="<?php echo htmlspecialchars($end_date); ?>">
+                    </div>
+                </div>
+                <div class="filter-buttons">
+                    <button type="submit" class="filter-btn apply">Apply Filter</button>
+                    <a href="?" class="filter-btn clear">Clear Filter</a>
+                </div>
+            </form>
+        </div>
+
+        <?php if (!empty($start_date) || !empty($end_date)): ?>
+        <div class="active-filter">
+            <strong>Active Filter:</strong> 
+            <?php 
+            if (!empty($start_date) && !empty($end_date)) {
+                echo "Members registered between " . date('F j, Y', strtotime($start_date)) . " and " . date('F j, Y', strtotime($end_date));
+            } elseif (!empty($start_date)) {
+                echo "Members registered from " . date('F j, Y', strtotime($start_date)) . " onwards";
+            } elseif (!empty($end_date)) {
+                echo "Members registered up to " . date('F j, Y', strtotime($end_date));
+            }
+            ?>
+        </div>
+        <?php endif; ?>
+        
         <?php
-        // Query to count members by account type
+        // Query to count members by account type with date filter
         $sql = "SELECT 
                     sat.account_name, 
                     COUNT(m.id) as member_count, 
@@ -223,7 +381,7 @@ if (isset($_GET['download']) && $_GET['download'] == 'csv') {
                 FROM 
                     savings_account_types sat
                 LEFT JOIN 
-                    members m ON m.account_type = sat.id
+                    members m ON m.account_type = sat.id $date_condition
                 GROUP BY 
                     sat.id, sat.account_name, sat.minimum_balance, sat.interest_rate
                 ORDER BY 
@@ -242,6 +400,7 @@ if (isset($_GET['download']) && $_GET['download'] == 'csv') {
 
             // Store data for chart
             $chartData = [];
+            $totalMembers = 0;
 
             while($row = $result->fetch_assoc()) {
                 echo "<tr>
@@ -255,13 +414,19 @@ if (isset($_GET['download']) && $_GET['download'] == 'csv') {
                     'name' => $row["account_name"],
                     'count' => $row["member_count"]
                 ];
+                $totalMembers += $row["member_count"];
             }
             echo "</table>";
+
+            // Display total members
+            if (!empty($start_date) || !empty($end_date)) {
+                echo "<p style='text-align: center; margin-top: 15px; font-weight: bold; color: rgb(255, 140, 0);'>Total Members in Filter: $totalMembers</p>";
+            }
 
             // Prepare chart data for JavaScript
             $chartDataJson = json_encode($chartData);
         } else {
-            echo "<p>No account types found.</p>";
+            echo "<p>No account types found for the selected date range.</p>";
         }
         $conn->close();
         ?>
@@ -271,8 +436,8 @@ if (isset($_GET['download']) && $_GET['download'] == 'csv') {
         </div>
         
         <div class="download-btns">
+            <a href="?download=pdf<?php echo $date_params; ?>" class="download-btn">Download as PDF</a>
             
-            <a href="?download=pdf" class="download-btn">Download as PDF</a>
         </div>
     </div>
 
