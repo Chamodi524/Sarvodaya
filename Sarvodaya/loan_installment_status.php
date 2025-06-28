@@ -13,13 +13,19 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+// Check if we're showing a receipt (this comes before other processing)
+if (isset($_GET['receipt_id'])) {
+    showReceipt($conn);
+    exit;
+}
+
 // Check if member_id parameter is provided
 $member_id = isset($_GET['member_id']) ? intval($_GET['member_id']) : 0;
 $selected_loan_type = isset($_GET['loan_type_id']) ? intval($_GET['loan_type_id']) : 0;
 
 // Function to get member's loan types
 function getMemberLoanTypes($conn, $member_id) {
-    $member_loan_types = [];
+    $member_loan_types = array();
     
     if ($member_id > 0) {
         $sql = "SELECT DISTINCT lt.id, lt.loan_name 
@@ -47,9 +53,6 @@ function getMemberLoanTypes($conn, $member_id) {
 // Get loan types for this member
 $member_loan_types = getMemberLoanTypes($conn, $member_id);
 
-
-
-
 // Process status update
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
     $installment_id = $_POST['installment_id'];
@@ -57,6 +60,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
     $actual_payment_date = null;
     $actual_payment_amount = null;
     $late_fee_amount = null;
+    $receipt_id = null;
     
     // Start transaction for data consistency
     $conn->begin_transaction();
@@ -110,95 +114,79 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
                 $stmt->bind_param("ssdi", $new_status, $actual_payment_date, $actual_payment_amount, $installment_id);
                 $stmt->execute();
                 
-                // Record principal payment receipt
-                if ($principal_amount > 0) {
+                // Record combined payment receipt (principal + interest)
+                $total_payment_amount = $principal_amount + $interest_amount;
+                if ($total_payment_amount > 0) {
                     $receipt_sql = "INSERT INTO receipts (member_id, loan_id, receipt_type, amount, receipt_date) 
-                                   VALUES (?, ?, 'loan_repayment', ?, ?)";
+                                   VALUES (?, ?, 'loan_payment', ?, ?)";
                     $receipt_stmt = $conn->prepare($receipt_sql);
-                    $receipt_stmt->bind_param("iids", $member_id_from_loan, $loan_id, $principal_amount, $actual_payment_date);
+                    $receipt_stmt->bind_param("iids", $member_id_from_loan, $loan_id, $total_payment_amount, $actual_payment_date);
                     $receipt_stmt->execute();
+                    $receipt_id = $receipt_stmt->insert_id;
                     $receipt_stmt->close();
-                }
-                
-                // Record interest payment receipt
-                if ($interest_amount > 0) {
-                    $interest_receipt_sql = "INSERT INTO receipts (member_id, loan_id, receipt_type, amount, receipt_date) 
-                                           VALUES (?, ?, 'loan_interest', ?, ?)";
-                    $interest_receipt_stmt = $conn->prepare($interest_receipt_sql);
-                    $interest_receipt_stmt->bind_param("iids", $member_id_from_loan, $loan_id, $interest_amount, $actual_payment_date);
-                    $interest_receipt_stmt->execute();
-                    $interest_receipt_stmt->close();
                 }
                 
                 $stmt->close();
                 $success_message = "Payment recorded successfully for installment!";
                 
+                // Redirect to receipt page if payment was made
+                if ($receipt_id) {
+                    $conn->commit();
+                    header("Location: ?member_id=$member_id&loan_type_id=$selected_loan_type&receipt_id=$receipt_id");
+                    exit;
+                }
             } elseif ($new_status == 'overdue') {
-    // Handle overdue with late fee
-    $late_fee_amount = isset($_POST['late_fee_amount']) ? $_POST['late_fee_amount'] : $loan_type_late_fee;
-    
-    // If changing from paid to overdue, first delete any existing receipts for this installment
-    if ($current_status == 'paid') {
-        $delete_receipts_sql = "DELETE FROM receipts WHERE loan_id = ? AND member_id = ? AND receipt_date >= (SELECT payment_date FROM loan_installments WHERE id = ?)";
-        $delete_stmt = $conn->prepare($delete_receipts_sql);
-        $delete_stmt->bind_param("iii", $loan_id, $member_id_from_loan, $installment_id);
-        $delete_stmt->execute();
-        $delete_stmt->close();
-    }
-    
-    // Calculate total payment amount (principal + interest + late fee)
-    $total_payment_amount = $principal_amount + $interest_amount + $late_fee_amount;
-    $today_date = date('Y-m-d');
-    
-    // Update the installment status with late fee and actual payment details
-    $sql = "UPDATE loan_installments 
-            SET payment_status = ?, 
-                late_fee = ?,
-                actual_payment_date = ?,
-                actual_payment_amount = ?
-            WHERE id = ?";
-    
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sdsdi", $new_status, $late_fee_amount, $today_date, $total_payment_amount, $installment_id);
-    $stmt->execute();
-    $stmt->close();
-    
-    // Use today's date for all receipts when marking as overdue
-    $receipt_date = $today_date;
-    
-    // Record principal payment receipt for overdue
-    if ($principal_amount > 0) {
-        $receipt_sql = "INSERT INTO receipts (member_id, loan_id, receipt_type, amount, receipt_date) 
-                       VALUES (?, ?, 'loan_repayment', ?, ?)";
-        $receipt_stmt = $conn->prepare($receipt_sql);
-        $receipt_stmt->bind_param("iids", $member_id_from_loan, $loan_id, $principal_amount, $receipt_date);
-        $receipt_stmt->execute();
-        $receipt_stmt->close();
-    }
-    
-    // Record interest payment receipt for overdue
-    if ($interest_amount > 0) {
-        $interest_receipt_sql = "INSERT INTO receipts (member_id, loan_id, receipt_type, amount, receipt_date) 
-                               VALUES (?, ?, 'loan_interest', ?, ?)";
-        $interest_receipt_stmt = $conn->prepare($interest_receipt_sql);
-        $interest_receipt_stmt->bind_param("iids", $member_id_from_loan, $loan_id, $interest_amount, $receipt_date);
-        $interest_receipt_stmt->execute();
-        $interest_receipt_stmt->close();
-    }
-    
-    // Record late fee receipt for overdue
-    if ($late_fee_amount > 0) {
-        $late_fee_receipt_sql = "INSERT INTO receipts (member_id, loan_id, receipt_type, amount, receipt_date) 
-                               VALUES (?, ?, 'late_fee', ?, ?)";
-        $late_fee_receipt_stmt = $conn->prepare($late_fee_receipt_sql);
-        $late_fee_receipt_stmt->bind_param("iids", $member_id_from_loan, $loan_id, $late_fee_amount, $receipt_date);
-        $late_fee_receipt_stmt->execute();
-        $late_fee_receipt_stmt->close();
-    }
-    
-    $success_message = "Installment marked as overdue with late fee of Rs." . number_format($late_fee_amount, 2) . ". All receipts have been recorded with today's date (" . date('M d, Y') . ").";
-
+                // Handle overdue with late fee
+                $late_fee_amount = isset($_POST['late_fee_amount']) ? $_POST['late_fee_amount'] : $loan_type_late_fee;
                 
+                // If changing from paid to overdue, first delete any existing receipts for this installment
+                if ($current_status == 'paid') {
+                    $delete_receipts_sql = "DELETE FROM receipts WHERE loan_id = ? AND member_id = ? AND receipt_date >= (SELECT payment_date FROM loan_installments WHERE id = ?)";
+                    $delete_stmt = $conn->prepare($delete_receipts_sql);
+                    $delete_stmt->bind_param("iii", $loan_id, $member_id_from_loan, $installment_id);
+                    $delete_stmt->execute();
+                    $delete_stmt->close();
+                }
+                
+                // Calculate total payment amount (principal + interest + late fee)
+                $total_payment_amount = $principal_amount + $interest_amount + $late_fee_amount;
+                $today_date = date('Y-m-d');
+                
+                // Update the installment status with late fee and actual payment details
+                $sql = "UPDATE loan_installments 
+                        SET payment_status = ?, 
+                            late_fee = ?,
+                            actual_payment_date = ?,
+                            actual_payment_amount = ?
+                        WHERE id = ?";
+                
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("sdsdi", $new_status, $late_fee_amount, $today_date, $total_payment_amount, $installment_id);
+                $stmt->execute();
+                $stmt->close();
+                
+                // Use today's date for all receipts when marking as overdue
+                $receipt_date = $today_date;
+                
+                // Record combined payment receipt (principal + interest + late fee)
+                if ($total_payment_amount > 0) {
+                    $receipt_sql = "INSERT INTO receipts (member_id, loan_id, receipt_type, amount, receipt_date) 
+                                VALUES (?, ?, 'overdue_payment', ?, ?)";
+                    $receipt_stmt = $conn->prepare($receipt_sql);
+                    $receipt_stmt->bind_param("iids", $member_id_from_loan, $loan_id, $total_payment_amount, $receipt_date);
+                    $receipt_stmt->execute();
+                    $receipt_id = $receipt_stmt->insert_id;
+                    $receipt_stmt->close();
+                }
+                
+                $success_message = "Installment marked as overdue with total payment of Rs." . number_format($total_payment_amount, 2) . " (including late fee of Rs." . number_format($late_fee_amount, 2) . "). Receipt has been recorded with today's date (" . date('M d, Y') . ").";
+                
+                // Redirect to receipt page if overdue was marked
+                if ($receipt_id) {
+                    $conn->commit();
+                    header("Location: ?member_id=$member_id&loan_type_id=$selected_loan_type&receipt_id=$receipt_id");
+                    exit;
+                }
             } elseif ($new_status == 'pending') {
                 // Handle changing back to pending
                 
@@ -280,6 +268,378 @@ if ($member_id > 0) {
         $member_info = $member_result->fetch_assoc();
     }
     $member_stmt->close();
+}
+
+// Function to show receipt
+function showReceipt($conn) {
+    // Check if receipt_id is provided
+    if (!isset($_GET['receipt_id']) || empty($_GET['receipt_id'])) {
+        header("Location: " . $_SERVER['HTTP_REFERER'] ?? 'index.php');
+        exit;
+    }
+
+    $receipt_id = (int)$_GET['receipt_id'];
+
+    // Query to get detailed receipt information
+    $query = "
+        SELECT 
+            receipts.id AS receipt_id,
+            members.id AS member_id,
+            members.name AS member_name,
+            members.address,
+            members.phone,
+            receipts.receipt_type,
+            receipts.amount,
+            receipts.receipt_date
+        FROM receipts
+        JOIN members ON receipts.member_id = members.id
+        WHERE receipts.id = ?
+    ";
+
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $receipt_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows === 0) {
+        echo "Receipt not found";
+        exit;
+    }
+
+    $receipt = $result->fetch_assoc();
+
+    // Receipt number - use receipt ID with a prefix
+    $receipt_number = 'RCT-' . str_pad($receipt['receipt_id'], 6, '0', STR_PAD_LEFT);
+
+    // Format receipt type for display
+    $receipt_type_formatted = "Loan Payment"; // Simplified receipt type
+
+    // Function to convert number to words for Indian Rupees
+    function numberToWords($number) {
+        $ones = array(
+            0 => "", 1 => "One", 2 => "Two", 3 => "Three", 4 => "Four", 5 => "Five", 
+            6 => "Six", 7 => "Seven", 8 => "Eight", 9 => "Nine", 10 => "Ten", 
+            11 => "Eleven", 12 => "Twelve", 13 => "Thirteen", 14 => "Fourteen", 15 => "Fifteen", 
+            16 => "Sixteen", 17 => "Seventeen", 18 => "Eighteen", 19 => "Nineteen"
+        );
+        $tens = array(
+            0 => "", 1 => "", 2 => "Twenty", 3 => "Thirty", 4 => "Forty", 5 => "Fifty", 
+            6 => "Sixty", 7 => "Seventy", 8 => "Eighty", 9 => "Ninety"
+        );
+        
+        // Format the number with 2 decimal places
+        $number = (float)$number;
+        $number_parts = explode('.', number_format($number, 2, '.', ''));
+        
+        $wholenum = $number_parts[0];
+        $decnum = $number_parts[1];
+        
+        // Handle the whole number portion
+        $result = "";
+        
+        // Process crores (if any)
+        $crores = (int)($wholenum / 10000000);
+        if ($crores > 0) {
+            $result .= numberToWordsIndian($crores) . " Crore ";
+            $wholenum %= 10000000;
+        }
+        
+        // Process lakhs (if any)
+        $lakhs = (int)($wholenum / 100000);
+        if ($lakhs > 0) {
+            $result .= numberToWordsIndian($lakhs) . " Lakh ";
+            $wholenum %= 100000;
+        }
+        
+        // Process thousands (if any)
+        $thousands = (int)($wholenum / 1000);
+        if ($thousands > 0) {
+            $result .= numberToWordsIndian($thousands) . " Thousand ";
+            $wholenum %= 1000;
+        }
+        
+        // Process hundreds (if any)
+        $hundreds = (int)($wholenum / 100);
+        if ($hundreds > 0) {
+            $result .= numberToWordsIndian($hundreds) . " Hundred ";
+            $wholenum %= 100;
+        }
+        
+        // Process tens and ones
+        if ($wholenum > 0) {
+            if ($result != "") {
+                $result .= "and ";
+            }
+            $result .= numberToWordsIndian($wholenum);
+        }
+        
+        // Add "Rupees" text
+        if ($result == "") {
+            $result = "Zero";
+        }
+        $result .= " Rupees";
+        
+        // Process decimal part (paise)
+        if ((int)$decnum > 0) {
+            $result .= " and " . numberToWordsIndian((int)$decnum) . " Paise";
+        }
+        
+        return $result . " Only";
+    }
+
+    // Helper function to convert small numbers to words
+    function numberToWordsIndian($num) {
+        $ones = array(
+            0 => "", 1 => "One", 2 => "Two", 3 => "Three", 4 => "Four", 5 => "Five", 
+            6 => "Six", 7 => "Seven", 8 => "Eight", 9 => "Nine", 10 => "Ten", 
+            11 => "Eleven", 12 => "Twelve", 13 => "Thirteen", 14 => "Fourteen", 15 => "Fifteen", 
+            16 => "Sixteen", 17 => "Seventeen", 18 => "Eighteen", 19 => "Nineteen"
+        );
+        $tens = array(
+            0 => "", 1 => "", 2 => "Twenty", 3 => "Thirty", 4 => "Forty", 5 => "Fifty", 
+            6 => "Sixty", 7 => "Seventy", 8 => "Eighty", 9 => "Ninety"
+        );
+        
+        $num = (int)$num;
+        
+        if ($num < 20) {
+            return $ones[$num];
+        } elseif ($num < 100) {
+            return $tens[(int)($num/10)] . ($num % 10 ? " " . $ones[$num % 10] : "");
+        }
+        
+        return ""; // Should not reach here with proper usage
+    }
+
+    // Close the database connection
+    $stmt->close();
+    ?>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Receipt - Sarvodaya Bank</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+        <style>
+            body {
+                font-family: 'Arial', sans-serif;
+                line-height: 1.6;
+                color: #333;
+                background-color: #f8f9fa;
+                padding: 20px;
+            }
+            .receipt-container {
+                max-width: 800px;
+                margin: 0 auto;
+                background: #fff;
+                padding: 30px;
+                border-radius: 8px;
+                box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            }
+            .receipt-header {
+                border-bottom: 2px solid #ff8c00;
+                padding-bottom: 15px;
+                margin-bottom: 20px;
+            }
+            .receipt-title {
+                color: #ff8c00;
+                font-weight: bold;
+                margin-bottom: 5px;
+            }
+            .receipt-logo {
+                text-align: center;
+                margin-bottom: 20px;
+            }
+            .receipt-logo img {
+                max-height: 80px;
+            }
+            .receipt-bank-name {
+                font-size: 24px;
+                font-weight: bold;
+                color: #ff8c00;
+                text-align: center;
+                margin-bottom: 5px;
+            }
+            .receipt-bank-address {
+                text-align: center;
+                margin-bottom: 20px;
+                font-size: 14px;
+            }
+            .receipt-number {
+                font-weight: bold;
+                font-size: 16px;
+                margin-bottom: 5px;
+            }
+            .receipt-date {
+                margin-bottom: 15px;
+                font-size: 14px;
+            }
+            .receipt-body {
+                margin-bottom: 20px;
+            }
+            .receipt-row {
+                display: flex;
+                margin-bottom: 10px;
+            }
+            .receipt-label {
+                font-weight: bold;
+                width: 180px;
+            }
+            .receipt-value {
+                flex: 1;
+            }
+            .receipt-amount {
+                font-size: 22px;
+                font-weight: bold;
+                margin: 20px 0;
+                text-align: center;
+                color: #ff8c00;
+            }
+            .receipt-amount-words {
+                font-style: italic;
+                margin-bottom: 20px;
+                text-align: center;
+                padding: 10px;
+                background-color: #f8f9fa;
+                border-radius: 5px;
+            }
+            .receipt-footer {
+                border-top: 1px dashed #ddd;
+                padding-top: 20px;
+                margin-top: 20px;
+                text-align: center;
+                font-size: 12px;
+                color: #666;
+            }
+            .receipt-signature {
+                margin-top: 50px;
+                display: flex;
+                justify-content: space-between;
+            }
+            .sign-box {
+                text-align: center;
+                width: 200px;
+            }
+            .sign-line {
+                border-top: 1px solid #333;
+                margin-bottom: 5px;
+            }
+            .btn-action {
+                background-color: #ff8c00;
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 4px;
+                cursor: pointer;
+                text-decoration: none;
+                display: inline-block;
+                margin-top: 20px;
+            }
+            .btn-action:hover {
+                background-color: #ff9800;
+                color: white;
+            }
+            .actions {
+                text-align: center;
+                margin-top: 20px;
+            }
+            @media print {
+                body {
+                    padding: 0;
+                    background-color: white;
+                }
+                .receipt-container {
+                    box-shadow: none;
+                    padding: 15px;
+                    border: 1px solid #ddd;
+                }
+                .actions {
+                    display: none;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="receipt-container">
+            <div class="receipt-header">
+                <div class="receipt-logo">
+                    <!-- Bank Logo would go here -->
+                    <div class="receipt-bank-name">SARVODAYA SHRAMADHANA SOCIETY</div>
+                </div>
+                <div class="receipt-bank-address">
+                Samaghi Sarvodaya Shramadhana Society,Kubaloluwa,Veyangoda.<br>
+                    Phone: 077 690 6605  | Email: info@sarvodayabank.com
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="receipt-number">Receipt No: <?php echo htmlspecialchars($receipt_number); ?></div>
+                        <div class="receipt-date">Date: <?php echo htmlspecialchars(date('d-m-Y', strtotime($receipt['receipt_date']))); ?></div>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <div class="receipt-title">RECEIPT</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="receipt-body">
+                <div class="receipt-row">
+                    <div class="receipt-label">Received From:</div>
+                    <div class="receipt-value"><?php echo htmlspecialchars($receipt['member_name']); ?></div>
+                </div>
+                
+                <div class="receipt-row">
+                    <div class="receipt-label">Member ID:</div>
+                    <div class="receipt-value"><?php echo htmlspecialchars($receipt['member_id']); ?></div>
+                </div>
+                
+                <?php if (!empty($receipt['address'])): ?>
+                <div class="receipt-row">
+                    <div class="receipt-label">Address:</div>
+                    <div class="receipt-value"><?php echo nl2br(htmlspecialchars($receipt['address'])); ?></div>
+                </div>
+                <?php endif; ?>
+                
+                <div class="receipt-row">
+                    <div class="receipt-label">Payment For:</div>
+                    <div class="receipt-value"><?php echo htmlspecialchars($receipt_type_formatted); ?></div>
+                </div>
+                
+                <div class="receipt-amount">
+                    Rs.<?php echo htmlspecialchars(number_format($receipt['amount'], 2)); ?>
+                </div>
+                
+                <div class="receipt-amount-words">
+                    <?php echo numberToWords($receipt['amount']); ?>
+                </div>
+                
+                <div class="receipt-signature">
+                    <div class="sign-box">
+                        <div class="sign-line"></div>
+                        Member Signature
+                    </div>
+                    <div class="sign-box">
+                        <div class="sign-line"></div>
+                        Authorized Signature
+                    </div>
+                </div>
+            </div>
+            
+            <div class="receipt-footer">
+                <p>This is a computer-generated receipt. Thank you for your payment.</p>
+                <p>For any enquiries, please contact our customer service at +91 123-456-7890 or visit our office.</p>
+            </div>
+        </div>
+        
+        <div class="actions">
+            <button onclick="window.print();" class="btn-action">Print Receipt</button>
+            <a href="<?php echo $_SERVER['HTTP_REFERER'] ?? 'index.php'; ?>" class="btn-action">Back</a>
+        </div>
+    </body>
+    </html>
+    <?php
+    exit;
 }
 ?>
 
@@ -1009,7 +1369,8 @@ if ($member_id > 0) {
             <h3><i class="fas fa-money-check-alt"></i> Record Payment</h3>
             <form method="post" id="paymentForm">
                 <input type="hidden" name="installment_id" id="modal_installment_id">
-                <input type="hidden" name="new_status" value="paid"><input type="hidden" name="member_id" value="<?php echo $member_id; ?>">
+                <input type="hidden" name="new_status" value="paid">
+                <input type="hidden" name="member_id" value="<?php echo $member_id; ?>">
                 <input type="hidden" name="loan_type_id" value="<?php echo $selected_loan_type; ?>">
                 
                 <div class="form-group">
