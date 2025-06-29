@@ -671,46 +671,46 @@ tr:hover {
     body {
         background-color: white;
         padding: 0;
-        font-size: 12px;
+        font-size: 10px; /* Reduced from 12px */
     }
     
     .container {
         box-shadow: none;
         padding: 0;
-        margin-bottom: 10px;
+        margin-bottom: 5px; /* Reduced from 10px */
     }
     
     .header-container {
         background: none;
         border-bottom: 1px solid #333;
-        margin: 0 0 20px 0;
-        padding: 10px 0;
+        margin: 0 0 10px 0; /* Reduced from 20px */
+        padding: 5px 0; /* Reduced from 10px */
         page-break-inside: avoid;
     }
     
     .logo {
-        width: 60px;
-        height: 60px;
+        width: 40px; /* Reduced from 60px */
+        height: 40px; /* Reduced from 60px */
     }
     
     .org-title {
-        font-size: 16px;
+        font-size: 14px !important; /* Reduced significantly */
     }
     
     .org-subtitle {
-        font-size: 13px;
+        font-size: 10px !important; /* Reduced from 13px */
     }
     
     .org-location {
-        font-size: 11px;
+        font-size: 9px !important; /* Reduced from 11px */
     }
     
     .org-contact {
-        font-size: 10px;
+        font-size: 8px !important; /* Reduced from 10px */
     }
     
     .page-title {
-        font-size: 14px;
+        font-size: 11px !important; /* Reduced from 14px */
     }
     
     button, select, input {
@@ -735,16 +735,26 @@ tr:hover {
     }
     
     table {
-        font-size: 11px;
+        font-size: 9px; /* Reduced from 11px */
     }
     
     th, td {
-        padding: 6px 8px;
+        padding: 3px 5px; /* Reduced from 6px 8px */
     }
     
     .summary {
-        font-size: 11px;
-        padding: 10px;
+        font-size: 9px; /* Reduced from 11px */
+        padding: 5px; /* Reduced from 10px */
+        margin-top: 5px; /* Reduced spacing */
+    }
+    
+    .summary h3 {
+        font-size: 10px !important; /* Added specific size for summary title */
+        margin-bottom: 5px;
+    }
+    
+    .summary-row {
+        margin-bottom: 3px; /* Reduced spacing between summary rows */
     }
 }
 </style>
@@ -756,18 +766,18 @@ tr:hover {
         <img src="Sarwodaya logo.jpg" alt="Sarvodaya Logo" class="logo">
     </div>
     <div class="header-content">
-        <div class="organization-header">
-            <h1 class="org-title">SARVODAYA SHRAMADHANA SOCIETY</h1>
-            <h2 class="org-subtitle">Samaghi Sarvodaya Shramadhana Society</h2>
-            <div class="org-location">Kubaloluwa, Veyangoda</div>
-            <div class="org-contact">
-                <span class="contact-item">Phone: 077 690 6605</span>
+        <div class="organization-header" >
+            <h1 class="org-title" style="font-size: 3rem;">SARVODAYA SHRAMADHANA SOCIETY</h1>
+            <h2 class="org-subtitle" style="font-size: 1.5rem;">Samaghi Sarvodaya Shramadhana Society</h2>
+            <div class="org-location" style="font-size: 1.25rem;">Kubaloluwa, Veyangoda</div>
+            <div class="org-contact" >
+                <span class="contact-item" style="font-size: 1.25rem;">Phone: 077 690 6605</span>
                 <span class="contact-separator">|</span>
-                <span class="contact-item">Email: info@sarvodayabank.com</span>
+                <span class="contact-item" style="font-size: 1.25rem;">Email: info@sarvodayabank.com</span>
             </div>
         </div>
         <div class="page-title-section">
-            <h3 class="page-title">Loan Repayment Schedule Calculator</h3>
+            <h3 class="page-title" style="font-size: 1.5rem;">Loan Repayment Schedule Calculator</h3>
         </div>
     </div>
 </div>
@@ -785,14 +795,14 @@ tr:hover {
         <?php endif; ?>
         
         <?php if (empty($loanTypes) && !$error): ?>
-        <div id="loadingMessage" class="loading">Loading loan types...</div>
+        <div id="loadingMessage" class="loading" style="font-size: 1.25rem;">Loading loan types...</div>
         <?php endif; ?>
         
         <div id="calculatorForm" <?php echo (empty($loanTypes) && !$error) ? 'style="display: none;"' : ''; ?>>
         <div class="input-row">
     <div class="form-group" style="flex: 3;">
-        <label for="memberId">Membership No:</label>
-        <input type="number" id="memberId" placeholder="Enter member ID">
+        <label for="memberId" style="font-size: 1.25rem;">Membership No:</label>
+        <input type="number" id="memberId" placeholder="Enter member ID" style="font-size: 1.25rem;">
     </div>
     <div class="form-group" style="flex: 1; display: flex; align-items: flex-end;">
         <button type="button" onclick="loadMemberInfo()" style="margin: 0; width: 100%;">Search</button>
@@ -800,17 +810,17 @@ tr:hover {
 </div>
             
             <div id="memberInfoContainer" style="display: none;" class="member-info">
-                <p id="memberDetails"></p>
+                <p id="memberDetails" style="font-size: 1.25rem;"></p>
                 <div id="existingLoansContainer" class="existing-loans" style="display: none;">
-                    <h4>Existing Active Loans</h4>
-                    <div id="existingLoansList"></div>
+                    <h4 style="font-size: 1.25rem;">Existing Active Loans</h4>
+                    <div id="existingLoansList" style="font-size: 1.25rem;"></div>
                 </div>
             </div>
             
             <div class="form-group">
-                <label for="loanType">Loan Type:</label>
-                <select id="loanType" onchange="updateLoanDetails()">
-                    <option value="">Select a loan type</option>
+                <label for="loanType" style="font-size: 1.25rem;">Loan Type:</label>
+                <select id="loanType" onchange="updateLoanDetails()" style="font-size: 1.25rem;">
+                    <option value="" style="font-size: 1.25rem;">Select a loan type</option>
                     <?php foreach ($loanTypes as $loan): ?>
                     <option value="<?php echo htmlspecialchars($loan['id']); ?>">
                         <?php echo htmlspecialchars($loan['loan_name']); ?>
@@ -822,36 +832,36 @@ tr:hover {
             
             <div class="input-row">
                 <div class="form-group">
-                    <label for="loanAmount">Loan Amount (LKR):</label>
-                    <input type="number" id="loanAmount" placeholder="Enter loan amount">
+                    <label for="loanAmount" style="font-size: 1.25rem;" >Loan Amount (LKR):</label>
+                    <input type="number" id="loanAmount" placeholder="Enter loan amount" style="font-size: 1.25rem;">
                 </div>
                 
                 <div class="form-group">
-                    <label for="interestRate">Interest Rate (% per month):</label>
-                    <input type="number" id="interestRate" step="0.01" placeholder="Interest rate" readonly>
+                    <label for="interestRate" style="font-size: 1.25rem;">Interest Rate (% per month):</label>
+                    <input type="number" id="interestRate" step="0.01" placeholder="Interest rate" readonly style="font-size: 1.25rem;">
                 </div>
             </div>
             
             <div class="input-row">
                 <div class="form-group">
-                    <label for="loanTerm">Loan Term (months):</label>
-                    <input type="number" id="loanTerm" placeholder="Enter loan term">
+                    <label for="loanTerm" style="font-size: 1.25rem;">Loan Term (months):</label>
+                    <input type="number" id="loanTerm" placeholder="Enter loan term" style="font-size: 1.25rem;">
                 </div>
                 
                 <div class="form-group">
-                    <label for="startDate">Start Date:</label>
-                    <input type="date" id="startDate">
+                    <label for="startDate" style="font-size: 1.25rem;">Start Date:</label>
+                    <input type="date" id="startDate" style="font-size: 1.25rem;">
                 </div>
             </div>
             
             <div class="input-row">
                 <div class="form-group">
-                    <label for="loanId">Loan ID:</label>
-                    <input type="number" id="loanId" placeholder="Enter loan ID to save schedule">
+                    <label for="loanId" style="font-size: 1.25rem;">Loan ID:</label>
+                    <input type="number" id="loanId" placeholder="Enter loan ID to save schedule" style="font-size: 1.25rem;">
                 </div>
             </div>
             
-            <button onclick="generateSchedule()" class="no-print">Generate Repayment Schedule</button>
+            <button onclick="generateSchedule()" class="no-print" style="font-size: 1.25rem;">Generate Repayment Schedule</button>
         </div>
     </div>
     
@@ -861,22 +871,22 @@ tr:hover {
             <table id="scheduleTable">
                 <thead>
                     <tr>
-                        <th>Payment #</th>
-                        <th>Payment Date</th>
-                        <th>Payment Amount</th>
-                        <th>Principal</th>
-                        <th>Interest</th>
-                        <th>Remaining Balance</th>
+                        <th style="font-size: 1.25rem;">Payment #</th>
+                        <th style="font-size: 1.25rem;">Payment Date</th>
+                        <th style="font-size: 1.25rem;">Payment Amount</th>
+                        <th style="font-size: 1.25rem;">Principal</th>
+                        <th style="font-size: 1.25rem;">Interest</th>
+                        <th style="font-size: 1.25rem;">Remaining Balance</th>
                     </tr>
                 </thead>
                 <tbody id="scheduleBody"></tbody>
             </table>
         </div>
-        <div class="no-print" style="text-align: center; margin-top: 20px;">
-            <button onclick="window.print()">Print Schedule</button>
+        <div class="no-print" style="text-align: center; margin-top: 20px;" style="font-size: 1.25rem;">
+            <button onclick="window.print()" style="font-size: 1.25rem;">Print Schedule</button>
         </div>
         <div id="saveButtonContainer" class="no-print" style="text-align: center; margin-top: 20px;">
-            <button id="saveButton" onclick="saveScheduleToDatabase()">Save Schedule to Database</button>
+            <button id="saveButton" onclick="saveScheduleToDatabase()" style="font-size: 1.25rem;">Save Schedule to Database</button>
         </div>
     </div>
 
@@ -1238,30 +1248,30 @@ async function loadMemberInfo() {
             
             // Update summary
             const summaryHTML = `
-                <h3>Loan Summary - ${loanName}</h3>
+                <h3 style="font-size: 1.25rem;" >Loan Summary - ${loanName}</h3>
                 <div class="summary-row">
-                    <span class="summary-label">Member:</span>
-                    <span>ID: ${memberId} - ${memberName}</span>
+                    <span class="summary-label" style="font-size: 1.25rem;" >Member:</span>
+                    <span style="font-size: 1.25rem;" >ID: ${memberId} - ${memberName}</span>
                 </div>
                 <div class="summary-row">
-                    <span class="summary-label">Loan ID:</span>
-                    <span>${document.getElementById('loanId').value || 'Not specified'}</span>
+                    <span class="summary-label" style="font-size: 1.25rem;" >Loan ID:</span>
+                    <span style="font-size: 1.25rem;" >${document.getElementById('loanId').value || 'Not specified'}</span>
                 </div>
                 <div class="summary-row">
-                    <span class="summary-label">Loan Amount:</span>
-                    <span>${formatCurrency(loanAmount)}</span>
+                    <span class="summary-label" style="font-size: 1.25rem;" >Loan Amount:</span>
+                    <span style="font-size: 1.25rem;" >${formatCurrency(loanAmount)}</span>
                 </div>
                 <div class="summary-row">
-                    <span class="summary-label">Monthly Payment:</span>
-                    <span>${formatCurrency(monthlyPayment)}</span>
+                    <span class="summary-label" style="font-size: 1.25rem;" >Monthly Payment:</span>
+                    <span style="font-size: 1.25rem;" >${formatCurrency(monthlyPayment)}</span>
                 </div>
                 <div class="summary-row">
-                    <span class="summary-label">Total Interest:</span>
-                    <span>${formatCurrency(totalInterest)}</span>
+                    <span class="summary-label" style="font-size: 1.25rem;" >Total Interest:</span>
+                    <span style="font-size: 1.25rem;" >${formatCurrency(totalInterest)}</span>
                 </div>
                 <div class="summary-row">
-                    <span class="summary-label">Total Amount to Repay:</span>
-                    <span>${formatCurrency(totalPayment)}</span>
+                    <span class="summary-label" style="font-size: 1.25rem;" >Total Amount to Repay:</span>
+                    <span style="font-size: 1.25rem;" >${formatCurrency(totalPayment)}</span>
                 </div>
             `;
             
@@ -1275,12 +1285,12 @@ async function loadMemberInfo() {
                 const row = document.createElement('tr');
                 
                 row.innerHTML = `
-                    <td>${payment.paymentNumber}</td>
-                    <td>${formatDate(payment.paymentDate)}</td>
-                    <td>${formatCurrency(payment.paymentAmount)}</td>
-                    <td>${formatCurrency(payment.principal)}</td>
-                    <td>${formatCurrency(payment.interest)}</td>
-                    <td>${formatCurrency(payment.remainingBalance)}</td>
+                    <td style="font-size: 1.25rem;"> ${payment.paymentNumber}</td>
+                    <td style="font-size: 1.25rem;">${formatDate(payment.paymentDate)}</td>
+                    <td style="font-size: 1.25rem;">${formatCurrency(payment.paymentAmount)}</td>
+                    <td style="font-size: 1.25rem;">${formatCurrency(payment.principal)}</td>
+                    <td style="font-size: 1.25rem;">${formatCurrency(payment.interest)}</td>
+                    <td style="font-size: 1.25rem;">${formatCurrency(payment.remainingBalance)}</td>
                 `;
                 
                 tableBody.appendChild(row);
