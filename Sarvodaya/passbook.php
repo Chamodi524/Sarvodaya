@@ -156,7 +156,7 @@ $current_balance = !empty($transactions) ? end($transactions)['running_balance']
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Member Passbook Details</title>
+    <title>Member Passbook - Sarvodaya Shramadhana Society</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         :root {
@@ -170,6 +170,66 @@ $current_balance = !empty($transactions) ? end($transactions)['running_balance']
         body { 
             padding: 20px;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Header Styles */
+        .page-header {
+            background: linear-gradient(135deg, var(--orange-primary), var(--orange-dark));
+            color: white;
+            padding: 20px 0;
+            margin: -20px -20px 30px -20px;
+            border-radius: 0 0 15px 15px;
+            box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .organization-name {
+            font-size: 2.2rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 5px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .organization-subtitle {
+            font-size: 1.1rem;
+            text-align: center;
+            margin-bottom: 15px;
+            opacity: 0.95;
+        }
+
+        .contact-info {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .header-divider {
+            width: 100%;
+            height: 2px;
+            background: rgba(255,255,255,0.3);
+            margin: 15px 0 10px 0;
+        }
+
+        .page-title {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0;
         }
         
         .btn-primary {
@@ -294,6 +354,42 @@ $current_balance = !empty($transactions) ? end($transactions)['running_balance']
                 display: block !important;
                 visibility: visible !important;
             }
+
+            .page-header {
+                background: white !important;
+                color: black !important;
+                margin: 0 0 20px 0;
+                padding: 15px 0;
+                border-bottom: 3px solid var(--orange-primary);
+                box-shadow: none;
+                border-radius: 0;
+            }
+
+            .organization-name {
+                color: var(--orange-primary) !important;
+                font-size: 1.8rem !important;
+                text-shadow: none !important;
+            }
+
+            .organization-subtitle {
+                color: #666 !important;
+                font-size: 1rem !important;
+            }
+
+            .contact-info {
+                color: #666 !important;
+                font-size: 0.8rem !important;
+            }
+
+            .page-title {
+                color: var(--orange-primary) !important;
+                font-size: 1.3rem !important;
+            }
+
+            .header-divider {
+                background: var(--orange-primary) !important;
+                opacity: 0.5;
+            }
             
             .container {
                 width: 100%;
@@ -359,10 +455,42 @@ $current_balance = !empty($transactions) ? end($transactions)['running_balance']
     </style>
 </head>
 <body>
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <div class="organization-name">SARVODAYA SHRAMADHANA SOCIETY</div>
+            <div class="organization-subtitle">Samaghi Sarvodaya Shramadhana Society, Kubaloluwa, Veyangoda</div>
+            
+            <div class="contact-info">
+                <div class="contact-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.568 17.568 0 0 0 4.168 6.608 17.569 17.569 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.678.678 0 0 0-.58-.122L9.98 10.07a6.76 6.76 0 0 1-3.05-3.05l.639-1.804a.678.678 0 0 0-.122-.58L5.653 2.328z"/>
+                    </svg>
+                    077 690 6605
+                </div>
+                <div class="contact-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2Zm13 2.383-4.708 2.825L15 11.105V5.383Zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741ZM1 11.105l4.708-2.897L1 5.383v5.722Z"/>
+                    </svg>
+                    info@sarvodayabank.com
+                </div>
+                <div class="contact-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M12.166 8.94c-.524 1.062-1.234 2.12-1.96 3.07A31.493 31.493 0 0 1 8 14.58a31.481 31.481 0 0 1-2.206-2.57c-.726-.95-1.436-2.008-1.96-3.07C3.304 7.867 3 6.862 3 6a5 5 0 0 1 10 0c0 .862-.305 1.867-.834 2.94zM8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10z"/>
+                        <path d="M8 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+                    </svg>
+                    Reg. No: 12345/SS/2020
+                </div>
+            </div>
+            
+            <div class="header-divider"></div>
+            <div class="page-title">MEMBER PASSBOOK</div>
+        </div>
+    </div>
+
     <div class="container">
         <div class="row no-print">
             <div class="col-12">
-                <h1 class="mb-4">Member Passbook</h1>
                 <div class="card mb-4">
                     <div class="card-body">
                         <form method="post" class="row g-3">
@@ -423,14 +551,6 @@ $current_balance = !empty($transactions) ? end($transactions)['running_balance']
                 <?php if (empty($transactions)): ?>
                     <div class="alert alert-info">No transactions found for the selected period.</div>
                 <?php else: ?>
-                    <!-- Print-only header that repeats on each page -->
-                    <div class="d-none print-visible" style="display:none;">
-                        <div style="padding: 10px 0; border-bottom: 1px solid #ddd; margin-bottom: 10px;">
-                            <h4 style="margin:0;">Member: <?php echo htmlspecialchars($member_name); ?> (ID: <?php echo $member_id; ?>)</h4>
-                            <p style="margin:0;">Statement: <?php echo date('d M Y', strtotime($start_date)); ?> - <?php echo date('d M Y', strtotime($end_date)); ?></p>
-                        </div>
-                    </div>
-                    
                     <div class="table-responsive">
                         <table class="table table-bordered">
                             <thead>
