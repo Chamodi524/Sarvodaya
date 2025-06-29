@@ -92,7 +92,7 @@
 
         <!-- Vertical Tabs -->
         <nav class="nav flex-column">
-        <a class="nav-link" href="balance_Sheet.php">Balance Sheet</a>
+        <a class="nav-link" href="incomeStatement.php">Income Statement</a>
         <a class="nav-link" href="journal.php">General journal</a>
         <a class="nav-link" href="account_details_report.php">Accounts Summary Report</a>
         <a class="nav-link" href="payment_report_system.php">Payments Report</a>
