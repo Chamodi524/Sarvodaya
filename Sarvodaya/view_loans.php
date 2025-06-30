@@ -228,8 +228,8 @@ if (isset($_POST['search'])) {
                         <div class="card-body">
                             <form method="post" action="" class="row g-3">
                                 <div class="col-md-8">
-                                    <label for="member_id" class="form-label fw-bold">Member ID</label>
-                                    <input type="number" class="form-control form-control-lg" id="member_id" name="member_id" value="<?php echo htmlspecialchars($search_member_id); ?>" placeholder="Enter member ID">
+                                    <label for="member_id" class="form-label fw-bold" style="font-size: 1.5rem;">Member ID</label>
+                                    <input type="number" class="form-control form-control-lg" id="member_id"  style="font-size: 1.5rem;" name="member_id" value="<?php echo htmlspecialchars($search_member_id); ?>" placeholder="Enter member ID">
                                 </div>
                                 <div class="col-md-4 d-flex align-items-end">
                                     <button type="submit" name="search" class="btn btn-primary w-100 py-3">
@@ -263,29 +263,29 @@ if (isset($_POST['search'])) {
                             <div class="col">
                                 <div class="card h-100 loan-card">
                                     <div class="card-header d-flex justify-content-between align-items-center bg-light">
-                                        <h5 class="mb-0 fw-bold text-dark">Loan #<?php echo $loan['id']; ?></h5>
-                                        <span class="badge status-<?php echo $loan['status']; ?> rounded-pill px-3 py-2">
+                                        <h5 class="mb-0 fw-bold text-dark" style="font-size: 1.5rem;">Loan #<?php echo $loan['id']; ?></h5>
+                                        <span class="badge status-<?php echo $loan['status']; ?> rounded-pill px-3 py-2" style="font-size: 1.5rem;">
                                             <?php echo ucfirst($loan['status']); ?>
                                         </span>
                                     </div>
-                                    <div class="card-body">
-                                        <div class="mb-3">
-                                            <strong><i class="bi bi-tag me-2 text-primary"></i>Type:</strong> <?php echo htmlspecialchars($loan['loan_type_name']); ?>
+                                    <div class="card-body" style="font-size: 1.5rem;">
+                                        <div class="mb-3" >
+                                            <strong style="font-size: 1.5rem;"><i class="bi bi-tag me-2 text-primary"></i>Type:</strong> <?php echo htmlspecialchars($loan['loan_type_name']); ?>
                                         </div>
                                         <div class="mb-3">
-                                            <strong><i class="bi bi-cash-stack me-2 text-primary"></i>Amount:</strong> Rs. <?php echo number_format($loan['amount'], 2); ?>
+                                            <strong style="font-size: 1.5rem;"><i class="bi bi-cash-stack me-2 text-primary"></i>Amount:</strong> Rs. <?php echo number_format($loan['amount'], 2); ?>
                                         </div>
                                         <div class="mb-3">
-                                            <strong><i class="bi bi-percent me-2 text-primary"></i>Interest Rate:</strong> <?php echo $loan['interest_rate']; ?>%
+                                            <strong style="font-size: 1.5rem;"><i class="bi bi-percent me-2 text-primary"></i>Interest Rate:</strong> <?php echo $loan['interest_rate']; ?>%
                                         </div>
                                         <div class="mb-3">
-                                            <strong><i class="bi bi-calendar-week me-2 text-primary"></i>Term:</strong> <?php echo $loan['max_period']; ?> months
+                                            <strong style="font-size: 1.5rem;"><i class="bi bi-calendar-week me-2 text-primary"></i>Term:</strong> <?php echo $loan['max_period']; ?> months
                                         </div>
                                         <div class="mb-3">
-                                            <strong><i class="bi bi-calendar-date me-2 text-primary"></i>Application Date:</strong> <?php echo date('M d, Y', strtotime($loan['application_date'])); ?>
+                                            <strong style="font-size: 1.5rem;"><i class="bi bi-calendar-date me-2 text-primary"></i>Application Date:</strong> <?php echo date('M d, Y', strtotime($loan['application_date'])); ?>
                                         </div>
                                         <div class="mb-3">
-                                            <strong><i class="bi bi-calendar-range me-2 text-primary"></i>Period:</strong> 
+                                            <strong style="font-size: 1.5rem;"><i class="bi bi-calendar-range me-2 text-primary"></i>Period:</strong> 
                                             <div class="ms-4 mt-2">
                                                 <div><i class="bi bi-calendar2-check me-2 text-success"></i>From: <?php echo date('M d, Y', strtotime($loan['start_date'])); ?></div>
                                                 <div><i class="bi bi-calendar2-x me-2 text-danger"></i>To: <?php echo date('M d, Y', strtotime($loan['end_date'])); ?></div>
@@ -293,8 +293,8 @@ if (isset($_POST['search'])) {
                                         </div>
                                     </div>
                                     <div class="card-footer text-center">
-                                        <a href="generate_loan_pdf.php?id=<?php echo $loan['id']; ?>" class="btn btn-primary w-100" target="_blank">
-                                            <i class="bi bi-file-earmark-pdf me-2"></i> Generate Loan Application PDF
+                                        <a href="generate_loan_pdf.php?id=<?php echo $loan['id']; ?>" style="font-size: 1.5rem;" class="btn btn-primary w-100" target="_blank">
+                                            <i class="bi bi-file-earmark-pdf me-2" style="font-size: 1.5rem;"></i> Generate Loan Application PDF
                                         </a>
                                     </div>
                                 </div>
@@ -305,7 +305,7 @@ if (isset($_POST['search'])) {
                     <?php endif; ?>
                     
                     <?php if (empty($loans) && !empty($search_member_id) && empty($error_message)): ?>
-                    <div class="alert alert-info mt-4 d-flex align-items-center">
+                    <div class="alert alert-info mt-4 d-flex align-items-center" style="font-size: 1.5rem;"> 
                         <i class="bi bi-info-circle-fill me-2"></i>
                         No loan records found for the provided member ID.
                     </div>
@@ -317,7 +317,7 @@ if (isset($_POST['search'])) {
 
     <footer class="py-4">
         <div class="container text-center">
-            <p>&copy; <?php echo date('Y'); ?> Sarvodaya Shramadhana Society. All rights reserved.</p>
+            <p style="font-size: 1.5rem;">&copy; <?php echo date('Y'); ?> Sarvodaya Shramadhana Society. All rights reserved.</p>
         </div>
     </footer>
 

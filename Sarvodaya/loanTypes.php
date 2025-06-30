@@ -266,7 +266,7 @@ $result = $conn->query("SELECT * FROM loan_types");
                 <div class="logo-circle">
                     <img src="Sarwodaya logo.jpg" alt="Sarvodaya Logo">
                 </div>
-                <span class="fs-4 fw-bold">Sarvodaya Loan Management</span>
+                <span class="fs-4 fw-bold" style="font-size: 1.5rem;">Sarvodaya Loan Management</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -274,7 +274,7 @@ $result = $conn->query("SELECT * FROM loan_types");
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="loan_handing_home.php"><i class="fas fa-home me-1"></i> Home</a>
+                        <a class="nav-link" href="loan_handing_home.php"><i class="fas fa-home me-1" style="font-size: 1.5rem;"></i> Home</a>
                     </li>
                     
                 </ul>
@@ -284,56 +284,56 @@ $result = $conn->query("SELECT * FROM loan_types");
 
     <div class="container">
         <div class="page-header animate-in">
-            <h1 class="display-5 fw-bold" style="color: var(--primary-color);">Loan Management System</h1>
+            <h1 class="display-5 fw-bold" style="color: var(--primary-color);" style="font-size: 1.5rem;">Loan Management System</h1>
         </div>
         
         <div class="card animate-in" style="animation-delay: 0.1s;">
             <div class="card-header">
-                <h3 class="mb-0"><i class="fas fa-plus-circle me-2"></i> Add New Loan Type</h3>
+                <h3 class="mb-0"><i class="fas fa-plus-circle me-2" style="font-size: 1.5rem;"></i> Add New Loan Type</h3>
             </div>
             <div class="card-body">
                 <form action="add_loan.php" method="POST">
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="loan_name" class="form-label">Loan Name</label>
-                            <input type="text" class="form-control" id="loan_name" name="loan_name" placeholder="Enter loan name" required>
+                            <label for="loan_name" class="form-label" style="font-size: 1.5rem;">Loan Name</label>
+                            <input type="text" class="form-control" id="loan_name" name="loan_name" style="font-size: 1.5rem;" placeholder="Enter loan name" required>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="maximum_amount" class="form-label">Maximum Amount (Rs.)</label>
+                            <label for="maximum_amount" class="form-label" style="font-size: 1.5rem;">Maximum Amount (Rs.)</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-rupee-sign"></i></span>
-                                <input type="number" class="form-control" id="maximum_amount" name="maximum_amount" step="0.01" placeholder="Enter maximum amount" required>
+                                <span class="input-group-text"><i class="fas fa-rupee-sign" style="font-size: 1.5rem;"></i></span>
+                                <input type="number" class="form-control" id="maximum_amount" name="maximum_amount" step="0.01" style="font-size: 1.5rem;" placeholder="Enter maximum amount" required>
                             </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-4 mb-3">
-                            <label for="interest_rate" class="form-label">Interest Rate (%)</label>
+                            <label for="interest_rate" class="form-label" style="font-size: 1.5rem;">Interest Rate (%)</label>
                             <div class="input-group">
-                                <input type="number" class="form-control" id="interest_rate" name="interest_rate" step="0.01" placeholder="Enter interest rate" required>
+                                <input type="number" class="form-control" id="interest_rate" name="interest_rate" step="0.01" style="font-size: 1.5rem;" placeholder="Enter interest rate" required>
                                 <span class="input-group-text"><i class="fas fa-percentage"></i></span>
                             </div>
                         </div>
                         <div class="col-md-4 mb-3">
-                            <label for="late_fee" class="form-label">Late Fee (Rs.)</label>
+                            <label for="late_fee" class="form-label" style="font-size: 1.5rem;">Late Fee (Rs.)</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-rupee-sign"></i></span>
-                                <input type="number" class="form-control" id="late_fee" name="late_fee" step="0.01" placeholder="Enter late fee amount" required>
+                                <span class="input-group-text"><i class="fas fa-rupee-sign" ></i></span>
+                                <input type="number" class="form-control" id="late_fee" name="late_fee" step="0.01" style="font-size: 1.5rem;" placeholder="Enter late fee amount" required>
                             </div>
                         </div>
                         <div class="col-md-4 mb-3">
-                            <label for="max_period" class="form-label">Maximum Period (Months)</label>
+                            <label for="max_period" class="form-label" style="font-size: 1.5rem;">Maximum Period (Months)</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
-                                <input type="number" class="form-control" id="max_period" name="max_period" placeholder="Enter maximum period" required>
+                                <input type="number" class="form-control" id="max_period" name="max_period" style="font-size: 1.5rem;" placeholder="Enter maximum period" required>
                             </div>
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label for="description" class="form-label">Description</label>
-                        <textarea class="form-control" id="description" name="description" rows="3" placeholder="Enter loan description"></textarea>
+                        <label for="description" class="form-label" style="font-size: 1.5rem;">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3" style="font-size: 1.5rem;" placeholder="Enter loan description"></textarea>
                     </div>
-                    <button type="submit" class="btn btn-custom"><i class="fas fa-save me-2"></i>Add Loan Type</button>
+                    <button type="submit" class="btn btn-custom"><i class="fas fa-save me-2" style="font-size: 1.5rem;"></i>Add Loan Type</button>
                 </form>
             </div>
         </div>
@@ -346,41 +346,41 @@ $result = $conn->query("SELECT * FROM loan_types");
                 <table class="table table-custom">
                     <thead>
                         <tr>
-                            <th><i class="fas fa-hashtag me-1"></i> ID</th>
-                            <th><i class="fas fa-tag me-1"></i> Loan Name</th>
-                            <th><i class="fas fa-rupee-sign me-1"></i> Maximum Amount</th>
-                            <th><i class="fas fa-percentage me-1"></i> Interest Rate</th>
-                            <th><i class="fas fa-exclamation-circle me-1"></i> Late Fee (Rs.)</th>
-                            <th><i class="far fa-calendar-alt me-1"></i> Max Period</th>
-                            <th><i class="fas fa-align-left me-1"></i> Description</th>
-                            <th><i class="fas fa-toggle-on me-1"></i> Status</th>
-                            <th><i class="fas fa-tools me-1"></i> Actions</th>
+                            <th style="font-size: 1.5rem;"><i class="fas fa-hashtag me-1"></i> ID</th>
+                            <th style="font-size: 1.5rem;"><i class="fas fa-tag me-1"></i> Loan Name</th>
+                            <th style="font-size: 1.5rem;"><i class="fas fa-rupee-sign me-1"></i> Maximum Amount</th>
+                            <th style="font-size: 1.5rem;"><i class="fas fa-percentage me-1"></i> Interest Rate</th>
+                            <th style="font-size: 1.5rem;"><i class="fas fa-exclamation-circle me-1"></i> Late Fee (Rs.)</th>
+                            <th style="font-size: 1.5rem;"><i class="far fa-calendar-alt me-1"></i> Max Period</th>
+                            <th style="font-size: 1.5rem;"><i class="fas fa-align-left me-1"></i> Description</th>
+                            <th style="font-size: 1.5rem;"><i class="fas fa-toggle-on me-1"></i> Status</th>
+                            <th style="font-size: 1.5rem;"><i class="fas fa-tools me-1"></i> Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php while ($row = $result->fetch_assoc()): ?>
                             <tr>
-                                <td><?php echo $row['id']; ?></td>
-                                <td><strong><?php echo $row['loan_name']; ?></strong></td>
-                                <td>Rs.<?php echo number_format($row['maximum_amount'], 2); ?></td>
-                                <td><?php echo $row['interest_rate']; ?>%</td>
-                                <td><?php echo isset($row['late_fee']) ? 'Rs.' . number_format($row['late_fee'], 2) : 'N/A'; ?></td>
-                                <td><?php echo $row['max_period']; ?> months</td>
-                                <td><?php echo $row['description']; ?></td>
+                                <td style="font-size: 1.5rem;"><?php echo $row['id']; ?></td>
+                                <td style="font-size: 1.5rem;"><strong><?php echo $row['loan_name']; ?></strong></td>
+                                <td style="font-size: 1.5rem;">Rs.<?php echo number_format($row['maximum_amount'], 2); ?></td>
+                                <td style="font-size: 1.5rem;"><?php echo $row['interest_rate']; ?>%</td>
+                                <td style="font-size: 1.5rem;"><?php echo isset($row['late_fee']) ? 'Rs.' . number_format($row['late_fee'], 2) : 'N/A'; ?></td>
+                                <td style="font-size: 1.5rem;"><?php echo $row['max_period']; ?> months</td>
+                                <td style="font-size: 1.5rem;"><?php echo $row['description']; ?></td>
                                 <td>
                                     <?php if(isset($row['status']) && $row['status'] === 'closed'): ?>
-                                        <span class="status-closed"><i class="fas fa-lock me-1"></i> Closed</span>
+                                        <span class="status-closed"><i class="fas fa-lock me-1" style="font-size: 1.5rem;"></i> Closed</span>
                                     <?php else: ?>
-                                        <span class="status-active"><i class="fas fa-check-circle me-1"></i> Active</span>
+                                        <span class="status-active"><i class="fas fa-check-circle me-1" style="font-size: 1.5rem;"></i> Active</span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
                                     <div class="action-buttons">
-                                        <a href="edit_loan.php?id=<?php echo $row['id']; ?>" class="btn btn-sm btn-warning">
-                                            <i class="fas fa-edit"></i> Edit
+                                        <a href="edit_loan.php?id=<?php echo $row['id']; ?>" class="btn btn-sm btn-warning" style="font-size: 1.5rem;">
+                                            <i class="fas fa-edit" style="font-size: 1.5rem;"></i> Edit
                                         </a>
-                                        <a href="toggle_status.php?id=<?php echo $row['id']; ?>&status=<?php echo isset($row['status']) && $row['status'] === 'active' ? 'closed' : 'active'; ?>" class="btn btn-sm <?php echo isset($row['status']) && $row['status'] === 'active' ? 'btn-danger' : 'btn-success'; ?>">
-                                            <i class="fas fa-<?php echo isset($row['status']) && $row['status'] === 'active' ? 'lock' : 'unlock'; ?>"></i> 
+                                        <a href="toggle_status.php?id=<?php echo $row['id']; ?>&status=<?php echo isset($row['status']) && $row['status'] === 'active' ? 'closed' : 'active';  ?>" class="btn btn-sm <?php echo isset($row['status']) && $row['status'] === 'active' ? 'btn-danger' : 'btn-success'; ?>" style="font-size: 1.5rem;">
+                                            <i class="fas fa-<?php echo isset($row['status']) && $row['status'] === 'active' ? 'lock' : 'unlock'; ?>" style="font-size: 1.5rem;"></i> 
                                             <?php echo isset($row['status']) && $row['status'] === 'active' ? 'Close' : 'Activate'; ?>
                                         </a>
                                     </div>
@@ -395,7 +395,7 @@ $result = $conn->query("SELECT * FROM loan_types");
 
     <footer class="bg-dark text-white text-center py-3 mt-5">
         <div class="container">
-            <p class="mb-0">© 2025 Sarvodaya Loan Management System. All rights reserved.</p>
+            <p class="mb-0" style="font-size: 1.5rem;">© 2025 Sarvodaya Loan Management System. All rights reserved.</p>
         </div>
     </footer>
 

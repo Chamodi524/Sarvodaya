@@ -274,13 +274,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <!-- Search Form -->
         <div class="card">
-            <h2>Search Member</h2>
+            <h1 >Search Member</h1>
             <form method="GET" action="">
                 <div class="mb-3">
-                    <label for="membership_no" class="form-label">Membership Number</label>
-                    <input type="text" class="form-control" id="membership_no" name="membership_no" required>
+                    <label for="membership_no" class="form-label" style="font-size: 1.5rem;">Membership Number</label>
+                    <input type="text" class="form-control" id="membership_no" style="font-size: 1.5rem;" name="membership_no" required>
                 </div>
-                <button type="submit" name="search" class="btn btn-custom">Search</button>
+                <button type="submit" name="search" class="btn btn-custom" style="font-size: 1.5rem;">Search</button>
             </form>
         </div>
 
@@ -288,26 +288,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php if ($memberDetails): ?>
             <div class="card">
                 <h2>Member Details</h2>
-                <p><strong>Name:</strong> <?php echo $memberDetails['name']; ?></p>
-                <p><strong>Email:</strong> <?php echo $memberDetails['email']; ?></p>
-                <p><strong>Phone:</strong> <?php echo $memberDetails['phone']; ?></p>
-                <p><strong>Address:</strong> <?php echo $memberDetails['address']; ?></p>
-                <p><strong>Account Type:</strong> <?php echo $memberDetails['account_type']; ?></p>
+                <p style="font-size: 1.5rem;"><strong>Name:</strong> <?php echo $memberDetails['name']; ?></p>
+                <p style="font-size: 1.5rem;"><strong>Email:</strong> <?php echo $memberDetails['email']; ?></p>
+                <p style="font-size: 1.5rem;"><strong>Phone:</strong> <?php echo $memberDetails['phone']; ?></p>
+                <p style="font-size: 1.5rem;"><strong>Address:</strong> <?php echo $memberDetails['address']; ?></p>
+                <p style="font-size: 1.5rem;"><strong>Account Type:</strong> <?php echo $memberDetails['account_type']; ?></p>
                 
                 <!-- Loan Details Button and Container -->
                 <button type="button" class="btn btn-custom mt-3" id="showLoanDetailsBtn">
-                    <i class="bi bi-list-ul"></i> Show Loan Details
+                    <i class="bi bi-list-ul" style="font-size: 1.5rem;"></i> Show Loan Details
                 </button>
                 
                 <div id="loanDetailsContainer" class="mt-3" style="display: none;">
-                    <h4 class="mt-4">Loan History</h4>
+                    <h4 class="mt-4" style="font-size: 1.5rem;">Loan History</h4>
                     <div id="loadingSpinner" class="loading-spinner">
                         <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
+                            <span class="visually-hidden" style="font-size: 1.5rem;">Loading...</span>
                         </div>
-                        <p>Loading loan details...</p>
+                        <p style="font-size: 1.5rem;">Loading loan details...</p>
                     </div>
-                    <div id="loanDetailsContent" class="table-responsive">
+                    <div id="loanDetailsContent" class="table-responsive" style="font-size: 1.5rem;">
                         <!-- Loan details will be loaded here -->
                     </div>
                 </div>
@@ -315,54 +315,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- Loan Application Form -->
             <div class="card">
-                <h2>Apply for Loan</h2>
+                <h1>Apply for Loan</h1>
                 <form method="POST" action="" id="loanForm">
-                    <input type="hidden" name="member_id" value="<?php echo $memberDetails['id']; ?>">
+                    <input type="hidden" name="member_id" value="<?php echo $memberDetails['id']; ?>" style="font-size: 1.5rem;">
                     <div class="mb-3">
-                        <label for="loan_type" class="form-label">Loan Type</label>
-                        <select class="form-select" id="loan_type" name="loan_type" required>
-                            <option value="">Select Loan Type</option>
+                        <label for="loan_type" class="form-label" style="font-size: 1.5rem;">Loan Type</label>
+                        <select class="form-select" id="loan_type" style="font-size: 1.5rem;" name="loan_type" required>
+                            <option value="" style="font-size: 1.5rem;">Select Loan Type</option>
                             <?php foreach ($loanTypes as $loanType): ?>
-                                <option value="<?php echo $loanType['id']; ?>"><?php echo $loanType['loan_name']; ?></option>
+                                <option value="<?php echo $loanType['id']; ?>" style="font-size: 1.5rem;"><?php echo $loanType['loan_name']; ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="amount" class="form-label">Loan Amount (Rs)</label>
-                        <input type="number" class="form-control" id="amount" name="amount" required>
+                        <label for="amount" class="form-label" style="font-size: 1.5rem;">Loan Amount (Rs)</label>
+                        <input type="number" class="form-control" id="amount" style="font-size: 1.5rem;" name="amount" required>
                     </div>
                     <div class="mb-3">
-                        <label for="total_amount" class="form-label">Total Repayment Amount (Rs.)(Loan + Interest)</label>
-                        <input type="text" class="form-control" id="total_amount" name="total_amount" readonly>
+                        <label for="total_amount" class="form-label" style="font-size: 1.5rem;">Total Repayment Amount (Rs.)(Loan + Interest)</label>
+                        <input type="text" class="form-control" id="total_amount" style="font-size: 1.5rem;" name="total_amount" readonly>
                     </div>
                     <div class="mb-3">
-                        <label for="guarantor1_id" class="form-label">Guarantor 1 ID</label>
-                        <input type="text" class="form-control" id="guarantor1_id" name="guarantor1_id" required>
+                        <label for="guarantor1_id" class="form-label" style="font-size: 1.5rem;">Guarantor 1 ID</label>
+                        <input type="text" class="form-control" id="guarantor1_id" style="font-size: 1.5rem;"name="guarantor1_id" required>
                     </div>
                     <div class="mb-3">
-                        <label for="guarantor1_details" class="form-label">Guarantor 1 Details</label>
-                        <textarea class="form-control" id="guarantor1_details" rows="3" readonly></textarea>
-                        <button type="button" class="btn btn-custom mt-2" id="guarantor1TransactionsBtn">
-                            <i class="bi bi-list-ul"></i> View Transactions
+                        <label for="guarantor1_details" class="form-label" style="font-size: 1.5rem;">Guarantor 1 Details</label>
+                        <textarea class="form-control" id="guarantor1_details" rows="3" readonly style="font-size: 1.5rem;"></textarea>
+                        <button type="button" class="btn btn-custom mt-2" id="guarantor1TransactionsBtn" style="font-size: 1.5rem;">
+                            <i class="bi bi-list-ul" style="font-size: 1.5rem;"></i> View Transactions
                         </button>
                     </div>
                     <div class="mb-3">
-                        <label for="guarantor2_id" class="form-label">Guarantor 2 ID</label>
-                        <input type="text" class="form-control" id="guarantor2_id" name="guarantor2_id" required>
+                        <label for="guarantor2_id" class="form-label" style="font-size: 1.5rem;">Guarantor 2 ID</label>
+                        <input type="text" class="form-control" id="guarantor2_id" style="font-size: 1.5rem;" name="guarantor2_id" required>
                     </div>
                     <div class="mb-3">
-                        <label for="guarantor2_details" class="form-label">Guarantor 2 Details</label>
-                        <textarea class="form-control" id="guarantor2_details" rows="3" readonly></textarea>
-                        <button type="button" class="btn btn-custom mt-2" id="guarantor2TransactionsBtn">
-                            <i class="bi bi-list-ul"></i> View Transactions
+                        <label for="guarantor2_details" class="form-label" style="font-size: 1.5rem;">Guarantor 2 Details</label>
+                        <textarea class="form-control" id="guarantor2_details" rows="3" readonly style="font-size: 1.5rem;"></textarea>
+                        <button type="button" class="btn btn-custom mt-2" id="guarantor2TransactionsBtn" style="font-size: 1.5rem;">
+                            <i class="bi bi-list-ul" style="font-size: 1.5rem;"></i> View Transactions
                         </button>
                     </div>
-                    <button type="submit" class="btn btn-custom">Apply for Loan</button>
+                    <button type="submit" class="btn btn-custom" style="font-size: 1.5rem;">Apply for Loan</button>
                 </form>
             </div>
         <?php elseif (isset($_GET['search'])): ?>
             <div class="card">
-                <p class="text-danger">No member found with the provided membership number.</p>
+                <p class="text-danger" style="font-size: 1.5rem;">No member found with the provided membership number.</p>
             </div>
         <?php endif; ?>
     </div>
@@ -372,10 +372,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="transactionModalLabel">Transaction History</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title" id="transactionModalLabel" style="font-size: 1.5rem;">Transaction History</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="font-size: 1.5rem;"></button>
                 </div>
-                <div class="modal-body" id="transactionModalBody">
+                <div class="modal-body" id="transactionModalBody" style="font-size: 1.5rem;">
                     <!-- Transactions will be loaded here -->
                 </div>
             </div>
