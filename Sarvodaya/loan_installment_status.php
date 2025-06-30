@@ -1255,32 +1255,32 @@ function showReceipt($conn) {
         <?php endif; ?>
         
         <div class="instructions">
-            <p>Enter a Member ID to view their loan types and installments.</p>
+            <p style="font-size: 20px;">Enter a Member ID to view their loan types and installments.</p>
         </div>
         
         <div class="filter-section">
             <form method="GET" action="" id="memberForm">
                 <div class="filter-form-group">
-                    <label for="member_id">Member ID:</label>
-                    <input type="number" name="member_id" id="member_id" min="1" value="<?php echo $member_id; ?>" required>
+                    <label for="member_id" style="font-size: 20px;">Member ID:</label>
+                    <input type="number" style="font-size: 20px;" name="member_id" id="member_id" min="1" value="<?php echo $member_id; ?>" required>
                 </div>
                 
-                <button type="submit">Find Member</button>
+                <button type="submit" style="font-size: 20px;">Find Member</button>
             </form>
         </div>
         
         <?php if ($member_id > 0): ?>
             <?php if ($member_info): ?>
                 <div class="member-info">
-                    <h2><i class="fas fa-user-circle"></i> Member Details</h2>
-                    <p><i class="fas fa-user"></i> <strong>Name:</strong> <?php echo htmlspecialchars($member_info['name']); ?></p>
-                    <p><i class="fas fa-envelope"></i> <strong>Email:</strong> <?php echo htmlspecialchars($member_info['email']); ?></p>
-                    <p><i class="fas fa-phone"></i> <strong>Phone:</strong> <?php echo htmlspecialchars($member_info['phone']); ?></p>
+                    <h2><i class="fas fa-user-circle" ></i> Member Details</h2>
+                    <p style="font-size: 20px;"><i class="fas fa-user"></i> <strong>Name:</strong> <?php echo htmlspecialchars($member_info['name']); ?></p>
+                    <p style="font-size: 20px;"><i class="fas fa-envelope"></i> <strong>Email:</strong> <?php echo htmlspecialchars($member_info['email']); ?></p>
+                    <p style="font-size: 20px;"><i class="fas fa-phone"></i> <strong>Phone:</strong> <?php echo htmlspecialchars($member_info['phone']); ?></p>
                 </div>
                 
                 <?php if (!empty($member_loan_types)): ?>
-                    <h2><i class="fas fa-file-invoice-dollar"></i> Loan Types</h2>
-                    <div class="loan-types-container">
+                    <h2><i class="fas fa-file-invoice-dollar" style="font-size: 40px;" ></i> Loan Types</h2>
+                    <div class="loan-types-container" style="font-size: 20px;">
                         <a href="?member_id=<?php echo $member_id; ?>" class="loan-type-badge <?php echo $selected_loan_type == 0 ? 'active' : ''; ?>">
                             All Types
                         </a>
@@ -1293,23 +1293,23 @@ function showReceipt($conn) {
                     </div>
                     
                     <?php if ($result && $result->num_rows > 0): ?>
-                                    <h2><i class="fas fa-calendar-alt"></i> Loan Installments</h2>
+                                    <h2><i class="fas fa-calendar-alt" style="font-size: 40px;" ></i> Loan Installments</h2>
                 <div class="table-container">
                     <table>
                         <thead>
                             <tr>
-                                <th>Loan ID</th>
-                                <th>Loan Type</th>
-                                <th>Install. #</th>
-                                <th>Payment Date</th>
-                                <th>Payment Amt</th>
-                                <th>Principal</th>
-                                <th>Interest</th>
-                                <th>Late Fee</th>
-                                <th>Balance</th>
-                                <th>Status</th>
-                                <th>Actual Payment</th>
-                                <th>Actions</th>
+                                <th style="font-size: 20px;">Loan ID</th>
+                                <th style="font-size: 20px;">Loan Type</th>
+                                <th style="font-size: 20px;">Install. #</th>
+                                <th style="font-size: 20px;">Payment Date</th>
+                                <th style="font-size: 20px;">Payment Amt</th>
+                                <th style="font-size: 20px;">Principal</th>
+                                <th style="font-size: 20px;">Interest</th>
+                                <th style="font-size: 20px;">Late Fee</th>
+                                <th style="font-size: 20px;">Balance</th>
+                                <th style="font-size: 20px;">Status</th>
+                                <th style="font-size: 20px;">Actual Payment</th>
+                                <th style="font-size: 20px;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1318,22 +1318,22 @@ function showReceipt($conn) {
                                 $status_class = 'status-' . $row['payment_status'];
                             ?>
                             <tr class="<?php echo $status_class; ?>">
-                                <td class="loan-id"><?php echo $row['loan_id']; ?></td>
-                                <td class="loan-type"><?php echo htmlspecialchars($row['loan_name']); ?></td>
-                                <td><?php echo $row['installment_number']; ?></td>
-                                <td><?php echo date('M d, Y', strtotime($row['payment_date'])); ?></td>
-                                <td>Rs.<?php echo number_format($row['payment_amount'], 2); ?></td>
-                                <td>Rs.<?php echo number_format($row['principal_amount'], 2); ?></td>
-                                <td>Rs.<?php echo number_format($row['interest_amount'], 2); ?></td>
-                                <td>
+                                <td style="font-size: 20px;" class="loan-id"><?php echo $row['loan_id']; ?></td>
+                                <td style="font-size: 20px;" class="loan-type"><?php echo htmlspecialchars($row['loan_name']); ?></td>
+                                <td style="font-size: 20px;"><?php echo $row['installment_number']; ?></td>
+                                <td style="font-size: 20px;"><?php echo date('M d, Y', strtotime($row['payment_date'])); ?></td>
+                                <td style="font-size: 20px;">Rs.<?php echo number_format($row['payment_amount'], 2); ?></td>
+                                <td style="font-size: 20px;">Rs.<?php echo number_format($row['principal_amount'], 2); ?></td>
+                                <td style="font-size: 20px;">Rs.<?php echo number_format($row['interest_amount'], 2); ?></td>
+                                <td style="font-size: 20px;">
                                     <?php if ($row['late_fee'] > 0): ?>
                                         <span style="color: #f44336;">Rs.<?php echo number_format($row['late_fee'], 2); ?></span>
                                     <?php else: ?>
                                         <span style="color: #4caf50;">Rs.0.00</span>
                                     <?php endif; ?>
                                 </td>
-                                <td>Rs.<?php echo number_format($row['remaining_balance'], 2); ?></td>
-                                <td>
+                                <td style="font-size: 20px;">Rs.<?php echo number_format($row['remaining_balance'], 2); ?></td>
+                                <td style="font-size: 20px;">
                                     <?php if ($row['payment_status'] == 'paid'): ?>
                                         <span style="color: #4caf50; font-size: 0.9em;"><i class="fas fa-check-circle"></i> Paid</span>
                                     <?php elseif ($row['payment_status'] == 'pending'): ?>
@@ -1342,7 +1342,7 @@ function showReceipt($conn) {
                                         <span style="color: #f44336; font-size: 0.9em;"><i class="fas fa-exclamation-circle"></i> Overdue</span>
                                     <?php endif; ?>
                                 </td>
-                                <td>
+                                <td style="font-size: 20px;">
                                     <?php if ($row['actual_payment_date']): ?>
                                         <div style="font-size: 0.85em;">
                                             <i class="fas fa-calendar-check"></i> <?php echo date('M d, Y', strtotime($row['actual_payment_date'])); ?><br>
@@ -1352,7 +1352,7 @@ function showReceipt($conn) {
                                         <span style="font-size: 0.85em; color: #999;"><i class="fas fa-times-circle"></i> Not paid</span>
                                     <?php endif; ?>
                                 </td>
-                                <td>
+                                <td style="font-size: 20px;">
                                     <div style="display: flex; flex-direction: column; gap: 3px;">
                                         <?php if ($row['payment_status'] != 'paid'): ?>
                                             <button class="action-btn btn-paid" onclick="showPaymentModal(<?php echo $row['id']; ?>, <?php echo $row['payment_amount']; ?>)" style="font-size: 0.8em;">Mark Paid</button>

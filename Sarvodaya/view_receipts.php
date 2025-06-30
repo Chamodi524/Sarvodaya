@@ -57,7 +57,7 @@ while ($type = $typesResult->fetch_assoc()) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Receipts - Sarvodaya Bank</title>
+    <title>View Receipts - Sarvodaya Shramadhana Society</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
@@ -70,6 +70,39 @@ while ($type = $typesResult->fetch_assoc()) {
             max-width: 1200px;
             margin: 0 auto;
         }
+        
+        /* Header Styles */
+        .organization-header {
+            background: linear-gradient(135deg, #ffa726 0%, #ff9800 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .organization-header h1 {
+            font-size: 2.2rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .organization-header .subtitle {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            opacity: 0.95;
+        }
+        .organization-header .contact-info {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+        .organization-header .reg-info {
+            font-size: 0.9rem;
+            opacity: 0.85;
+            font-style: italic;
+        }
+        
         .card {
             border: none;
             border-radius: 10px;
@@ -156,6 +189,12 @@ while ($type = $typesResult->fetch_assoc()) {
             .filter-section {
                 display: none;
             }
+            .print-only {
+                display: block !important;
+            }
+            .screen-only {
+                display: none !important;
+            }
             body {
                 padding: 0;
                 background-color: white;
@@ -163,12 +202,57 @@ while ($type = $typesResult->fetch_assoc()) {
             .card {
                 box-shadow: none;
             }
+            .organization-header {
+                background: #ffa726 !important;
+                -webkit-print-color-adjust: exact;
+                color-adjust: exact;
+            }
+        }
+        
+        /* Signature Section Styles */
+        .signature-section {
+            display: none; /* Hidden on screen */
+            background-color: #fff;
+            padding: 30px 20px;
+            margin-top: 30px;
+            border-top: 2px solid #ffa726;
+        }
+        .signature-section .date-section p {
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+        .signature-section .signature-section-content p {
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+        .signature-line {
+            height: 60px;
+        }
+        
+        /* Screen only styles */
+        .screen-only {
+            display: block;
+        }
+        .print-only {
+            display: none;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 class="text-center mb-4" style="color: #ffa726;">View Receipts - Sarvodaya Bank</h1>
+        <!-- Organization Header -->
+        <div class="organization-header">
+            <h1>SARVODAYA SHRAMADHANA SOCIETY</h1>
+            <div class="subtitle">Samaghi Sarvodaya Shramadhana Society, Kubaloluwa, Veyangoda</div>
+            <div class="contact-info">
+                <i class="bi bi-telephone"></i> 077 690 6605 | 
+                <i class="bi bi-envelope"></i> info@sarvodayabank.com
+            </div>
+            <div class="reg-info">Reg. No: 12345/SS/2020</div>
+        </div>
+
+        <h2 class="text-center mb-4 screen-only" style="color: #ffa726;">View Receipts</h2>
+        <h2 class="text-center mb-4 print-only" style="color: #ffa726;">Receipt Details Report</h2>
 
         <!-- Filter Section -->
         <div class="filter-section no-print">
@@ -227,7 +311,7 @@ while ($type = $typesResult->fetch_assoc()) {
         <!-- Receipts Table -->
         <div class="card">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2>Receipt Records</h2>
+                <h3>Receipt Records</h3>
                 <div class="no-print">
                     <a href="#" onclick="window.print();" class="btn-action btn-print">
                         <i class="bi bi-printer"></i> Print Report
@@ -294,6 +378,27 @@ while ($type = $typesResult->fetch_assoc()) {
                     </div>
                     <div class="col-md-6 text-end">
                         Total Amount: (Rs.)<?php echo number_format($totalAmount, 2); ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Date and Signature Section (Visible only in print) -->
+        <div class="signature-section print-only">
+            <div class="row mt-5">
+                <div class="col-md-6">
+                    <div class="date-section">
+                        <p><strong>Report Generated Date:</strong></p>
+                        <p><?php echo date('d F Y, h:i A'); ?></p>
+                    </div>
+                </div>
+                <div class="col-md-6 text-end">
+                    <div class="signature-section-content">
+                        <div class="signature-line">
+                            <br><br><br>
+                        </div>
+                        <p>_________________________</p>
+                        <p><small>Manager<br>Sarvodaya Shramadhana Society</small></p>
                     </div>
                 </div>
             </div>

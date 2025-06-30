@@ -58,7 +58,7 @@ while ($type = $typesResult->fetch_assoc()) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Payments - Sarvodaya Bank</title>
+    <title>View Payments - Sarvodaya Shramadhana Society</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
@@ -71,6 +71,47 @@ while ($type = $typesResult->fetch_assoc()) {
             max-width: 1200px;
             margin: 0 auto;
         }
+        
+        /* Header Styles */
+        .header-section {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            border: 2px solid #ffa726;
+        }
+        .organization-title {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #e65100;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .organization-subtitle {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        .organization-contact {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .organization-reg {
+            font-size: 0.9rem;
+            color: #888;
+            font-style: italic;
+        }
+        .header-divider {
+            border: 1px solid #ffa726;
+            margin: 15px auto;
+            width: 80%;
+        }
+        
         .card {
             border: none;
             border-radius: 10px;
@@ -159,6 +200,7 @@ while ($type = $typesResult->fetch_assoc()) {
             display: inline-block;
             text-align: center;
         }
+        
         /* Print styles */
         @media print {
             .no-print {
@@ -168,21 +210,57 @@ while ($type = $typesResult->fetch_assoc()) {
                 display: none;
             }
             body {
-                padding: 0;
+                padding: 10px;
                 background-color: white;
+                font-size: 12px;
+            }
+            .container {
+                max-width: 100%;
+                margin: 0;
             }
             .card {
                 box-shadow: none;
+                padding: 10px;
+            }
+            .header-section {
+                box-shadow: none;
+                padding: 15px;
+                margin-bottom: 20px;
+                page-break-inside: avoid;
+            }
+            .organization-title {
+                font-size: 1.8rem;
+            }
+            .organization-subtitle {
+                font-size: 1rem;
+            }
+            .organization-contact {
+                font-size: 0.9rem;
+            }
+            .table-custom {
+                font-size: 11px;
+            }
+            .table-custom th,
+            .table-custom td {
+                padding: 6px;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 class="text-center mb-4" style="color: #ffa726;">View Payments - Sarvodaya Bank</h1>
+        <!-- Organization Header -->
+        <div class="header-section">
+            <div class="organization-title">SARVODAYA SHRAMADHANA SOCIETY</div>
+            <div class="organization-subtitle">Samaghi Sarvodaya Shramadhana Society, Kubaloluwa, Veyangoda</div>
+            <div class="organization-contact">077 690 6605 | info@sarvodayabank.com</div>
+            <div class="organization-reg">Reg. No: 12345/SS/2020</div>
+            <hr class="header-divider">
+            <h2 style="color: #ffa726; margin-top: 15px; margin-bottom: 0;">Payment Records Report</h2>
+        </div>
 
         <!-- Filter Section -->
-        <div class="filter-section">
+        <div class="filter-section no-print">
             <form method="GET" action="" class="row g-3">
                 <!-- Payment Type Filter -->
                 <div class="col-md-4">
@@ -220,7 +298,7 @@ while ($type = $typesResult->fetch_assoc()) {
 
         <!-- Active Filters Display -->
         <?php if (!empty($filterType) || !empty($filterMemberNumber)): ?>
-        <div class="alert alert-info mb-3">
+        <div class="alert alert-info mb-3 no-print">
             <strong>Active Filters:</strong> 
             <?php 
             $appliedFilters = [];
@@ -237,12 +315,19 @@ while ($type = $typesResult->fetch_assoc()) {
 
         <!-- Payments Table -->
         <div class="card">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2>Payment Records</h2>
+            <div class="d-flex justify-content-between align-items-center mb-3 no-print">
+                <h3 style="color: #333; margin: 0;">Payment Details</h3>
                 <div>
-                    <a href="#" onclick="window.print();" class="btn-action btn-print no-print">
+                    <a href="#" onclick="window.print();" class="btn-action btn-print">
                         <i class="bi bi-printer"></i> Print Report
                     </a>
+                </div>
+            </div>
+            
+            <!-- Print-only date and time -->
+            <div style="display: none;">
+                <div class="print-only" style="text-align: right; margin-bottom: 15px; font-size: 0.9rem; color: #666;">
+                    Generated on: <?php echo date('d M Y, h:i A'); ?>
                 </div>
             </div>
             
@@ -313,6 +398,13 @@ while ($type = $typesResult->fetch_assoc()) {
                 </div>
             </div>
         </div>
+        
+        <!-- Print Footer -->
+        <div style="display: none;">
+            <div class="print-only" style="margin-top: 30px; text-align: center; font-size: 0.8rem; color: #666; border-top: 1px solid #ddd; padding-top: 10px;">
+                This is a computer-generated report from Sarvodaya Shramadhana Society Management System
+            </div>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
@@ -329,6 +421,21 @@ while ($type = $typesResult->fetch_assoc()) {
                     }
                 });
                 row.style.cursor = 'pointer';
+            });
+            
+            // Show print-only elements when printing
+            window.addEventListener('beforeprint', function() {
+                const printOnlyElements = document.querySelectorAll('.print-only');
+                printOnlyElements.forEach(element => {
+                    element.style.display = 'block';
+                });
+            });
+            
+            window.addEventListener('afterprint', function() {
+                const printOnlyElements = document.querySelectorAll('.print-only');
+                printOnlyElements.forEach(element => {
+                    element.style.display = 'none';
+                });
             });
         });
     </script>

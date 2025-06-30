@@ -461,34 +461,34 @@ if (isset($_SESSION['transaction_details'])) {
                 <h2>Add New Payment</h2>
                 <form method="POST" action="payment_management_process.php">
                     <div class="mb-3">
-                        <label for="member_id" class="form-label">Member ID</label>
-                        <input type="number" class="form-control" id="member_id" name="member_id" required>
+                        <label for="member_id" class="form-label" style="font-size: 20px;">Member ID</label>
+                        <input type="number" class="form-control" id="member_id" style="font-size: 20px;" name="member_id" required>
                         <div id="member_info" class="mt-2"></div>
                     </div>
                     <div class="mb-3">
-                        <label for="transaction_type" class="form-label">Transaction Type</label>
-                        <select class="form-select" id="transaction_type" name="transaction_type" required>
-                            <option value="">Select Transaction Type</option>
-                            <option value="WITHDRAWAL">Withdrawal</option>
-                            <option value="OTHER">Other</option>
+                        <label for="transaction_type" class="form-label" style="font-size: 20px;">Transaction Type</label>
+                        <select class="form-select" id="transaction_type" style="font-size: 20px;" name="transaction_type" required>
+                            <option value="" style="font-size: 20px;">Select Transaction Type</option>
+                            <option value="WITHDRAWAL" style="font-size: 20px;">Withdrawal</option>
+                            <option value="OTHER" style="font-size: 20px;">Other</option>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="amount" class="form-label">Amount</label>
-                        <input type="number" class="form-control" id="amount" name="amount" step="0.01" required>
+                        <label for="amount" class="form-label" style="font-size: 20px;">Amount</label>
+                        <input type="number" class="form-control" id="amount" style="font-size: 20px;"name="amount" step="0.01" required>
                         <div id="amount_warning" class="text-danger mt-1" style="display: none;">
                             Warning: Amount exceeds current balance!
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label for="description" class="form-label">Description</label>
-                        <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                        <label for="description" class="form-label" style="font-size: 20px;">Description</label>
+                        <textarea class="form-control" id="description" style="font-size: 20px;" name="description" rows="3"></textarea>
                     </div>
                     <div class="mb-3">
-                        <label for="reference" class="form-label">Reference</label>
-                        <input type="text" class="form-control" id="reference" name="reference">
+                        <label for="reference" class="form-label" style="font-size: 20px;">Reference</label>
+                        <input type="text" class="form-control" id="reference" style="font-size: 20px;" name="reference">
                     </div>
-                    <button type="submit" class="btn btn-custom">Submit Payment</button>
+                    <button type="submit" class="btn btn-custom" style="font-size: 20px;">Submit Payment</button>
                 </form>
             </div>
         <?php
