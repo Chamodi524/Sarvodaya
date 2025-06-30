@@ -345,35 +345,35 @@ if ($loan_result->num_rows > 0) {
                 </div>
                 <!-- Loan type field will be shown only for loan repayment -->
                 <div class="mb-3 hidden" id="loan_type_field">
-                    <label for="loan_type" class="form-label">Loan Type</label>
-                    <select class="form-select" id="loan_type" name="loan_type">
-                        <option value="">Select Loan Type</option>
+                    <label for="loan_type" class="form-label" style="font-size: 20px;">Loan Type</label>
+                    <select class="form-select" id="loan_type" name="loan_type" style="font-size: 20px;">
+                        <option value="" style="font-size: 20px;">Select Loan Type</option>
                         <!-- Options will be populated dynamically when a member is selected -->
                     </select>
                 </div>
                 <div class="mb-3 hidden" id="late_installments_field">
-                    <label for="late_installments" class="form-label">Number of Late Installments</label>
-                    <input type="number" class="form-control" id="late_installments" name="late_installments" min="1" value="1">
+                    <label for="late_installments" class="form-label" style="font-size: 20px;">Number of Late Installments</label>
+                    <input type="number" class="form-control" id="late_installments" name="late_installments" min="1" value="1" style="font-size: 20px;">
                 </div>
                 <div class="mb-3">
-                    <label for="amount" class="form-label">Amount(Rs.)</label>
-                    <input type="number" class="form-control" id="amount" name="amount" step="0.01" required>
+                    <label for="amount" class="form-label" style="font-size: 20px;">Amount(Rs.)</label>
+                    <input type="number" class="form-control" id="amount" style="font-size: 20px;" name="amount" step="0.01" required>
                 </div>
-                <button type="submit" class="btn btn-custom">Submit Receipt</button>
+                <button type="submit" class="btn btn-custom" style="font-size: 20px;">Submit Receipt</button>
             </form>
 
             <!-- Display active loans if receipt type is loan repayment -->
             <div class="mt-4 hidden" id="active_loans_container">
-                <h3>Active Loans</h3>
+                <h2>Active Loans</h2>
                 <table class="table table-bordered">
                     <thead>
                         <tr>
-                            <th>Loan ID</th>
-                            <th>Loan Type</th>
-                            <th>Amount</th>
+                            <th style="font-size: 20px;">Loan ID</th>
+                            <th style="font-size: 20px;">Loan Type</th>
+                            <th style="font-size: 20px;">Amount</th>
                         </tr>
                     </thead>
-                    <tbody id="active_loans_table">
+                    <tbody id="active_loans_table" style="font-size: 20px;">
                         <!-- Will be populated via JavaScript -->
                     </tbody>
                 </table>
