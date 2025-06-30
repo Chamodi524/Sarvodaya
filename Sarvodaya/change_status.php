@@ -157,6 +157,8 @@ if (isset($_GET['loan_deleted']) && $_GET['loan_deleted'] == 1) {
             background-color: var(--primary-dark);
             border-color: var(--primary-dark);
         }
+
+        
         
         .bg-primary {
             background-color: var(--primary-color) !important;
@@ -232,6 +234,52 @@ if (isset($_GET['loan_deleted']) && $_GET['loan_deleted'] == 1) {
             margin: 10px 0;
             width: 150px;
         }
+
+        /* Fix for button spacing */
+        .action-buttons .btn {
+            margin-right: 8px;
+        }
+        
+        .action-buttons .btn:last-child {
+            margin-right: 0;
+        }
+
+        /* Fix for long email text wrapping */
+        .member-info p {
+            word-break: break-word;
+            overflow-wrap: break-word;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+
+        /* Allow email to show full text on hover */
+        .member-info p:hover {
+            white-space: normal;
+            overflow: visible;
+            text-overflow: unset;
+        }
+
+                /* Enhanced Actions column */
+        .actions-column {
+            min-width: 280px !important;
+            width: 280px !important;
+        }
+
+        .actions-flex {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-start;
+            align-items: center;
+            flex-wrap: nowrap;
+            min-width: 260px;
+        }
+
+        .actions-flex .btn {
+            flex: 0 0 auto;
+            min-width: 100px;
+        }
     </style>
 </head>
 <body>
@@ -261,13 +309,13 @@ if (isset($_GET['loan_deleted']) && $_GET['loan_deleted'] == 1) {
                     <div class="card-body">
                         <form method="get" action="" class="row g-3">
                             <div class="col-md-8">
-                                <label for="member_id" class="form-label">Member ID</label>
-                                <input type="number" class="form-control" id="member_id" name="member_id" 
+                                <label for="member_id" class="form-label" style="font-size: 1.5rem;">Member ID</label>
+                                <input type="number" class="form-control" id="member_id" name="member_id" style="font-size: 1.5rem;" 
                                     value="<?php echo htmlspecialchars($member_id); ?>" placeholder="Enter member ID">
                             </div>
                             <div class="col-md-4 d-flex align-items-end">
-                                <button type="submit" class="btn btn-primary w-100">
-                                    <i class="bi bi-search"></i> Search Loans
+                                <button type="submit" class="btn btn-primary w-100" style="font-size: 1.5rem;">
+                                    <i class="bi bi-search" style="font-size: 1.5rem;"></i> Search Loans
                                 </button>
                             </div>
                         </form>
@@ -281,7 +329,7 @@ if (isset($_GET['loan_deleted']) && $_GET['loan_deleted'] == 1) {
                 <?php endif; ?>
 
                 <?php if (!empty($success_message)): ?>
-                <div class="alert alert-success mt-4">
+                <div class="alert alert-success mt-4" style="font-size: 1.5rem;">
                     <?php echo $success_message; ?>
                 </div>
                 <?php endif; ?>
@@ -295,14 +343,14 @@ if (isset($_GET['loan_deleted']) && $_GET['loan_deleted'] == 1) {
                         <div class="p-3 member-info">
                             <div class="row">
                                 <div class="col-md-6">
-                                    <p><strong>Name:</strong> <?php echo htmlspecialchars($member_info['name']); ?></p>
-                                    <p><strong>Email:</strong> <?php echo htmlspecialchars($member_info['email']); ?></p>
-                                    <p><strong>Phone:</strong> <?php echo htmlspecialchars($member_info['phone']); ?></p>
+                                    <p style="font-size: 1.5rem;"><strong>Name:</strong> <?php echo htmlspecialchars($member_info['name']); ?></p>
+                                    <p style="font-size: 1.5rem;" title="<?php echo htmlspecialchars($member_info['email']); ?>"><strong>Email:</strong> <?php echo htmlspecialchars($member_info['email']); ?></p>
+                                    <p style="font-size: 1.5rem;"><strong>Phone:</strong> <?php echo htmlspecialchars($member_info['phone']); ?></p>
                                 </div>
                                 <div class="col-md-6">
-                                    <p><strong>NIC:</strong> <?php echo htmlspecialchars($member_info['nic'] ?? 'N/A'); ?></p>
-                                    <p><strong>Account Type:</strong> <?php echo htmlspecialchars($member_info['account_type']); ?></p>
-                                    <p><strong>Member Since:</strong> <?php echo date('F j, Y', strtotime($member_info['created_at'])); ?></p>
+                                    <p style="font-size: 1.5rem;"><strong>NIC:</strong> <?php echo htmlspecialchars($member_info['nic'] ?? 'N/A'); ?></p>
+                                    <p style="font-size: 1.5rem;"><strong>Account Type:</strong> <?php echo htmlspecialchars($member_info['account_type']); ?></p>
+                                    <p style="font-size: 1.5rem;"><strong>Member Since:</strong> <?php echo date('F j, Y', strtotime($member_info['created_at'])); ?></p>
                                 </div>
                             </div>
                         </div>
@@ -315,49 +363,51 @@ if (isset($_GET['loan_deleted']) && $_GET['loan_deleted'] == 1) {
                     <div class="card-header bg-primary text-white">
                         <h3 class="card-title mb-0">Loans for Member #<?php echo $member_id; ?></h3>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body" >
                         <div class="table-responsive">
                             <table class="table table-hover">
                                 <thead>
-                                    <tr>
-                                        <th>Loan ID</th>
-                                        <th>Loan Type</th>
-                                        <th>Amount(Rs.)</th>
-                                        <th>Interest</th>
-                                        <th>Application Date</th>
-                                        <th>Period</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
+                                    <tr >
+                                        <th style="font-size: 1.5rem;">Loan ID</th>
+                                        <th style="font-size: 1.5rem;">Loan Type</th>
+                                        <th style="font-size: 1.5rem;">Amount(Rs.)</th>
+                                        <th style="font-size: 1.5rem;">Interest</th>
+                                        <th style="font-size: 1.5rem;">Application Date</th>
+                                        <th style="font-size: 1.5rem;">Period</th>
+                                        <th style="font-size: 1.5rem;">Status</th>
+                                        <th class="actions-column" style="font-size: 1.5rem;">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <?php foreach ($loans as $loan): ?>
                                     <tr>
-                                        <td><?php echo htmlspecialchars($loan['id']); ?></td>
-                                        <td><?php echo htmlspecialchars($loan['loan_name']); ?></td>
-                                        <td><?php echo number_format($loan['amount'], 2); ?></td>
-                                        <td><?php echo htmlspecialchars($loan['interest_rate']); ?>%</td>
-                                        <td><?php echo date('Y-m-d', strtotime($loan['application_date'])); ?></td>
-                                        <td><?php echo htmlspecialchars($loan['max_period']); ?> months</td>
-                                        <td>
+                                        <td style="font-size: 1.5rem;"><?php echo htmlspecialchars($loan['id']); ?></td>
+                                        <td style="font-size: 1.5rem;"><?php echo htmlspecialchars($loan['loan_name']); ?></td>
+                                        <td style="font-size: 1.5rem;"><?php echo number_format($loan['amount'], 2); ?></td>
+                                        <td style="font-size: 1.5rem;"><?php echo htmlspecialchars($loan['interest_rate']); ?>%</td>
+                                        <td style="font-size: 1.5rem;"><?php echo date('Y-m-d', strtotime($loan['application_date'])); ?></td>
+                                        <td style="font-size: 1.5rem;"><?php echo htmlspecialchars($loan['max_period']); ?> months</td>
+                                        <td style="font-size: 1.5rem;">
                                             <span class="badge status-<?php echo $loan['status']; ?>">
                                                 <?php echo ucfirst($loan['status']); ?>
                                             </span>
                                         </td>
-                                        <td>
-                                            <!-- Update Status Button -->
-                                            <button type="button" class="btn btn-sm btn-primary me-1" 
-                                                    data-bs-toggle="modal" 
-                                                    data-bs-target="#loanModal-<?php echo $loan['id']; ?>">
-                                                <i class="bi bi-pencil"></i> Update
-                                            </button>
-                                            
-                                            <!-- Delete Loan Button -->
-                                            <button type="button" class="btn btn-sm btn-danger" 
-                                                    data-bs-toggle="modal" 
-                                                    data-bs-target="#deleteLoanModal-<?php echo $loan['id']; ?>">
-                                                <i class="bi bi-trash"></i> Delete
-                                            </button>
+                                        <td class="actions-column" style="font-size: 1.5rem;">
+                                            <div class="actions-flex">
+                                                <!-- Update Status Button -->
+                                                <button type="button" class="btn btn-sm btn-primary" style="font-size: 1.5rem;" 
+                                                        data-bs-toggle="modal" 
+                                                        data-bs-target="#loanModal-<?php echo $loan['id']; ?>">
+                                                    <i class="bi bi-pencil" style="font-size: 1.5rem;"></i> Update
+                                                </button>
+                                                
+                                                <!-- Delete Loan Button -->
+                                                <button type="button" class="btn btn-sm btn-danger" style="font-size: 1.5rem;" 
+                                                        data-bs-toggle="modal" 
+                                                        data-bs-target="#deleteLoanModal-<?php echo $loan['id']; ?>">
+                                                    <i class="bi bi-trash" style="font-size: 1.5rem;"></i> Delete
+                                                </button>
+                                            </div>
                                             
                                             <!-- Update Status Modal -->
                                             <div class="modal fade" id="loanModal-<?php echo $loan['id']; ?>" tabindex="-1" 
@@ -365,7 +415,7 @@ if (isset($_GET['loan_deleted']) && $_GET['loan_deleted'] == 1) {
                                                 <div class="modal-dialog">
                                                     <div class="modal-content">
                                                         <div class="modal-header bg-primary text-white">
-                                                            <h5 class="modal-title" id="loanModalLabel-<?php echo $loan['id']; ?>">
+                                                            <h5 class="modal-title" id="loanModalLabel-<?php echo $loan['id']; ?>" style="font-size: 1.5rem;">
                                                                 Update Loan #<?php echo $loan['id']; ?> Status
                                                             </h5>
                                                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -376,16 +426,16 @@ if (isset($_GET['loan_deleted']) && $_GET['loan_deleted'] == 1) {
                                                                 <input type="hidden" name="member_id" value="<?php echo $member_id; ?>">
                                                                 
                                                                 <div class="mb-3">
-                                                                    <label for="status-<?php echo $loan['id']; ?>" class="form-label">Loan Status</label>
-                                                                    <select class="form-select" id="status-<?php echo $loan['id']; ?>" name="status">
-                                                                        <option value="active" <?php echo ($loan['status'] === 'active') ? 'selected' : ''; ?>>Active</option>
-                                                                        <option value="closed" <?php echo ($loan['status'] === 'closed') ? 'selected' : ''; ?>>Closed</option>
-                                                                        <option value="defaulted" <?php echo ($loan['status'] === 'defaulted') ? 'selected' : ''; ?>>Defaulted</option>
+                                                                    <label for="status-<?php echo $loan['id']; ?>" class="form-label" style="font-size: 1.5rem;">Loan Status</label>
+                                                                    <select class="form-select" id="status-<?php echo $loan['id']; ?>" name="status" style="font-size: 1.5rem;">
+                                                                        <option value="active" style="font-size: 1.5rem;" <?php echo ($loan['status'] === 'active') ? 'selected' : ''; ?>>Active</option>
+                                                                        <option value="closed" style="font-size: 1.5rem;" <?php echo ($loan['status'] === 'closed') ? 'selected' : ''; ?>>Closed</option>
+                                                                        <option value="defaulted" style="font-size: 1.5rem;" <?php echo ($loan['status'] === 'defaulted') ? 'selected' : ''; ?>>Defaulted</option>
                                                                     </select>
                                                                 </div>
                                                                 
                                                                 <div class="d-grid">
-                                                                    <button type="submit" name="update_status" class="btn btn-primary">
+                                                                    <button type="submit" name="update_status" class="btn btn-primary" style="font-size: 1.5rem;">
                                                                         Update Status
                                                                     </button>
                                                                 </div>
@@ -448,7 +498,7 @@ if (isset($_GET['loan_deleted']) && $_GET['loan_deleted'] == 1) {
 
     <footer class="bg-light py-4">
         <div class="container text-center">
-            <p>&copy; <?php echo date('Y'); ?> Sarvodaya Shramadhana Society. All rights reserved.</p>
+            <p style="font-size: 1.5rem;">&copy; <?php echo date('Y'); ?> Sarvodaya Shramadhana Society. All rights reserved.</p>
         </div>
     </footer>
 
