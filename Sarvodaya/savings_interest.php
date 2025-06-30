@@ -561,13 +561,13 @@ try {
         <?php endif; ?>
         
         <div class="info-box">
-            <p><strong>This system calculates interest based on:</strong></p>
+            <p style="font-size: 20px;"><strong>This system calculates interest based on:</strong></p>
             <ul>
-                <li>Account balance at the end of the specified period</li>
-                <li>Monthly interest rate defined in the savings_account_types table</li>
-                <li>Minimum balance requirement for each account type</li>
+                <li style="font-size: 20px;">Account balance at the end of the specified period</li>
+                <li style="font-size: 20px;">Monthly interest rate defined in the savings_account_types table</li>
+                <li style="font-size: 20px;">Minimum balance requirement for each account type</li>
             </ul>
-            <p><strong>Note:</strong> Interest rates are applied as monthly rates directly to the balance.</p>
+            <p style="font-size: 20px;"><strong>Note:</strong> Interest rates are applied as monthly rates directly to the balance.</p>
         </div>
         
         <h2>Interest Calculation Parameters</h2>
@@ -575,31 +575,31 @@ try {
         <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
             <div class="form-grid">
                 <div class="form-group">
-                    <label for="calculation_date">Calculation Date:</label>
-                    <input type="date" id="calculation_date" name="calculation_date" value="<?php echo htmlspecialchars($calculation_date); ?>" required>
+                    <label for="calculation_date" style="font-size: 20px;">Calculation Date:</label>
+                    <input type="date" id="calculation_date" style="font-size: 20px;" name="calculation_date" value="<?php echo htmlspecialchars($calculation_date); ?>" required>
                 </div>
                 
                 <div class="form-group">
-                    <label for="period_start_date">Period Start Date:</label>
-                    <input type="date" id="period_start_date" name="period_start_date" value="<?php echo htmlspecialchars($period_start_date); ?>" required>
+                    <label for="period_start_date" style="font-size: 20px;">Period Start Date:</label>
+                    <input type="date" id="period_start_date" style="font-size: 20px;" name="period_start_date" value="<?php echo htmlspecialchars($period_start_date); ?>" required>
                 </div>
                 
                 <div class="form-group">
-                    <label for="period_end_date">Period End Date:</label>
-                    <input type="date" id="period_end_date" name="period_end_date" value="<?php echo htmlspecialchars($period_end_date); ?>" required>
+                    <label for="period_end_date" style="font-size: 20px;">Period End Date:</label>
+                    <input type="date" id="period_end_date" style="font-size: 20px;" name="period_end_date" value="<?php echo htmlspecialchars($period_end_date); ?>" required>
                 </div>
             </div>
             
             <div class="form-grid">
                 <div class="form-group">
-                    <label for="member_id">Member ID (Optional):</label>
-                    <input type="text" id="member_id" name="member_id" value="<?php echo htmlspecialchars($member_id); ?>" placeholder="Leave blank for all members">
+                    <label for="member_id" style="font-size: 20px;">Member ID (Optional):</label>
+                    <input type="text" id="member_id" style="font-size: 20px;" name="member_id" value="<?php echo htmlspecialchars($member_id); ?>" placeholder="Leave blank for all members">
                 </div>
                 
                 <div class="form-group">
-                    <label for="account_type_id">Account Type (Optional):</label>
-                    <select id="account_type_id" name="account_type_id">
-                        <option value="">All Account Types</option>
+                    <label for="account_type_id" style="font-size: 20px;">Account Type (Optional):</label>
+                    <select id="account_type_id" style="font-size: 20px;" name="account_type_id">
+                        <option value="" style="font-size: 20px;">All Account Types</option>
                         <?php foreach ($account_types as $type): ?>
                             <option value="<?php echo htmlspecialchars($type['id']); ?>" <?php echo ($account_type_id == $type['id']) ? 'selected' : ''; ?>>
                                 <?php echo htmlspecialchars($type['account_name']); ?>
@@ -610,8 +610,8 @@ try {
             </div>
             
             <div class="button-group">
-                <button type="submit" name="calculate_interest">Calculate Interest</button>
-                <button type="reset">Clear</button>
+                <button type="submit" name="calculate_interest" style="font-size: 20px;"  >Calculate Interest</button>
+                <button type="reset" style="font-size: 20px;" >Clear</button>
             </div>
         </form>
         
@@ -628,14 +628,14 @@ try {
                 <table>
                     <thead>
                         <tr>
-                            <th>Member ID</th>
-                            <th>Member Name</th>
-                            <th>Account Type</th>
-                            <th class="numeric">Balance (Rs.)</th>
-                            <th class="numeric">Min. Balance (Rs.)</th>
-                            <th class="numeric">Monthly Rate</th>
-                            <th class="numeric">Interest Amount</th>
-                            <th>Status</th>
+                            <th style="font-size: 20px;" >Member ID</th>
+                            <th style="font-size: 20px;" >Member Name</th>
+                            <th style="font-size: 20px;" >Account Type</th>
+                            <th class="numeric" style="font-size: 20px;" >Balance (Rs.)</th>
+                            <th class="numeric" style="font-size: 20px;" >Min. Balance (Rs.)</th>
+                            <th class="numeric" style="font-size: 20px;" >Monthly Rate</th>
+                            <th class="numeric" style="font-size: 20px;" >Interest Amount</th>
+                            <th style="font-size: 20px;" >Status</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -649,32 +649,32 @@ try {
                             if ($is_eligible && $result['interest_amount'] > 0) $eligible_count++;
                         ?>
                             <tr class="<?php echo $is_eligible ? '' : 'not-eligible'; ?>">
-                                <td>
+                                <td style="font-size: 20px;" >
                                     <?php echo htmlspecialchars($result['member_id']); ?>
                                     <input type="hidden" name="member_id_<?php echo $i; ?>" value="<?php echo htmlspecialchars($result['member_id']); ?>">
                                 </td>
-                                <td><?php echo htmlspecialchars($result['member_name']); ?></td>
-                                <td>
+                                <td style="font-size: 20px;" ><?php echo htmlspecialchars($result['member_name']); ?></td>
+                                <td style="font-size: 20px;" >
                                     <?php echo htmlspecialchars($result['account_name']); ?>
                                     <input type="hidden" name="account_type_id_<?php echo $i; ?>" value="<?php echo htmlspecialchars($result['account_type_id']); ?>">
                                 </td>
-                                <td class="numeric">
+                                <td class="numeric" style="font-size: 20px;" >
                                     <?php echo number_format($result['opening_balance'], 2); ?>
                                     <input type="hidden" name="opening_balance_<?php echo $i; ?>" value="<?php echo htmlspecialchars($result['opening_balance']); ?>">
                                 </td>
-                                <td class="numeric"><?php echo number_format($result['minimum_balance'], 2); ?></td>
-                                <td class="numeric">
+                                <td class="numeric" style="font-size: 20px;" ><?php echo number_format($result['minimum_balance'], 2); ?></td>
+                                <td class="numeric" style="font-size: 20px;" > 
                                     <?php echo number_format($result['interest_rate'], 2); ?>%
-                                    <input type="hidden" name="interest_rate_<?php echo $i; ?>" value="<?php echo htmlspecialchars($result['interest_rate']); ?>">
+                                    <input type="hidden" style="font-size: 20px;"  name="interest_rate_<?php echo $i; ?>" value="<?php echo htmlspecialchars($result['interest_rate']); ?>">
                                 </td>
-                                <td class="numeric positive">
+                                <td class="numeric positive" style="font-size: 20px;" >
                                     <?php echo number_format($result['interest_amount'], 2); ?>
-                                    <input type="hidden" name="interest_amount_<?php echo $i; ?>" value="<?php echo htmlspecialchars($result['interest_amount']); ?>">
-                                    <input type="hidden" name="eligible_<?php echo $i; ?>" value="<?php echo $is_eligible ? 'true' : 'false'; ?>">
+                                    <input type="hidden" style="font-size: 20px;"  name="interest_amount_<?php echo $i; ?>" value="<?php echo htmlspecialchars($result['interest_amount']); ?>">
+                                    <input type="hidden" style="font-size: 20px;" name="eligible_<?php echo $i; ?>" value="<?php echo $is_eligible ? 'true' : 'false'; ?>">
                                     <!-- Add days_calculated even though it's not used in calculation directly -->
-                                    <input type="hidden" name="days_calculated_<?php echo $i; ?>" value="<?php echo htmlspecialchars((strtotime($period_end_date) - strtotime($period_start_date)) / (60 * 60 * 24) + 1); ?>">
+                                    <input type="hidden" style="font-size: 20px;"  name="days_calculated_<?php echo $i; ?>" value="<?php echo htmlspecialchars((strtotime($period_end_date) - strtotime($period_start_date)) / (60 * 60 * 24) + 1); ?>">
                                 </td>
-                                <td>
+                                <td style="font-size: 20px;" >
                                     <?php if (!$is_eligible): ?>
                                         <span class="negative">Below minimum balance</span>
                                     <?php elseif ($result['interest_amount'] <= 0): ?>
@@ -687,20 +687,20 @@ try {
                         <?php endforeach; ?>
                         
                         <tr>
-                            <td colspan="6" style="text-align: right;"><strong>Total Interest to be Posted:</strong></td>
-                            <td class="numeric positive"><strong><?php echo number_format($total_interest, 2); ?></strong></td>
-                            <td><strong><?php echo $eligible_count; ?> account(s)</strong></td>
+                            <td colspan="6" style="text-align: right;" style="font-size: 20px;" ><strong>Total Interest to be Posted:</strong></td>
+                            <td class="numeric positive" style="font-size: 20px;" ><strong><?php echo number_format($total_interest, 2); ?></strong></td>
+                            <td style="font-size: 20px;" ><strong><?php echo $eligible_count; ?> account(s)</strong></td>
                         </tr>
                     </tbody>
                 </table>
                 
                 <div class="button-group">
-                    <button type="submit" name="post_interest">Post Interest to Accounts</button>
+                    <button type="submit" name="post_interest" style="font-size: 20px;" >Post Interest to Accounts</button>
                 </div>
             </form>
         <?php elseif ($action_performed): ?>
             <div class="no-results">
-                <p>No accounts found for interest calculation with the specified criteria.</p>
+                <p style="font-size: 20px;" >No accounts found for interest calculation with the specified criteria.</p>
             </div>
         <?php endif; ?>
     </div>
