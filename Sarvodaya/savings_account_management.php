@@ -142,27 +142,27 @@ $result = $conn->query("SELECT * FROM savings_account_types");
             <h2 style="color: #ffa726;">Add New Savings Account Type</h2>
             <form action="add_savings_account.php" method="POST">
                 <div class="mb-3">
-                    <label for="account_name" class="form-label">Account Name</label>
-                    <input type="text" class="form-control" id="account_name" name="account_name" required>
+                    <label for="account_name" class="form-label" style="font-size: 20px;">Account Name</label>
+                    <input type="text" class="form-control" id="account_name" style="font-size: 20px;" name="account_name" required>
                 </div>
                 <div class="mb-3">
-                    <label for="minimum_balance" class="form-label">Minimum Balance(Rs.)</label>
-                    <input type="number" class="form-control" id="minimum_balance" name="minimum_balance" step="0.01" required>
+                    <label for="minimum_balance" class="form-label" style="font-size: 20px;">Minimum Balance(Rs.)</label>
+                    <input type="number" class="form-control" id="minimum_balance" style="font-size: 20px;" name="minimum_balance" step="0.01" required>
                 </div>
                 <div class="mb-3">
-                    <label for="interest_rate" class="form-label">Interest Rate (%)</label>
-                    <input type="number" class="form-control" id="interest_rate" name="interest_rate" step="0.01" required>
+                    <label for="interest_rate" class="form-label" style="font-size: 20px;">Interest Rate (%)</label>
+                    <input type="number" class="form-control" id="interest_rate" style="font-size: 20px;" name="interest_rate" step="0.01" required>
                 </div>
                 <div class="mb-3">
-                    <label for="detail_no" class="form-label">Account Type</label>
-                    <select class="form-control" id="detail_no" name="detail_no" required>
-                        <option value="">Select Account Type</option>
+                    <label for="detail_no" class="form-label" style="font-size: 20px;"style="font-size: 20px;">Account Type</label>
+                    <select class="form-control" id="detail_no" style="font-size: 20px;" name="detail_no" required>
+                        <option value="" style="font-size: 20px;">Select Account Type</option>
                         <option value="1">1.Child Related Account</option>
                         <option value="2">2.Normal Account</option>
                     </select>
                 </div>
 
-                <button type="submit" class="btn btn-custom">Add Savings Account Type</button>
+                <button type="submit" class="btn btn-custom" style="font-size: 20px;">Add Savings Account Type</button>
             </form>
         </div>
 
@@ -172,40 +172,40 @@ $result = $conn->query("SELECT * FROM savings_account_types");
             <table class="table table-custom">
                 <thead>
                     <tr>
-                        <th><i class="fas fa-hashtag me-1"></i> ID</th>
-                        <th><i class="fas fa-tag me-1"></i> Account Name</th>
-                        <th><i class="fas fa-rupee-sign me-1"></i> Minimum Balance(Rs.)</th>
-                        <th><i class="fas fa-percentage me-1"></i> Interest Rate</th>
-                        <th><i class="fas fa-clipboard-list me-1"></i> Account Type</th>
-                        <th><i class="fas fa-toggle-on me-1"></i> Status</th>
-                        <th><i class="fas fa-tools me-1"></i> Actions</th>
+                        <th style="font-size: 20px;"><i class="fas fa-hashtag me-1"></i> ID</th>
+                        <th style="font-size: 20px;"><i class="fas fa-tag me-1"></i> Account Name</th>
+                        <th style="font-size: 20px;"><i class="fas fa-rupee-sign me-1"></i> Minimum Balance(Rs.)</th>
+                        <th style="font-size: 20px;"><i class="fas fa-percentage me-1"></i> Interest Rate</th>
+                        <th style="font-size: 20px;"><i class="fas fa-clipboard-list me-1"></i> Account Type</th>
+                        <th style="font-size: 20px;"><i class="fas fa-toggle-on me-1"></i> Status</th>
+                        <th style="font-size: 20px;"><i class="fas fa-tools me-1"></i> Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php while ($row = $result->fetch_assoc()): ?>
                         <tr>
-                            <td><?php echo $row['id']; ?></td>
-                            <td><strong><?php echo $row['account_name']; ?></strong></td>
-                            <td>Rs.<?php echo number_format($row['minimum_balance'], 2); ?></td>
-                            <td><?php echo $row['interest_rate']; ?>%</td>
-                            <td>
+                            <td style="font-size: 20px;"><?php echo $row['id']; ?></td>
+                            <td style="font-size: 20px;"style="font-size: 20px;"><strong><?php echo $row['account_name']; ?></strong></td>
+                            <td style="font-size: 20px;">Rs.<?php echo number_format($row['minimum_balance'], 2); ?></td>
+                            <td style="font-size: 20px;"><?php echo $row['interest_rate']; ?>%</td>
+                            <td style="font-size: 20px;">
                                 <?php 
                                     echo ($row['detail_no'] == 1) ? 'Child Related Account' : 'Normal Account'; 
                                 ?>
                             </td>
-                            <td>
+                            <td style="font-size: 20px;">
                                 <?php if(isset($row['status']) && $row['status'] === 'closed'): ?>
-                                    <span class="status-closed"><i class="fas fa-lock me-1"></i> Closed</span>
+                                    <span class="status-closed"><i class="fas fa-lock me-1" style="font-size: 20px;"></i> Closed</span>
                                 <?php else: ?>
-                                    <span class="status-active"><i class="fas fa-check-circle me-1"></i> Active</span>
+                                    <span class="status-active"><i class="fas fa-check-circle me-1" style="font-size: 20px;"></i> Active</span>
                                 <?php endif; ?>
                             </td>
-                            <td>
+                            <td style="font-size: 20px;">
                                 <div class="action-buttons">
-                                    <a href="edit_savings_account.php?id=<?php echo $row['id']; ?>" class="btn btn-sm btn-warning">
-                                        <i class="fas fa-edit"></i> Edit
+                                    <a href="edit_savings_account.php?id=<?php echo $row['id']; ?>" class="btn btn-sm btn-warning" style="font-size: 20px;">
+                                        <i class="fas fa-edit" style="font-size: 20px;"></i> Edit
                                     </a>
-                                    <a href="toggle_savings_status.php?id=<?php echo $row['id']; ?>&status=<?php echo isset($row['status']) && $row['status'] === 'active' ? 'closed' : 'active'; ?>" class="btn btn-sm <?php echo isset($row['status']) && $row['status'] === 'active' ? 'btn-danger' : 'btn-success'; ?>">
+                                    <a href="toggle_savings_status.php?id=<?php echo $row['id']; ?>&status=<?php echo isset($row['status']) && $row['status'] === 'active' ? 'closed' : 'active'; ?>" class="btn btn-sm <?php echo isset($row['status']) && $row['status'] === 'active' ? 'btn-danger' : 'btn-success'; ?>" style="font-size: 20px;">
                                         <i class="fas fa-<?php echo isset($row['status']) && $row['status'] === 'active' ? 'lock' : 'unlock'; ?>"></i> 
                                         <?php echo isset($row['status']) && $row['status'] === 'active' ? 'Close' : 'Activate'; ?>
                                     </a>

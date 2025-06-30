@@ -173,7 +173,7 @@ $row = $result->fetch_assoc();
             <div class="card-body">
                 <!-- Account Type Indicator -->
                 <div class="account-type">
-                    <p class="account-type-text">
+                    <p class="account-type-text" style="font-size: 20px;">
                         <?php if($row['detail_no'] == 1): ?>
                             <i class="fas fa-child me-2"></i>Child Related Account
                         <?php else: ?>
@@ -186,55 +186,55 @@ $row = $result->fetch_assoc();
                     <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
                     
                     <div class="mb-4">
-                        <label for="account_name" class="form-label">Account Name</label>
+                        <label for="account_name" class="form-label" style="font-size: 20px;">Account Name</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-signature"></i></span>
-                            <input type="text" class="form-control" id="account_name" name="account_name" 
+                            <span class="input-group-text"><i class="fas fa-signature" style="font-size: 20px;"></i></span>
+                            <input type="text" class="form-control" id="account_name" name="account_name" style="font-size: 20px;" 
                                    value="<?php echo htmlspecialchars($row['account_name']); ?>" required>
                         </div>
-                        <div class="form-text">Enter the full name of the savings account type</div>
+                        <div class="form-text" style="font-size: 15px;">Enter the full name of the savings account type</div>
                     </div>
                     
                     <div class="row">
                         <div class="col-md-6 mb-4">
-                            <label for="minimum_balance" class="form-label">Minimum Balance</label>
+                            <label for="minimum_balance" class="form-label" style="font-size: 20px;">Minimum Balance</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-coins"></i></span>
-                                <input type="number" class="form-control" id="minimum_balance" name="minimum_balance" 
+                                <span class="input-group-text"><i class="fas fa-coins" style="font-size: 20px;"></i></span>
+                                <input type="number" class="form-control" id="minimum_balance" name="minimum_balance" style="font-size: 20px;" 
                                        value="<?php echo htmlspecialchars($row['minimum_balance']); ?>" step="0.01" min="0" required>
                             </div>
-                            <div class="form-text">Minimum amount required to maintain</div>
+                            <div class="form-text" style="font-size: 15px;">Minimum amount required to maintain</div>
                         </div>
                         
                         <div class="col-md-6 mb-4">
-                            <label for="interest_rate" class="form-label">Interest Rate</label>
+                            <label for="interest_rate" class="form-label" style="font-size: 20px;">Interest Rate</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-percentage"></i></span>
-                                <input type="number" class="form-control" id="interest_rate" name="interest_rate" 
+                                <span class="input-group-text"><i class="fas fa-percentage" style="font-size: 20px;"></i></span>
+                                <input type="number" class="form-control" id="interest_rate" name="interest_rate" style="font-size: 20px;" 
                                        value="<?php echo htmlspecialchars($row['interest_rate']); ?>" step="0.01" min="0" max="100" required>
                                 <span class="input-group-text">%</span>
                             </div>
-                            <div class="form-text">Annual interest rate percentage</div>
+                            <div class="form-text" style="font-size: 15px;">Annual interest rate percentage</div>
                         </div>
                     </div>
                     
                     <div class="mb-4">
-                        <label for="detail_no" class="form-label">Account Type</label>
-                        <select class="form-select" id="detail_no" name="detail_no" required>
-                            <option value="1" <?php echo ($row['detail_no'] == 1) ? 'selected' : ''; ?>>Child Related Account</option>
-                            <option value="2" <?php echo ($row['detail_no'] == 2) ? 'selected' : ''; ?>>Normal Account</option>
+                        <label for="detail_no" class="form-label" style="font-size: 20px;">Account Type</label>
+                        <select class="form-select" id="detail_no" name="detail_no" required style="font-size: 20px;">
+                            <option value="1" style="font-size: 20px;" <?php echo ($row['detail_no'] == 1) ? 'selected' : ''; ?>>Child Related Account</option>
+                            <option value="2" style="font-size: 20px;" <?php echo ($row['detail_no'] == 2) ? 'selected' : ''; ?>>Normal Account</option>
                         </select>
                         <div class="form-text">
-                            <i class="fas fa-info-circle me-1"></i> Account type classification cannot be changed after creation
+                            <i class="fas fa-info-circle me-1" style="font-size: 15px;"></i> Account type classification cannot be changed after creation
                         </div>
                     </div>
                     
                     <div class="d-flex justify-content-between mt-4">
                         <a href="javascript:history.back()" class="btn btn-outline-custom">
-                            <i class="fas fa-arrow-left me-1"></i> Cancel
+                            <i class="fas fa-arrow-left me-1" style="font-size: 20px;"></i> Cancel
                         </a>
                         <button type="submit" class="btn btn-custom">
-                            <i class="fas fa-save me-1"></i> Update Account Type
+                            <i class="fas fa-save me-1" style="font-size: 20px;"></i> Update Account Type
                         </button>
                     </div>
                 </form>

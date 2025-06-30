@@ -331,16 +331,16 @@ if ($loan_result->num_rows > 0) {
             <h2>Add New Receipt</h2>
             <form id="receiptForm">
                 <div class="mb-3">
-                    <label for="member_id" class="form-label">Member ID</label>
-                    <input type="number" class="form-control" id="member_id" name="member_id" required>
+                    <label for="member_id" class="form-label" style="font-size: 20px;">Member ID</label>
+                    <input type="number" class="form-control" id="member_id" style="font-size: 20px;" name="member_id" required>
                 </div>
                 <div class="mb-3">
-                    <label for="receipt_type" class="form-label">Receipt Type</label>
-                    <select class="form-select" id="receipt_type" name="receipt_type" required>
-                        <option value="">Select Receipt Type</option>
-                        <option value="deposit">Deposit</option>
-                        <option value="loan_repayment">Loan Repayment</option>
-                        <option value="late_fee">Late Fee</option>
+                    <label for="receipt_type" class="form-label" style="font-size: 20px;">Receipt Type</label>
+                    <select class="form-select" id="receipt_type" style="font-size: 20px;" name="receipt_type" required>
+                        <option value="" style="font-size: 20px;">Select Receipt Type</option>
+                        <option value="deposit" style="font-size: 20px;">Deposit</option>
+                        <option value="loan_repayment" style="font-size: 20px;">Loan Repayment</option>
+                        <option value="late_fee" style="font-size: 20px;">Late Fee</option>
                     </select>
                 </div>
                 <!-- Loan type field will be shown only for loan repayment -->
