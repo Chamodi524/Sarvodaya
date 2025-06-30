@@ -192,7 +192,7 @@ $showReceiptView = (isset($_GET['view']) && $_GET['view'] == 'receipt' && isset(
             padding: 30px;
             border-radius: 15px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            width: 380px;
+            width: 480px; /* Increased from 380px to 480px */
             position: relative;
             border: 1px solid rgba(255, 140, 0, 0.3);
         }
@@ -444,14 +444,14 @@ $showReceiptView = (isset($_GET['view']) && $_GET['view'] == 'receipt' && isset(
 <body>
     <div id="formView">
         <div class="container">
-            <h2>Record Loan Payment</h2>
+            <h1>Record Loan Payment</h1>
             
             <?php if (isset($errorMessage)): ?>
-                <div class='message error'><?php echo $errorMessage; ?></div>
+                <div class='message error' style="font-size: 1.5rem;"><?php echo $errorMessage; ?></div>
             <?php endif; ?>
             
             <?php if (isset($successMessage)): ?>
-                <div class='message success'><?php echo $successMessage; ?></div>
+                <div class='message success' style="font-size: 1.5rem;"><?php echo $successMessage; ?></div>
                 <script>
                     setTimeout(function() {
                         window.location.href = "?view=receipt";
@@ -461,13 +461,13 @@ $showReceiptView = (isset($_GET['view']) && $_GET['view'] == 'receipt' && isset(
             
             <form action="" method="POST" id="paymentForm">
                 <div class="form-group">
-                    <label for="member_id">Member ID:</label>
-                    <input type="number" id="member_id" name="member_id" required>
+                    <label for="member_id" style="font-size: 1.5rem;">Member ID:</label>
+                    <input type="number" id="member_id"  style="font-size: 1.5rem;" name="member_id" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="loan_type">Loan Type:</label>
-                    <select id="loan_type" name="loan_type" required onchange="checkLoanLimit()">
+                    <label for="loan_type" style="font-size: 1.5rem;">Loan Type:</label>
+                    <select id="loan_type" style="font-size: 1.5rem;" name="loan_type" required onchange="checkLoanLimit()">
                         <?php
                         // Fetch loan types from the database
                         $loanTypesQuery = "SELECT id, loan_name, maximum_amount FROM loan_types";
@@ -487,17 +487,17 @@ $showReceiptView = (isset($_GET['view']) && $_GET['view'] == 'receipt' && isset(
                 </div>
 
                 <div class="form-group">
-                    <label for="amount">Amount (Rs.):</label>
-                    <input type="number" step="0.01" id="amount" name="amount" required oninput="checkLoanLimit()">
+                    <label for="amount" style="font-size: 1.5rem;">Amount (Rs.):</label>
+                    <input type="number" step="0.01" id="amount" name="amount" style="font-size: 1.5rem;" required oninput="checkLoanLimit()">
                     <div id="amountWarning" class="message warning" style="display: none;"></div>
                 </div>
 
                 <div class="form-group">
-                    <label for="description">Description:</label>
-                    <textarea id="description" name="description" rows="3"></textarea>
+                    <label for="description" style="font-size: 1.5rem;">Description:</label>
+                    <textarea id="description" style="font-size: 1.5rem;" name="description" rows="3"></textarea>
                 </div>
 
-                <button type="submit" id="submitBtn">Record Payment</button>
+                <button type="submit" id="submitBtn" style="font-size: 1.5rem;">Record Payment</button>
             </form>
         </div>
     </div>
