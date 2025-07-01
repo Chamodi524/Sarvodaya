@@ -273,15 +273,15 @@ if (isset($_POST['generate_balance_sheet'])) {
             <form method="post" action="">
                 <div class="row mb-4">
                     <div class="col-md-5">
-                        <label for="start_date" class="form-label">Start Date:</label>
-                        <input type="date" class="form-control" id="start_date" name="start_date" required>
+                        <label for="start_date" class="form-label" style="font-size: 20px;">Start Date:</label>
+                        <input type="date" class="form-control" id="start_date" style="font-size: 20px;" name="start_date" required>
                     </div>
                     <div class="col-md-5">
-                        <label for="end_date" class="form-label">End Date:</label>
-                        <input type="date" class="form-control" id="end_date" name="end_date" required>
+                        <label for="end_date" class="form-label" style="font-size: 20px;">End Date:</label>
+                        <input type="date" class="form-control" id="end_date" style="font-size: 20px;" name="end_date" required>
                     </div>
                     <div class="col-md-2 d-flex align-items-end">
-                        <button type="submit" name="generate_balance_sheet" class="btn btn-primary w-100">Generate</button>
+                        <button type="submit" name="generate_balance_sheet" class="btn btn-primary w-100" style="font-size: 20px;">Generate</button>
                     </div>
                 </div>
             </form>
@@ -292,7 +292,7 @@ if (isset($_POST['generate_balance_sheet'])) {
                     <form method="post" action="">
                         <input type="hidden" name="start_date" value="<?php echo $_POST['start_date']; ?>">
                         <input type="hidden" name="end_date" value="<?php echo $_POST['end_date']; ?>">
-                        <button type="submit" name="export_pdf" class="btn">Export Income Statement to PDF</button>
+                        <button type="submit" name="export_pdf" class="btn" style="font-size: 20px;">Export Income Statement to PDF</button>
                     </form>
                 </div>
 
@@ -301,27 +301,27 @@ if (isset($_POST['generate_balance_sheet'])) {
                 <table class="table table-bordered">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Description</th>
-                            <th>Amount (Rs.)</th>
-                            <th>Date</th>
+                            <th style="font-size: 20px;">ID</th>
+                            <th style="font-size: 20px;">Description</th>
+                            <th style="font-size: 20px;">Amount (Rs.)</th>
+                            <th style="font-size: 20px;">Date</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($receiptsData['receipts'] as $receipt): ?>
                         <tr>
-                            <td><?php echo $receipt['id']; ?></td>
-                            <td><?php echo $receipt['receipt_type']; ?></td>
-                            <td><?php echo number_format($receipt['amount'], 2); ?></td>
-                            <td><?php echo date('Y-m-d', strtotime($receipt['receipt_date'])); ?></td>
+                            <td style="font-size: 20px;"><?php echo $receipt['id']; ?></td>
+                            <td style="font-size: 20px;"><?php echo $receipt['receipt_type']; ?></td>
+                            <td style="font-size: 20px;"><?php echo number_format($receipt['amount'], 2); ?></td>
+                            <td style="font-size: 20px;"><?php echo date('Y-m-d', strtotime($receipt['receipt_date'])); ?></td>
                         </tr>
                         <?php endforeach; ?>
                     </tbody>
                     <tfoot>
                         <tr>
-                            <th colspan="2">Total Receipts</th>
-                            <th><?php echo number_format($totalReceipts, 2); ?></th>
-                            <th></th>
+                            <th colspan="2" style="font-size: 20px;">Total Receipts</th>
+                            <th style="font-size: 20px;"><?php echo number_format($totalReceipts, 2); ?></th>
+                            <th style="font-size: 20px;"></th>
                         </tr>
                     </tfoot>
                 </table>
@@ -331,27 +331,27 @@ if (isset($_POST['generate_balance_sheet'])) {
                 <table class="table table-bordered">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Description</th>
-                            <th>Amount (Rs.)</th>
-                            <th>Date</th>
+                            <th style="font-size: 20px;">ID</th>
+                            <th style="font-size: 20px;">Description</th>
+                            <th style="font-size: 20px;">Amount (Rs.)</th>
+                            <th style="font-size: 20px;">Date</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($paymentsData['payments'] as $payment): ?>
                         <tr class="<?php echo ($payment['type'] == 'interest') ? 'interest-row' : ''; ?>">
-                            <td><?php echo $payment['id']; ?></td>
-                            <td><?php echo $payment['description']; ?></td>
-                            <td><?php echo number_format($payment['amount'], 2); ?></td>
-                            <td><?php echo date('Y-m-d', strtotime($payment['date'])); ?></td>
+                            <td style="font-size: 20px;"><?php echo $payment['id']; ?></td>
+                            <td style="font-size: 20px;"><?php echo $payment['description']; ?></td>
+                            <td style="font-size: 20px;"><?php echo number_format($payment['amount'], 2); ?></td>
+                            <td style="font-size: 20px;"><?php echo date('Y-m-d', strtotime($payment['date'])); ?></td>
                         </tr>
                         <?php endforeach; ?>
                     </tbody>
                     <tfoot>
                         <tr>
-                            <th colspan="2">Total Payments</th>
-                            <th><?php echo number_format($totalPayments, 2); ?></th>
-                            <th></th>
+                            <th colspan="2" style="font-size: 20px;">Total Payments</th>
+                            <th style="font-size: 20px;"><?php echo number_format($totalPayments, 2); ?></th>
+                            <th style="font-size: 20px;"></th>
                         </tr>
                     </tfoot>
                 </table>
@@ -361,13 +361,13 @@ if (isset($_POST['generate_balance_sheet'])) {
                     <h3>Financial Summary</h3>
                     <div class="row">
                         <div class="col-md-4">
-                            <p><strong>Total income:</strong><br>Rs. <?php echo number_format($totalReceipts, 2); ?></p>
+                            <p style="font-size: 20px;"><strong>Total income:</strong><br>Rs. <?php echo number_format($totalReceipts, 2); ?></p>
                         </div>
                         <div class="col-md-4">
-                            <p><strong>Total Outcome:</strong><br>Rs. <?php echo number_format($totalPayments, 2); ?></p>
+                            <p style="font-size: 20px;"><strong>Total Outcome:</strong><br>Rs. <?php echo number_format($totalPayments, 2); ?></p>
                         </div>
                         <div class="col-md-4">
-                            <p class="<?php echo ($profitOrLoss >= 0) ? 'profit' : 'loss'; ?>">
+                            <p class="<?php echo ($profitOrLoss >= 0) ? 'profit' : 'loss'; ?>" style="font-size: 20px;">
                                 <strong>
                                 <?php
                                 if ($profitOrLoss >= 0) {

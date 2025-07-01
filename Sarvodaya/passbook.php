@@ -458,23 +458,23 @@ $current_balance = !empty($transactions) ? end($transactions)['running_balance']
     <!-- Page Header -->
     <div class="page-header">
         <div class="header-content">
-            <div class="organization-name">SARVODAYA SHRAMADHANA SOCIETY</div>
-            <div class="organization-subtitle">Samaghi Sarvodaya Shramadhana Society, Kubaloluwa, Veyangoda</div>
+            <div class="organization-name" >SARVODAYA SHRAMADHANA SOCIETY</div>
+            <div class="organization-subtitle" style="font-size: 20px;">Samaghi Sarvodaya Shramadhana Society, Kubaloluwa, Veyangoda</div>
             
             <div class="contact-info">
-                <div class="contact-item">
+                <div class="contact-item" style="font-size: 20px;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                         <path d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.568 17.568 0 0 0 4.168 6.608 17.569 17.569 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.678.678 0 0 0-.58-.122L9.98 10.07a6.76 6.76 0 0 1-3.05-3.05l.639-1.804a.678.678 0 0 0-.122-.58L5.653 2.328z"/>
                     </svg>
                     077 690 6605
                 </div>
-                <div class="contact-item">
+                <div class="contact-item" style="font-size: 20px;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                         <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2Zm13 2.383-4.708 2.825L15 11.105V5.383Zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741ZM1 11.105l4.708-2.897L1 5.383v5.722Z"/>
                     </svg>
                     info@sarvodayabank.com
                 </div>
-                <div class="contact-item">
+                <div class="contact-item" style="font-size: 20px;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                         <path d="M12.166 8.94c-.524 1.062-1.234 2.12-1.96 3.07A31.493 31.493 0 0 1 8 14.58a31.481 31.481 0 0 1-2.206-2.57c-.726-.95-1.436-2.008-1.96-3.07C3.304 7.867 3 6.862 3 6a5 5 0 0 1 10 0c0 .862-.305 1.867-.834 2.94zM8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10z"/>
                         <path d="M8 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
@@ -495,20 +495,20 @@ $current_balance = !empty($transactions) ? end($transactions)['running_balance']
                     <div class="card-body">
                         <form method="post" class="row g-3">
                             <div class="col-md-4">
-                                <label for="membership_number" class="form-label">Membership Number</label>
-                                <input type="text" class="form-control" id="membership_number" name="membership_number" 
+                                <label for="membership_number" class="form-label" style="font-size: 20px;">Membership Number</label>
+                                <input type="text" class="form-control" id="membership_number" style="font-size: 20px;" name="membership_number" 
                                        value="<?php echo htmlspecialchars($membership_number); ?>" placeholder="Enter membership number" required>
                             </div>
                             <div class="col-md-3">
-                                <label for="start_date" class="form-label">From Date</label>
-                                <input type="date" class="form-control" id="start_date" name="start_date" value="<?php echo $start_date; ?>">
+                                <label for="start_date" class="form-label" style="font-size: 20px;">From Date</label>
+                                <input type="date" class="form-control" id="start_date" name="start_date" style="font-size: 20px;" value="<?php echo $start_date; ?>">
                             </div>
                             <div class="col-md-3">
-                                <label for="end_date" class="form-label">To Date</label>
-                                <input type="date" class="form-control" id="end_date" name="end_date" value="<?php echo $end_date; ?>">
+                                <label for="end_date" class="form-label" style="font-size: 20px;">To Date</label>
+                                <input type="date" class="form-control" id="end_date" style="font-size: 20px;" name="end_date" value="<?php echo $end_date; ?>">
                             </div>
                             <div class="col-md-2 d-flex align-items-end">
-                                <button type="submit" class="btn btn-primary w-100">View Transactions</button>
+                                <button type="submit" class="btn btn-primary w-100" style="font-size: 20px;">View Transactions</button>
                             </div>
                         </form>
                     </div>
@@ -523,19 +523,19 @@ $current_balance = !empty($transactions) ? end($transactions)['running_balance']
                     <div class="row">
                         <div class="col-md-6">
                             <h4>Member: <?php echo htmlspecialchars($member_name); ?></h4>
-                            <p><strong>Membership Number:</strong> <?php echo $member_id; ?></p>
+                            <p style="font-size: 20px;"><strong>Membership Number:</strong> <?php echo $member_id; ?></p>
                             <?php if (!empty($member_details)): ?>
-                            <p><strong>NIC:</strong> <?php echo htmlspecialchars($member_details['nic']); ?></p>
-                            <p><strong>Contact:</strong> <?php echo htmlspecialchars($member_details['phone']); ?></p>
-                            <p><strong>Member Since:</strong> <?php echo date('d M Y', strtotime($member_details['created_at'])); ?></p>
+                            <p style="font-size: 20px;"><strong>NIC:</strong> <?php echo htmlspecialchars($member_details['nic']); ?></p>
+                            <p style="font-size: 20px;"><strong>Contact:</strong> <?php echo htmlspecialchars($member_details['phone']); ?></p>
+                            <p style="font-size: 20px;"><strong>Member Since:</strong> <?php echo date('d M Y', strtotime($member_details['created_at'])); ?></p>
                             <?php endif; ?>
                         </div>
                         <div class="col-md-6 text-md-end">
-                            <h5>Statement Period</h5>
-                            <p><?php echo date('d M Y', strtotime($start_date)); ?> - <?php echo date('d M Y', strtotime($end_date)); ?></p>
+                            <h3>Statement Period</h3>
+                            <p style="font-size: 20px;"><?php echo date('d M Y', strtotime($start_date)); ?> - <?php echo date('d M Y', strtotime($end_date)); ?></p>
                             <?php if (!empty($transactions)): ?>
                             <div class="mt-3 no-print">
-                                <button type="button" class="btn btn-secondary" onclick="window.print()">
+                                <button type="button" class="btn btn-secondary" style="font-size: 20px;" onclick="window.print()">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-printer me-1" viewBox="0 0 16 16">
                                         <path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/>
                                         <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2H5zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4V3zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2H5zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1z"/>
@@ -555,29 +555,29 @@ $current_balance = !empty($transactions) ? end($transactions)['running_balance']
                         <table class="table table-bordered">
                             <thead>
                                 <tr>
-                                    <th style="width: 20%;">Date</th>
-                                    <th style="width: 20%;">Type</th>
-                                    <th style="width: 20%;" class="text-end">Deposit(Rs.)</th>
-                                    <th style="width: 20%;" class="text-end">Withdrawal(RS.)</th>
-                                    <th style="width: 20%;" class="text-end">Balance(Rs.)</th>
+                                    <th style="font-size: 20px;" style="width: 20%;">Date</th>
+                                    <th style="font-size: 20px;" style="width: 20%;">Type</th>
+                                    <th style="font-size: 20px;" style="width: 20%;" class="text-end">Deposit(Rs.)</th>
+                                    <th style="font-size: 20px;" style="width: 20%;" class="text-end">Withdrawal(RS.)</th>
+                                    <th style="font-size: 20px;" style="width: 20%;" class="text-end">Balance(Rs.)</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php foreach ($transactions as $transaction): ?>
                                     <tr class="transaction-row">
-                                        <td><?php echo date('Y-m-d H:i', strtotime($transaction['transaction_date'])); ?></td>
-                                        <td><?php echo $transaction['transaction_type']; ?></td>
-                                        <td class="text-end deposit">
+                                        <td style="font-size: 20px;"><?php echo date('Y-m-d H:i', strtotime($transaction['transaction_date'])); ?></td>
+                                        <td style="font-size: 20px;"><?php echo $transaction['transaction_type']; ?></td>
+                                        <td style="font-size: 20px;" class="text-end deposit">
                                             <?php if ($transaction['transaction_type'] == 'DEPOSIT' || $transaction['transaction_type'] == 'INTEREST'): ?>
                                                 <?php echo number_format($transaction['amount'], 2); ?>
                                             <?php endif; ?>
                                         </td>
-                                        <td class="text-end withdrawal">
+                                        <td style="font-size: 20px;" class="text-end withdrawal">
                                             <?php if ($transaction['transaction_type'] == 'WITHDRAWAL' || $transaction['transaction_type'] == 'ADJUSTMENT' || $transaction['transaction_type'] == 'FEE'): ?>
                                                 <?php echo number_format($transaction['amount'], 2); ?>
                                             <?php endif; ?>
                                         </td>
-                                        <td class="text-end"><?php echo number_format($transaction['running_balance'], 2); ?></td>
+                                        <td style="font-size: 20px;" class="text-end"><?php echo number_format($transaction['running_balance'], 2); ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
@@ -587,15 +587,15 @@ $current_balance = !empty($transactions) ? end($transactions)['running_balance']
                     <div class="summary-box">
                         <div class="row">
                             <div class="col-md-4">
-                                <h5>Total Deposits(Rs.)</h5>
+                                <h3>Total Deposits(Rs.)</h3>
                                 <p class="deposit fw-bold fs-4"><?php echo number_format($total_deposits, 2); ?></p>
                             </div>
                             <div class="col-md-4">
-                                <h5>Total Withdrawals(Rs.)</h5>
+                                <h3>Total Withdrawals(Rs.)</h3>
                                 <p class="withdrawal fw-bold fs-4"><?php echo number_format($total_withdrawals, 2); ?></p>
                             </div>
                             <div class="col-md-4">
-                                <h5>Current Balance(Rs.)</h5>
+                                <h3>Current Balance(Rs.)</h3>
                                 <p class="fw-bold fs-4"><?php echo number_format($current_balance, 2); ?></p>
                             </div>
                         </div>

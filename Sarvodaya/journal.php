@@ -793,28 +793,28 @@ if (isset($_GET['filter'])) {
         <!-- Header -->
         <div class="header-card">
             <h1><i class="fas fa-book"></i> General Journal</h1>
-            <div class="subtitle">Financial Transactions Overview - Money Received (Debit) / Money Paid (Credit)</div>
+            <div class="subtitle" style="font-size: 20px;">Financial Transactions Overview - Money Received (Debit) / Money Paid (Credit)</div>
         </div>
 
         <!-- Filter Form -->
         <div class="filter-card">
             <form method="GET" class="filter-form">
                 <div class="form-group">
-                    <label for="start_date"><i class="fas fa-calendar-alt"></i> From Date</label>
-                    <input type="date" id="start_date" name="start_date" value="<?= $start_date ?>" required>
+                    <label for="start_date"><i class="fas fa-calendar-alt" style="font-size: 20px;"></i> From Date</label>
+                    <input type="date" id="start_date" style="font-size: 20px;" name="start_date" value="<?= $start_date ?>" required>
                 </div>
                 
                 <div class="form-group">
-                    <label for="end_date"><i class="fas fa-calendar-alt"></i> To Date</label>
-                    <input type="date" id="end_date" name="end_date" value="<?= $end_date ?>" required>
+                    <label for="end_date"><i class="fas fa-calendar-alt" style="font-size: 20px;"></i> To Date</label>
+                    <input type="date" id="end_date" style="font-size: 20px;" name="end_date" value="<?= $end_date ?>" required>
                 </div>
                 
                 <button type="submit" name="filter" class="btn btn-primary">
-                    <i class="fas fa-filter"></i> Apply Filter
+                    <i class="fas fa-filter" style="font-size: 20px;"></i> Apply Filter
                 </button>
                 
                 <button type="button" class="btn btn-secondary" onclick="window.print()">
-                    <i class="fas fa-print"></i> Print Journal
+                    <i class="fas fa-print" style="font-size: 20px;"></i> Print Journal
                 </button>
             </form>
         </div>
@@ -894,11 +894,11 @@ if (isset($_GET['filter'])) {
         <!-- Statistics Cards -->
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-icon debit">
+                <div class="stat-icon debit" style="font-size: 20px;">
                     <i class="fas fa-arrow-down" style="color: white;"></i>
                 </div>
-                <div class="stat-value debit"><?= number_format($totals['total_debit'], 2) ?></div>
-                <div class="stat-label">Total Receipts</div>
+                <div class="stat-value debit" ><?= number_format($totals['total_debit'], 2) ?></div>
+                <div class="stat-label" style="font-size: 20px;">Total Receipts</div>
             </div>
             
             <div class="stat-card">
@@ -906,7 +906,7 @@ if (isset($_GET['filter'])) {
                     <i class="fas fa-arrow-up" style="color: white;"></i>
                 </div>
                 <div class="stat-value credit"><?= number_format($totals['total_credit'], 2) ?></div>
-                <div class="stat-label">Total Payments</div>
+                <div class="stat-label" style="font-size: 20px;">Total Payments</div>
             </div>
             
             <div class="stat-card">
@@ -916,7 +916,7 @@ if (isset($_GET['filter'])) {
                 <div class="stat-value <?= $net_liquidity >= 0 ? 'surplus' : 'deficit' ?>">
                     <?= number_format(abs($net_liquidity), 2) ?>
                 </div>
-                <div class="stat-label">Net Position (<?= $net_liquidity >= 0 ? 'Surplus' : 'Deficit' ?>)</div>
+                <div class="stat-label" style="font-size: 20px;">Net Position (<?= $net_liquidity >= 0 ? 'Surplus' : 'Deficit' ?>)</div>
             </div>
         </div>
 
@@ -926,52 +926,52 @@ if (isset($_GET['filter'])) {
                 <table>
                     <thead>
                         <tr>
-                            <th><i class="fas fa-calendar"></i> Date</th>
-                            <th><i class="fas fa-tag"></i> Type</th>
-                            <th><i class="fas fa-user"></i> Member</th>
-                            <th><i class="fas fa-link"></i> Reference</th>
-                            <th><i class="fas fa-info-circle"></i> Details</th>
-                            <th><i class="fas fa-plus-circle"></i> Debit</th>
-                            <th><i class="fas fa-minus-circle"></i> Credit</th>
+                            <th style="font-size: 20px;"><i class="fas fa-calendar"></i> Date</th>
+                            <th style="font-size: 20px;"><i class="fas fa-tag"></i> Type</th>
+                            <th style="font-size: 20px;"><i class="fas fa-user"></i> Member</th>
+                            <th style="font-size: 20px;"><i class="fas fa-link"></i> Reference</th>
+                            <th style="font-size: 20px;"><i class="fas fa-info-circle"></i> Details</th>
+                            <th style="font-size: 20px;"><i class="fas fa-plus-circle"></i> Debit</th>
+                            <th style="font-size: 20px;"><i class="fas fa-minus-circle"></i> Credit</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if($result->num_rows > 0): ?>
                             <?php while($row = $result->fetch_assoc()): ?>
                             <tr>
-                                <td><?= date('M j, Y', strtotime($row['transaction_date'])) ?></td>
-                                <td>
+                                <td style="font-size: 20px;"><?= date('M j, Y', strtotime($row['transaction_date'])) ?></td>
+                                <td style="font-size: 20px;">
                                     <?php if($row['transaction_type'] == 'payment'): ?>
-                                        <span class="badge badge-payment">
+                                        <span class="badge badge-payment" style="font-size: 20px;">
                                             <i class="fas fa-credit-card"></i> Payment
                                         </span>
                                     <?php elseif($row['transaction_type'] == 'receipt'): ?>
-                                        <span class="badge badge-receipt">
+                                        <span class="badge badge-receipt" style="font-size: 20px;">
                                             <i class="fas fa-receipt"></i> Receipt
                                         </span>
                                     <?php else: ?>
-                                        <span class="badge badge-interest">
-                                            <i class="fas fa-percentage"></i> Interest
+                                        <span class="badge badge-interest" style="font-size: 20px;">
+                                            <i class="fas fa-percentage" ></i> Interest
                                         </span>
                                     <?php endif; ?>
                                 </td>
-                                <td><span class="member-id">#<?= $row['member_id'] ?></span></td>
-                                <td class="reference">
+                                <td style="font-size: 20px;"><span class="member-id" style="font-size: 20px;">#<?= $row['member_id'] ?></span></td>
+                                <td class="reference" style="font-size: 20px;">
                                     <?= $row['reference_type'] ?>
                                     <?= $row['reference_id'] ? '<br><small>Ref #' . $row['reference_id'] . '</small>' : '' ?>
                                 </td>
-                                <td class="details"><?= $row['details'] ? $row['details'] : '&mdash;' ?></td>
-                                <td class="amount <?= $row['debit_amount'] > 0 ? 'debit' : 'zero-amount' ?>">
+                                <td class="details" style="font-size: 20px;"><?= $row['details'] ? $row['details'] : '&mdash;' ?></td>
+                                <td  style="font-size: 20px;" class="amount <?= $row['debit_amount'] > 0 ? 'debit' : 'zero-amount' ?>">
                                     <?= $row['debit_amount'] > 0 ? number_format($row['debit_amount'], 2) : '0.00' ?>
                                 </td>
-                                <td class="amount <?= $row['credit_amount'] > 0 ? 'credit' : 'zero-amount' ?>">
+                                <td  style="font-size: 20px;" class="amount <?= $row['credit_amount'] > 0 ? 'credit' : 'zero-amount' ?>">
                                     <?= $row['credit_amount'] > 0 ? number_format($row['credit_amount'], 2) : '0.00' ?>
                                 </td>
                             </tr>
                             <?php endwhile; ?>
                         <?php else: ?>
                         <tr>
-                            <td colspan="7" class="empty-state">
+                            <td colspan="7" class="empty-state" style="font-size: 20px;">
                                 <i class="fas fa-inbox"></i>
                                 <div>No transactions found for the selected period</div>
                             </td>
@@ -979,23 +979,23 @@ if (isset($_GET['filter'])) {
                         <?php endif; ?>
                     </tbody>
                     <tfoot>
-                        <tr class="totals-row">
-                            <td colspan="5" style="text-align: right;">
-                                <i class="fas fa-calculator"></i> Totals:
+                        <tr class="totals-row" style="font-size: 20px;">
+                            <td colspan="5" style="text-align: right;" style="font-size: 20px;" >
+                                <i class="fas fa-calculator" style="font-size: 20px;"></i> Totals:
                             </td>
-                            <td class="amount debit"><?= number_format($totals['total_debit'], 2) ?></td>
-                            <td class="amount credit"><?= number_format($totals['total_credit'], 2) ?></td>
+                            <td class="amount debit" style="font-size: 20px;"><?= number_format($totals['total_debit'], 2) ?></td>
+                            <td class="amount credit" style="font-size: 20px;"><?= number_format($totals['total_credit'], 2) ?></td>
                         </tr>
                         <tr class="net-position">
-                            <td colspan="5" style="text-align: right;">
+                            <td colspan="5" style="text-align: right;" style="font-size: 20px;">
                                 <i class="fas fa-balance-scale"></i> Net Position:
                             </td>
-                            <td colspan="2" class="<?= $net_liquidity >= 0 ? 'surplus' : 'deficit' ?>">
+                            <td colspan="2" class="<?= $net_liquidity >= 0 ? 'surplus' : 'deficit' ?>" style="font-size: 20px;">
                                 <?= number_format($net_liquidity, 2) ?>
-                                <br><small>(<?= $net_liquidity >= 0 ? 'Surplus' : 'Deficit' ?>)</small>
+                                <br ><small style="font-size: 20px;">(<?= $net_liquidity >= 0 ? 'Surplus' : 'Deficit' ?>)</small>
                             </td>
                         </tr>
-                        <tr class="period-row">
+                        <tr class="period-row" style="font-size: 20px;">
                             <td colspan="7">
                                 <i class="fas fa-calendar-range"></i>
                                 <?= date('F j, Y', strtotime($start_date)) ?> to <?= date('F j, Y', strtotime($end_date)) ?>

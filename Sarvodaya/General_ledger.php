@@ -92,18 +92,18 @@ if ($conn->connect_error) {
             <h2>Search Member Ledger</h2>
             <form method="GET" action="">
                 <div class="mb-3">
-                    <label for="member_id" class="form-label">Member ID</label>
-                    <input type="number" class="form-control" id="member_id" name="member_id" required>
+                    <label for="member_id" class="form-label" style="font-size: 20px;">Member ID</label>
+                    <input type="number" class="form-control" id="member_id" style="font-size: 20px;" name="member_id" required>
                 </div>
                 <div class="mb-3">
-                    <label for="start_date" class="form-label">Start Date</label>
-                    <input type="date" class="form-control" id="start_date" name="start_date" required>
+                    <label for="start_date" class="form-label" style="font-size: 20px;">Start Date</label>
+                    <input type="date" class="form-control" id="start_date" style="font-size: 20px;" name="start_date" required>
                 </div>
                 <div class="mb-3">
-                    <label for="end_date" class="form-label">End Date</label>
-                    <input type="date" class="form-control" id="end_date" name="end_date" required>
+                    <label for="end_date" class="form-label" style="font-size: 20px;">End Date</label>
+                    <input type="date" class="form-control" id="end_date" style="font-size: 20px;" name="end_date" required>
                 </div>
-                <button type="submit" class="btn btn-custom">Search</button>
+                <button type="submit" class="btn btn-custom" style="font-size: 20px;">Search</button>
             </form>
         </div>
 
@@ -129,8 +129,8 @@ if ($conn->connect_error) {
                 // Display member details
                 echo '<div class="member-details">
                     <h2>Member Details</h2>
-                    <p><strong>Name:</strong> ' . htmlspecialchars($member_name) . '</p>
-                    <p><strong>Address:</strong> ' . htmlspecialchars($member_address) . '</p>
+                    <p style="font-size: 20px;"><strong>Name:</strong> ' . htmlspecialchars($member_name) . '</p>
+                    <p style="font-size: 20px;"><strong>Address:</strong> ' . htmlspecialchars($member_address) . '</p>
                 </div>';
 
                 // Get opening balance - the running_balance of the last transaction before start_date
@@ -180,7 +180,7 @@ if ($conn->connect_error) {
                 // Display ledger table
                 echo '<div class="card">
                     <h2>Ledger for Member ID: ' . htmlspecialchars($member_id) . '</h2>
-                    <p>Period: ' . date('d/m/Y', strtotime($start_date)) . ' to ' . date('d/m/Y', strtotime($end_date)) . '</p>';
+                    <p style="font-size: 20px;">Period: ' . date('d/m/Y', strtotime($start_date)) . ' to ' . date('d/m/Y', strtotime($end_date)) . '</p>';
 
                 echo '<div class="account-details mb-3">
                     <h4>Opening Balance as of ' . date('d/m/Y', strtotime($start_date)) . ': 
@@ -190,28 +190,28 @@ if ($conn->connect_error) {
                 echo '<table class="table table-bordered">
                         <thead>
                             <tr>
-                                <th>Date</th>
-                                <th>Transaction ID</th>
-                                <th>Description</th>
-                                <th>Deposit</th>
-                                <th>Withdrawal</th>
-                                <th>Interest</th>
-                                <th>Adjustment/Fee</th>
-                                <th>Balance</th>
+                                <th style="font-size: 20px;">Date</th>
+                                <th style="font-size: 20px;">Transaction ID</th>
+                                <th style="font-size: 20px;">Description</th>
+                                <th style="font-size: 20px;">Deposit</th>
+                                <th style="font-size: 20px;">Withdrawal</th>
+                                <th style="font-size: 20px;">Interest</th>
+                                <th style="font-size: 20px;">Adjustment/Fee</th>
+                                <th style="font-size: 20px;">Balance</th>
                             </tr>
                         </thead>
                         <tbody>';
 
                 // Display opening balance row
                 echo '<tr>
-                    <td>' . date('d/m/Y', strtotime($start_date)) . '</td>
-                    <td>-</td>
-                    <td><strong>Opening Balance</strong></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td><strong>Rs.' . number_format($opening_balance, 2) . '</strong></td>
+                    <td style="font-size: 20px;">' . date('d/m/Y', strtotime($start_date)) . '</td>
+                    <td style="font-size: 20px;">-</td>
+                    <td style="font-size: 20px;"><strong>Opening Balance</strong></td>
+                    <td style="font-size: 20px;"></td>
+                    <td style="font-size: 20px;"></td>
+                    <td style="font-size: 20px;"></td>
+                    <td style="font-size: 20px;"></td>
+                    <td style="font-size: 20px;"><strong>Rs.' . number_format($opening_balance, 2) . '</strong></td>
                 </tr>';
 
                 // Initialize totals
@@ -290,17 +290,17 @@ if ($conn->connect_error) {
                         </tr>';
                     }
                 } else {
-                    echo '<tr><td colspan="8" class="text-center">No transactions found for the selected period.</td></tr>';
+                    echo '<tr><td colspan="8" class="text-center" style="font-size: 20px;">No transactions found for the selected period.</td></tr>';
                 }
 
                 // Display totals row
                 echo '<tr class="table-secondary">
-                    <td colspan="3"><strong>Totals</strong></td>
-                    <td><strong>Rs. ' . number_format($total_deposits, 2) . '</strong></td>
-                    <td><strong>Rs. ' . number_format($total_withdrawals, 2) . '</strong></td>
-                    <td><strong>Rs. ' . number_format($total_interest, 2) . '</strong></td>
-                    <td><strong>Rs. ' . number_format($total_adjustments + $total_fees, 2) . '</strong></td>
-                    <td><strong>Rs. ' . number_format($closing_balance, 2) . '</strong></td>
+                    <td colspan="3" style="font-size: 20px;"><strong>Totals</strong></td>
+                    <td style="font-size: 20px;"><strong>Rs. ' . number_format($total_deposits, 2) . '</strong></td>
+                    <td style="font-size: 20px;"><strong>Rs. ' . number_format($total_withdrawals, 2) . '</strong></td>
+                    <td style="font-size: 20px;"><strong>Rs. ' . number_format($total_interest, 2) . '</strong></td>
+                    <td style="font-size: 20px;"><strong>Rs. ' . number_format($total_adjustments + $total_fees, 2) . '</strong></td>
+                    <td style="font-size: 20px;"><strong>Rs. ' . number_format($closing_balance, 2) . '</strong></td>
                 </tr>';
 
                 echo '</tbody>

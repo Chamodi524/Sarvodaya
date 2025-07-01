@@ -100,30 +100,30 @@ if ($conn->connect_error) {
             <h2>Search Member Loan Ledger</h2>
             <form method="GET" action="" id="loanSearchForm">
                 <div class="mb-3">
-                    <label for="member_id" class="form-label">Member ID</label>
-                    <input type="number" class="form-control" id="member_id" name="member_id" required>
+                    <label for="member_id" class="form-label" style="font-size: 20px;">Member ID</label>
+                    <input type="number" class="form-control" id="member_id" style="font-size: 20px;" name="member_id" required>
                 </div>
                 <div id="loanSelectContainer" class="mb-3" style="display: none;">
-                    <label for="loan_id" class="form-label">Loan Type</label>
-                    <select class="form-control" id="loan_id" name="loan_id" required disabled>
-                        <option value="">Select a loan</option>
+                    <label for="loan_id" class="form-label" style="font-size: 20px;">Loan Type</label>
+                    <select class="form-control" id="loan_id" style="font-size: 20px;" name="loan_id" required disabled>
+                        <option value="" style="font-size: 20px;">Select a loan</option>
                     </select>
                 </div>
                 <div class="mb-3">
-                    <label for="start_date" class="form-label">Start Date</label>
-                    <input type="date" class="form-control" id="start_date" name="start_date" required>
+                    <label for="start_date" class="form-label" style="font-size: 20px;">Start Date</label>
+                    <input type="date" class="form-control" id="start_date" style="font-size: 20px;" name="start_date" required>
                 </div>
                 <div class="mb-3">
-                    <label for="end_date" class="form-label">End Date</label>
-                    <input type="date" class="form-control" id="end_date" name="end_date" required>
+                    <label for="end_date" class="form-label" style="font-size: 20px;">End Date</label>
+                    <input type="date" class="form-control" id="end_date" style="font-size: 20px;" name="end_date" required>
                 </div>
-                <button type="submit" class="btn btn-custom">Search</button>
+                <button type="submit" class="btn btn-custom" style="font-size: 20px;">Search</button>
             </form>
             <div id="loader" class="loader">
                 <div class="spinner-border text-warning" role="status">
-                    <span class="visually-hidden">Loading...</span>
+                    <span class="visually-hidden" style="font-size: 20px;">Loading...</span>
                 </div>
-                <p>Loading active loans...</p>
+                <p style="font-size: 20px;">Loading active loans...</p>
             </div>
         </div>
 
@@ -170,18 +170,18 @@ if ($conn->connect_error) {
                     // Display member details
                     echo '<div class="member-details">
                         <h2>Member Details</h2>
-                        <p><strong>Name:</strong> ' . htmlspecialchars($member_name) . '</p>
-                        <p><strong>Address:</strong> ' . htmlspecialchars($member_address) . '</p>
+                        <p style="font-size: 20px;"><strong>Name:</strong> ' . htmlspecialchars($member_name) . '</p>
+                        <p style="font-size: 20px;"><strong>Address:</strong> ' . htmlspecialchars($member_address) . '</p>
                         
                         <div class="loan-details">
                             <h3>Loan Details</h3>
-                            <p><strong>Loan Type:</strong> ' . htmlspecialchars($loan_type) . '</p>
-                            <p><strong>Loan Amount:</strong> Rs. ' . number_format($loan_amount, 2) . '</p>
-                            <p><strong>Interest Rate:</strong> ' . $loan_interest_rate . '%</p>
-                            <p><strong>Start Date:</strong> ' . date('d/m/Y', strtotime($loan_start_date)) . '</p>
-                            <p><strong>End Date:</strong> ' . date('d/m/Y', strtotime($loan_end_date)) . '</p>
-                            <p><strong>Status:</strong> ' . ucfirst($loan_status) . '</p>
-                            <p><strong>Total Repayment Amount:</strong> Rs. ' . number_format($total_repayment_amount, 2) . '</p>
+                            <p style="font-size: 20px;"><strong>Loan Type:</strong> ' . htmlspecialchars($loan_type) . '</p>
+                            <p style="font-size: 20px;"><strong>Loan Amount:</strong> Rs. ' . number_format($loan_amount, 2) . '</p>
+                            <p style="font-size: 20px;"><strong>Interest Rate:</strong> ' . $loan_interest_rate . '%</p>
+                            <p style="font-size: 20px;"><strong>Start Date:</strong> ' . date('d/m/Y', strtotime($loan_start_date)) . '</p>
+                            <p style="font-size: 20px;"><strong>End Date:</strong> ' . date('d/m/Y', strtotime($loan_end_date)) . '</p>
+                            <p style="font-size: 20px;"><strong>Status:</strong> ' . ucfirst($loan_status) . '</p>
+                            <p style="font-size: 20px;"><strong>Total Repayment Amount:</strong> Rs. ' . number_format($total_repayment_amount, 2) . '</p>
                         </div>
                     </div>';
 
@@ -238,20 +238,20 @@ if ($conn->connect_error) {
                     // Display ledger table
                     echo '<div class="card">
                         <h2>Loan Ledger for Member ID: ' . htmlspecialchars($member_id) . '</h2>
-                        <p>Period: ' . date('d/m/Y', strtotime($start_date)) . ' to ' . date('d/m/Y', strtotime($end_date)) . '</p>';
+                        <p style="font-size: 20px;">Period: ' . date('d/m/Y', strtotime($start_date)) . ' to ' . date('d/m/Y', strtotime($end_date)) . '</p>';
 
                     
 
                     echo '<table class="table table-bordered">
                             <thead>
                                 <tr>
-                                    <th>Date</th>
-                                    <th>Installment #</th>
-                                    <th>Description</th>
-                                    <th>Payment</th>
-                                    <th>Principal</th>
-                                    <th>Interest</th>
-                                    <th>Status</th>
+                                    <th style="font-size: 20px;">Date</th>
+                                    <th style="font-size: 20px;">Installment #</th>
+                                    <th style="font-size: 20px;">Description</th>
+                                    <th style="font-size: 20px;">Payment</th>
+                                    <th style="font-size: 20px;">Principal</th>
+                                    <th style="font-size: 20px;">Interest</th>
+                                    <th style="font-size: 20px;">Status</th>
                                     
                                 </tr>
                             </thead>
@@ -293,13 +293,13 @@ if ($conn->connect_error) {
                             }
 
                             echo '<tr class="' . $row_class . '">
-                                <td>' . $display_date . '</td>
-                                <td>' . $row['installment_number'] . '</td>
-                                <td>' . $description . '</td>
-                                <td>' . ($payment > 0 ? 'Rs. ' . number_format($payment, 2) : '') . '</td>
-                                <td>' . ($principal > 0 ? 'Rs. ' . number_format($principal, 2) : '') . '</td>
-                                <td>' . ($interest > 0 ? 'Rs. ' . number_format($interest, 2) : '') . '</td>
-                                <td>' . ucfirst($row['payment_status']) . '</td>
+                                <td style="font-size: 20px;">' . $display_date . '</td>
+                                <td style="font-size: 20px;">' . $row['installment_number'] . '</td>
+                                <td style="font-size: 20px;">' . $description . '</td>
+                                <td style="font-size: 20px;">' . ($payment > 0 ? 'Rs. ' . number_format($payment, 2) : '') . '</td>
+                                <td style="font-size: 20px;">' . ($principal > 0 ? 'Rs. ' . number_format($principal, 2) : '') . '</td>
+                                <td style="font-size: 20px;">' . ($interest > 0 ? 'Rs. ' . number_format($interest, 2) : '') . '</td>
+                                <td style="font-size: 20px;">' . ucfirst($row['payment_status']) . '</td>
                                 
                             </tr>';
                         }
@@ -390,10 +390,10 @@ if ($conn->connect_error) {
 
                     // Display totals row
                     echo '<tr class="table-secondary">
-                        <td colspan="3"><strong>Totals</strong></td>
-                        <td><strong>Rs. ' . number_format($total_payments, 2) . '</strong></td>
-                        <td><strong>Rs. ' . number_format($total_principal, 2) . '</strong></td>
-                        <td><strong>Rs. ' . number_format($total_interest, 2) . '</strong></td>
+                        <td colspan="3" style="font-size: 20px;"><strong>Totals</strong></td>
+                        <td style="font-size: 20px;"><strong>Rs. ' . number_format($total_payments, 2) . '</strong></td>
+                        <td style="font-size: 20px;"><strong>Rs. ' . number_format($total_principal, 2) . '</strong></td>
+                        <td style="font-size: 20px;"><strong>Rs. ' . number_format($total_interest, 2) . '</strong></td>
                         
                         
                     </tr>';
