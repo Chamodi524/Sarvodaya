@@ -586,7 +586,7 @@ if (isset($_GET['action'])) {
     $host = "localhost";
     $username = "root";
     $password = "";
-    $database = "sarvodaya;
+    $database = "sarvodaya";
     
     try {
         $conn = new PDO("mysql:host=$host;dbname=$database", $username, $password);

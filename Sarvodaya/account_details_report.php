@@ -215,24 +215,24 @@ if (isset($_GET['download']) && $_GET['download'] == 'pdf') {
 
                 // Account Type Details
                 echo '<div class="mb-3">';
-                echo '<p><strong>Minimum Balance:</strong> ' . number_format($account_type['minimum_balance'], 2) . '</p>';
-                echo '<p><strong>Interest Rate:</strong> ' . number_format($account_type['interest_rate'], 2) . '%</p>';
+                echo '<p style="font-size: 20px;"><strong>Minimum Balance:</strong> ' . number_format($account_type['minimum_balance'], 2) . '</p>';
+                echo '<p style="font-size: 20px;"><strong>Interest Rate:</strong> ' . number_format($account_type['interest_rate'], 2) . '%</p>';
                 echo '</div>';
 
                 if ($members_result->num_rows > 0) {
                     echo '<table class="table table-bordered table-hover">';
                     echo '<thead>
                             <tr>
-                                <th>Member ID</th>
-                                <th>Member Name</th>
+                                <th style="font-size: 20px;">Member ID</th>
+                                <th style="font-size: 20px;">Member Name</th>
                             </tr>
                           </thead>
                           <tbody>';
 
                     while ($member = $members_result->fetch_assoc()) {
                         echo '<tr>
-                                <td>' . htmlspecialchars($member['id']) . '</td>
-                                <td>' . htmlspecialchars($member['name']) . '</td>
+                                <td style="font-size: 20px;">' . htmlspecialchars($member['id']) . '</td>
+                                <td style="font-size: 20px;">' . htmlspecialchars($member['name']) . '</td>
                               </tr>';
                     }
 

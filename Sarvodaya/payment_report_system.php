@@ -375,14 +375,14 @@ if (isset($_GET['action']) && $_GET['action'] == 'download_pdf') {
         <h1>Payment Analysis Dashboard</h1>
         
         <form method="get" class="date-range-form">
-            <label for="start_date">Start Date:</label>
-            <input type="date" name="start_date" id="start_date">
+            <label for="start_date" style="font-size: 20px;">Start Date:</label>
+            <input type="date" name="start_date" id="start_date" style="font-size: 20px;">
             
-            <label for="end_date">End Date:</label>
-            <input type="date" name="end_date" id="end_date">
+            <label for="end_date" style="font-size: 20px;">End Date:</label>
+            <input type="date" name="end_date" id="end_date" style="font-size: 20px;">
             
-            <input type="hidden" name="action" value="download_pdf">
-            <button type="submit" class="download-btn">Generate PDF Report</button>
+            <input type="hidden" name="action" value="download_pdf" style="font-size: 20px;">
+            <button type="submit" class="download-btn" >Generate PDF Report</button>
         </form>
         
         <?php
@@ -398,9 +398,9 @@ if (isset($_GET['action']) && $_GET['action'] == 'download_pdf') {
         
         <div class="summary-card">
             <h2>Total Payments Summary</h2>
-            <p>Total Transactions: <?php echo $totalPayments['total_transactions']; ?></p>
-            <p>Total Amount: Rs.<?php echo number_format($totalPayments['total_amount'], 2); ?></p>
-            <p>Average Transaction: Rs.<?php echo number_format($totalPayments['average_amount'], 2); ?></p>
+            <p style="font-size: 20px;">Total Transactions: <?php echo $totalPayments['total_transactions']; ?></p>
+            <p style="font-size: 20px;">Total Amount: Rs.<?php echo number_format($totalPayments['total_amount'], 2); ?></p>
+            <p style="font-size: 20px;">Average Transaction: Rs.<?php echo number_format($totalPayments['average_amount'], 2); ?></p>
         </div>
         
         <?php
@@ -411,17 +411,17 @@ if (isset($_GET['action']) && $_GET['action'] == 'download_pdf') {
         <table>
             <thead>
                 <tr>
-                    <th>Payment Type</th>
-                    <th>Transaction Count</th>
-                    <th>Total Amount(Rs.)</th>
+                    <th style="font-size: 20px;">Payment Type</th>
+                    <th style="font-size: 20px;">Transaction Count</th>
+                    <th style="font-size: 20px;">Total Amount(Rs.)</th>
                 </tr>
             </thead>
             <tbody>
                 <?php foreach ($paymentTypes as $type): ?>
                 <tr>
-                    <td><?php echo htmlspecialchars($type['payment_type']); ?></td>
-                    <td><?php echo $type['count']; ?></td>
-                    <td>Rs. <?php echo number_format($type['total_amount'], 2); ?></td>
+                    <td style="font-size: 20px;"><?php echo htmlspecialchars($type['payment_type']); ?></td>
+                    <td style="font-size: 20px;"><?php echo $type['count']; ?></td>
+                    <td style="font-size: 20px;">Rs. <?php echo number_format($type['total_amount'], 2); ?></td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>
@@ -435,17 +435,17 @@ if (isset($_GET['action']) && $_GET['action'] == 'download_pdf') {
         <table>
             <thead>
                 <tr>
-                    <th>Year-Month</th>
-                    <th>Transaction Count</th>
-                    <th>Total Amount(Rs.)</th>
+                    <th style="font-size: 20px;">Year-Month</th>
+                    <th style="font-size: 20px;">Transaction Count</th>
+                    <th style="font-size: 20px;">Total Amount(Rs.)</th>
                 </tr>
             </thead>
             <tbody>
                 <?php foreach ($monthlySummary as $month): ?>
                 <tr>
-                    <td><?php echo $month['year'] . '-' . str_pad($month['month'], 2, '0', STR_PAD_LEFT); ?></td>
-                    <td><?php echo $month['transaction_count']; ?></td>
-                    <td>Rs.<?php echo number_format($month['total_amount'], 2); ?></td>
+                    <td style="font-size: 20px;"><?php echo $month['year'] . '-' . str_pad($month['month'], 2, '0', STR_PAD_LEFT); ?></td>
+                    <td style="font-size: 20px;"><?php echo $month['transaction_count']; ?></td>
+                    <td style="font-size: 20px;">Rs.<?php echo number_format($month['total_amount'], 2); ?></td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>

@@ -377,6 +377,7 @@ if (isset($_GET['download']) && $_GET['download'] == 'csv') {
             border: 1px solid rgb(255, 180, 100);
             padding: 10px;
             text-align: left;
+            font-size: 20px;
         }
         th {
             background-color: rgb(255, 160, 50);
@@ -485,25 +486,25 @@ if (isset($_GET['download']) && $_GET['download'] == 'csv') {
         
         <!-- Date Filter Section -->
         <div class="filter-section">
-            <div class="filter-title">📅 Filter by Application Date</div>
+            <div class="filter-title" style="font-size: 20px;">📅 Filter by Application Date</div>
             <form method="GET" class="filter-form">
                 <div class="filter-group">
-                    <label for="start_date">Start Date:</label>
-                    <input type="date" id="start_date" name="start_date" value="<?php echo htmlspecialchars($start_date); ?>">
+                    <label for="start_date" style="font-size: 20px;">Start Date:</label>
+                    <input type="date" id="start_date" style="font-size: 20px;" name="start_date" value="<?php echo htmlspecialchars($start_date); ?>">
                 </div>
                 <div class="filter-group">
-                    <label for="end_date">End Date:</label>
-                    <input type="date" id="end_date" name="end_date" value="<?php echo htmlspecialchars($end_date); ?>">
+                    <label for="end_date" style="font-size: 20px;">End Date:</label>
+                    <input type="date" id="end_date" style="font-size: 20px;" name="end_date" value="<?php echo htmlspecialchars($end_date); ?>">
                 </div>
                 <div class="filter-buttons">
-                    <button type="submit" class="filter-btn">Apply Filter</button>
-                    <a href="?" class="clear-btn">Clear Filter</a>
+                    <button type="submit" class="filter-btn" style="font-size: 20px;">Apply Filter</button>
+                    <a href="?" class="clear-btn" style="font-size: 20px;">Clear Filter</a>
                 </div>
             </form>
             
             <?php if (!empty($start_date) || !empty($end_date)): ?>
                 <div class="current-filter">
-                    <strong>Current Filter:</strong>
+                    <strong style="font-size: 20px;">Current Filter:</strong>
                     <?php 
                     if (!empty($start_date) && !empty($end_date)) {
                         echo "From " . date('M d, Y', strtotime($start_date)) . " to " . date('M d, Y', strtotime($end_date));
@@ -593,21 +594,21 @@ if (isset($_GET['download']) && $_GET['download'] == 'csv') {
         <!-- Separate Charts Container -->
         <div class="charts-container">
             <div class="chart-section">
-                <div class="chart-title">📊 Number of Loans by Type</div>
+                <div class="chart-title" style="font-size: 20px;">📊 Number of Loans by Type</div>
                 <div class="chart">
                     <canvas id="loanCountChart" width="400" height="300"></canvas>
                 </div>
             </div>
             
             <div class="chart-section">
-                <div class="chart-title">💰 Total Loan Amount by Type</div>
+                <div class="chart-title" style="font-size: 20px;">💰 Total Loan Amount by Type</div>
                 <div class="chart">
-                    <canvas id="loanAmountChart" width="400" height="300"></canvas>
+                    <canvas id="loanAmountChart" width="400" height="300" ></canvas>
                 </div>
             </div>
         </div>
         
-        <div class="download-btns">
+        <div class="download-btns" style="font-size: 20px;">
             <a href="?download=pdf<?php echo (!empty($start_date) ? '&start_date=' . urlencode($start_date) : '') . (!empty($end_date) ? '&end_date=' . urlencode($end_date) : ''); ?>" class="download-btn">Download as PDF</a>
             
         </div>

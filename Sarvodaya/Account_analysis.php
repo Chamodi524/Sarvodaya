@@ -321,6 +321,7 @@ if (isset($_GET['download']) && $_GET['download'] == 'csv') {
             border: 1px solid rgb(255, 180, 100);
             padding: 10px;
             text-align: left;
+            font-size: 20px;
         }
         th {
             background-color: rgb(255, 160, 50);
@@ -373,38 +374,38 @@ if (isset($_GET['download']) && $_GET['download'] == 'csv') {
     <div class="container">
         <!-- Header Section - matching receipt page -->
         <div class="page-header">
-            <div class="bank-name">SARVODAYA SHRAMADHANA SOCIETY</div>
-            <div class="bank-address">
+            <div class="bank-name" style="font-size: 20px;">SARVODAYA SHRAMADHANA SOCIETY</div>
+            <div class="bank-address" style="font-size: 20px;">
                 Samaghi Sarvodaya Shramadhana Society, Kubaloluwa, Veyangoda.<br>
                 Phone: 077 690 6605 | Email: info@sarvodayabank.com
             </div>
-            <div class="page-title">SAVINGS ACCOUNT TYPE ANALYSIS</div>
+            <div class="page-title" style="font-size: 20px;">SAVINGS ACCOUNT TYPE ANALYSIS</div>
         </div>
         
         <!-- Date Filter Section -->
         <div class="filter-section">
-            <div class="filter-title">📅 Filter by Member Registration Date</div>
+            <div class="filter-title" style="font-size: 20px;">📅 Filter by Member Registration Date</div>
             <form method="GET" action="">
                 <div class="filter-row">
                     <div class="filter-group">
-                        <label for="start_date">Start Date:</label>
-                        <input type="date" id="start_date" name="start_date" value="<?php echo htmlspecialchars($start_date); ?>">
+                        <label for="start_date" style="font-size: 20px;">Start Date:</label>
+                        <input type="date" id="start_date" style="font-size: 20px;" name="start_date" value="<?php echo htmlspecialchars($start_date); ?>">
                     </div>
                     <div class="filter-group">
-                        <label for="end_date">End Date:</label>
-                        <input type="date" id="end_date" name="end_date" value="<?php echo htmlspecialchars($end_date); ?>">
+                        <label for="end_date" style="font-size: 20px;">End Date:</label>
+                        <input type="date" id="end_date" style="font-size: 20px;" name="end_date" value="<?php echo htmlspecialchars($end_date); ?>">
                     </div>
                 </div>
                 <div class="filter-buttons">
-                    <button type="submit" class="filter-btn apply">Apply Filter</button>
-                    <a href="?" class="filter-btn clear">Clear Filter</a>
+                    <button type="submit" class="filter-btn apply" style="font-size: 20px;">Apply Filter</button>
+                    <a href="?" class="filter-btn clear" style="font-size: 20px;">Clear Filter</a>
                 </div>
             </form>
         </div>
 
         <?php if (!empty($start_date) || !empty($end_date)): ?>
-        <div class="active-filter">
-            <strong>Active Filter:</strong> 
+        <div class="active-filter" style="font-size: 20px;">
+            <strong style="font-size: 20px;">Active Filter:</strong> 
             <?php 
             if (!empty($start_date) && !empty($end_date)) {
                 echo "Members registered between " . date('F j, Y', strtotime($start_date)) . " and " . date('F j, Y', strtotime($end_date));
@@ -439,7 +440,7 @@ if (isset($_GET['download']) && $_GET['download'] == 'csv') {
             echo "<table>
                     <tr>
                         <th>Account Type</th>
-                        <th>Member Count</th>
+                        <th >Member Count</th>
                         <th>Minimum Balance(Rs.)</th>
                         <th>Interest Rate</th>
                     </tr>";
@@ -472,16 +473,16 @@ if (isset($_GET['download']) && $_GET['download'] == 'csv') {
             // Prepare chart data for JavaScript
             $chartDataJson = json_encode($chartData);
         } else {
-            echo "<p>No account types found for the selected date range.</p>";
+            echo "<p >No account types found for the selected date range.</p>";
         }
         $conn->close();
         ?>
 
-        <div class="chart">
+        <div class="chart" style="font-size: 20px;">
             <canvas id="accountTypeChart"></canvas>
         </div>
         
-        <div class="download-btns">
+        <div class="download-btns" style="font-size: 20px;">
             <a href="?download=pdf<?php echo $date_params; ?>" class="download-btn">Download as PDF</a>
             
         </div>
