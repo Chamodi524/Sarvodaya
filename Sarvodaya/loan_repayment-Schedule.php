@@ -52,8 +52,137 @@ if (!isset($_GET['fetch'])) {
     }
 }
 
-// Function to save loan installments to database
-// Function to save loan installments to database
+// Handle PDF generation request
+if (isset($_GET['generate_pdf'])) {
+    require('fpdf/fpdf.php');
+    
+    // Get data from POST
+    $summaryData = json_decode($_POST['summaryData'], true);
+    $scheduleData = json_decode($_POST['scheduleData'], true);
+    
+    // Create PDF with custom header and footer
+    class PDF extends FPDF {
+        // Page header
+        function Header() {
+            // Logo
+            $this->Image('Sarwodaya logo.jpg', 10, 8, 25);
+            
+            // Set font
+            $this->SetFont('Arial', 'B', 16);
+            
+            // Move to the right
+            $this->Cell(30);
+            
+            // Title (orange color)
+            $this->SetTextColor(255, 140, 0);
+            $this->Cell(0, 10, 'SARVODAYA SHRAMADHANA SOCIETY', 0, 1, 'C');
+            
+            // Subtitle
+            $this->SetFont('Arial', 'B', 12);
+            $this->Cell(0, 8, 'Samaghi Sarvodaya Shramadhana Society', 0, 1, 'C');
+            
+            // Location
+            $this->SetFont('Arial', 'I', 10);
+            $this->Cell(0, 6, 'Kubaloluwa, Veyangoda', 0, 1, 'C');
+            
+            // Contact info
+            $this->SetFont('Arial', '', 9);
+            $this->Cell(0, 6, 'Phone: 077 690 6605 | Email: info@sarvodayabank.com', 0, 1, 'C');
+            
+            // Report title
+            $this->SetFont('Arial', 'B', 14);
+            $this->SetTextColor(0, 0, 0); // Black color
+            $this->Ln(5);
+            $this->Cell(0, 10, 'Loan Repayment Schedule', 0, 1, 'C');
+            $this->Ln(5);
+            
+            // Line break
+            $this->Line(10, $this->GetY(), 200, $this->GetY());
+            $this->Ln(5);
+        }
+        
+        // Page footer
+        function Footer() {
+            // Position at 1.5 cm from bottom
+            $this->SetY(-25);
+            
+            // Line
+            $this->Line(10, $this->GetY(), 200, $this->GetY());
+            $this->Ln(3);
+            
+            // Date
+            $this->SetFont('Arial', 'I', 8);
+            $this->Cell(0, 6, 'Generated on: ' . date('Y-m-d H:i:s'), 0, 0, 'L');
+            
+            // Page number
+            $this->Cell(0, 6, 'Page ' . $this->PageNo() . '/{nb}', 0, 0, 'R');
+            $this->Ln(8);
+            
+            // Signature space
+            $this->SetFont('Arial', 'B', 10);
+            $this->Cell(80, 6, 'Manager Signature: ________________________', 0, 1, 'L');
+            $this->Cell(80, 6, 'Date: ________________________', 0, 0, 'L');
+        }
+    }
+    
+    // Create PDF instance
+    $pdf = new PDF();
+    $pdf->AliasNbPages();
+    $pdf->AddPage();
+    
+    // Summary section
+    $pdf->SetFont('Arial', 'B', 12);
+    $pdf->Cell(0, 8, 'Loan Summary - ' . $summaryData['loanName'], 0, 1);
+    $pdf->SetFont('Arial', '', 10);
+    
+    $pdf->Cell(60, 6, 'Member:', 0, 0);
+    $pdf->Cell(0, 6, 'ID: ' . $summaryData['memberId'] . ' - ' . $summaryData['memberName'], 0, 1);
+    
+    $pdf->Cell(60, 6, 'Loan ID:', 0, 0);
+    $pdf->Cell(0, 6, $summaryData['loanId'], 0, 1);
+    
+    $pdf->Cell(60, 6, 'Loan Amount:', 0, 0);
+    $pdf->Cell(0, 6, $summaryData['loanAmount'], 0, 1);
+    
+    $pdf->Cell(60, 6, 'Monthly Payment:', 0, 0);
+    $pdf->Cell(0, 6, $summaryData['monthlyPayment'], 0, 1);
+    
+    $pdf->Cell(60, 6, 'Total Interest:', 0, 0);
+    $pdf->Cell(0, 6, $summaryData['totalInterest'], 0, 1);
+    
+    $pdf->Cell(60, 6, 'Total Amount to Repay:', 0, 0);
+    $pdf->Cell(0, 6, $summaryData['totalPayment'], 0, 1);
+    
+    $pdf->Ln(10);
+    
+    // Schedule table header
+    $pdf->SetFont('Arial', 'B', 10);
+    $pdf->SetFillColor(255, 235, 210); // Light orange background
+    $pdf->Cell(15, 8, '#', 1, 0, 'C', true);
+    $pdf->Cell(30, 8, 'Date', 1, 0, 'C', true);
+    $pdf->Cell(30, 8, 'Payment', 1, 0, 'C', true);
+    $pdf->Cell(30, 8, 'Principal', 1, 0, 'C', true);
+    $pdf->Cell(30, 8, 'Interest', 1, 0, 'C', true);
+    $pdf->Cell(30, 8, 'Balance', 1, 1, 'C', true);
+    
+    // Schedule data
+    $pdf->SetFont('Arial', '', 8);
+    $fill = false;
+    foreach ($scheduleData as $payment) {
+        $pdf->Cell(15, 6, $payment['paymentNumber'], 1, 0, 'C', $fill);
+        $pdf->Cell(30, 6, $payment['paymentDate'], 1, 0, 'C', $fill);
+        $pdf->Cell(30, 6, $payment['paymentAmount'], 1, 0, 'R', $fill);
+        $pdf->Cell(30, 6, $payment['principal'], 1, 0, 'R', $fill);
+        $pdf->Cell(30, 6, $payment['interest'], 1, 0, 'R', $fill);
+        $pdf->Cell(30, 6, $payment['remainingBalance'], 1, 1, 'R', $fill);
+        $fill = !$fill;
+    }
+    
+    // Output PDF
+    $pdf->Output('D', 'Loan_Repayment_Schedule_'.date('Ymd_His').'.pdf');
+    exit;
+}
+
 // Function to save loan installments to database
 function saveInstallmentsToDatabase($loanId, $schedule, $conn) {
     // First check if loan exists and get member_id
@@ -100,8 +229,6 @@ function saveInstallmentsToDatabase($loanId, $schedule, $conn) {
         return "Error preparing statement: " . $conn->error;
     }
     
-    // IMPORTANT: Make sure we have 8 parameters (matching the 8 ? placeholders)
-    // i = integer, s = string, d = double/float
     $conn->begin_transaction();
     
     try {
@@ -113,12 +240,10 @@ function saveInstallmentsToDatabase($loanId, $schedule, $conn) {
             $interestAmount = $payment['interest'];
             $remainingBalance = $payment['remainingBalance'];
             
-            // Re-prepare statement inside the loop to avoid issues
             $stmt = $conn->prepare("INSERT INTO loan_installments 
                 (loan_id, member_id, installment_number, payment_date, payment_amount, principal_amount, interest_amount, remaining_balance, payment_status) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending')");
                 
-            // Properly bind all 8 parameters including member_id
             $stmt->bind_param(
                 "iiisdddd", 
                 $loanId,
@@ -145,7 +270,7 @@ function saveInstallmentsToDatabase($loanId, $schedule, $conn) {
         return $e->getMessage();
     }
 }
-// Function to get member info
+
 // Function to get member info
 function getMemberInfo($memberId, $conn) {
     $stmt = $conn->prepare("SELECT id, name, nic FROM members WHERE id = ?");
@@ -197,7 +322,6 @@ if (isset($_GET['fetch']) && $_GET['fetch'] === 'member_info' && isset($_GET['me
     
     $memberId = (int)$_GET['member_id'];
     
-    // Check if member ID is valid (greater than 0)
     if ($memberId <= 0) {
         echo json_encode(['error' => 'Please enter a valid member ID']);
         $conn->close();
@@ -206,7 +330,6 @@ if (isset($_GET['fetch']) && $_GET['fetch'] === 'member_info' && isset($_GET['me
     
     $memberInfo = getMemberInfo($memberId, $conn);
     
-    // Check if member was found
     if ($memberInfo === null) {
         echo json_encode(['error' => 'Member not found. Please check the member ID and try again.']);
         $conn->close();
@@ -223,16 +346,14 @@ if (isset($_GET['fetch']) && $_GET['fetch'] === 'member_info' && isset($_GET['me
     ]);
     exit;
 }
+
 // Handle form submission to save schedule
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['saveSchedule'])) {
-    // Create database connection
     $conn = new mysqli($servername, $username, $password, $dbname);
     
-    // Check connection
     if ($conn->connect_error) {
         $error = "Database connection failed: " . $conn->connect_error;
     } else {
-        // Get form data
         $loanId = isset($_POST['loanId']) ? (int)$_POST['loanId'] : 0;
         $scheduleData = isset($_POST['scheduleData']) ? json_decode($_POST['scheduleData'], true) : null;
         
@@ -241,7 +362,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['saveSchedule'])) {
         } else if (!$scheduleData) {
             $error = "Invalid schedule data provided.";
         } else {
-            // Save to database
             $result = saveInstallmentsToDatabase($loanId, $scheduleData, $conn);
             
             if ($result === true) {
@@ -264,523 +384,431 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['saveSchedule'])) {
     <title>Loan Repayment Schedule Calculator</title>
     <style>
         :root {
-    --primary-color: rgb(255, 140, 0);
-    --primary-dark: rgb(230, 115, 0);
-    --primary-light: rgb(255, 175, 85);
-    --primary-very-light: rgb(255, 235, 210);
-}
+            --primary-color: rgb(255, 140, 0);
+            --primary-dark: rgb(230, 115, 0);
+            --primary-light: rgb(255, 175, 85);
+            --primary-very-light: rgb(255, 235, 210);
+        }
 
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    line-height: 1.6;
-    color: #333;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #f9f9f9;
-}
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
 
-.container {
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    margin-bottom: 20px;
-    border-top: 4px solid var(--primary-color);
-}
+        .container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+            border-top: 4px solid var(--primary-color);
+        }
 
-h1, h2 {
-    color: var(--primary-dark);
-    text-align: center;
-    margin-bottom: 20px;
-}
+        h1, h2 {
+            color: var(--primary-dark);
+            text-align: center;
+            margin-bottom: 20px;
+        }
 
-.form-group {
-    margin-bottom: 15px;
-}
+        .form-group {
+            margin-bottom: 15px;
+        }
 
-label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 600;
-    color: #444;
-}
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #444;
+        }
 
-select, input {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-sizing: border-box;
-    font-size: 16px;
-    transition: border 0.3s;
-}
+        select, input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
 
-select:focus, input:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px var(--primary-very-light);
-}
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px var(--primary-very-light);
+        }
 
-.input-row {
-    display: flex;
-    gap: 15px;
-}
+        .input-row {
+            display: flex;
+            gap: 15px;
+        }
 
-.input-row .form-group {
-    flex: 1;
-}
+        .input-row .form-group {
+            flex: 1;
+        }
 
-button {
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    padding: 12px 20px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-    display: block;
-    margin: 20px auto;
-    transition: background-color 0.3s;
-    font-weight: 600;
-}
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            display: block;
+            margin: 20px auto;
+            transition: background-color 0.3s;
+            font-weight: 600;
+        }
 
-button:hover {
-    background-color: var(--primary-dark);
-}
+        button:hover {
+            background-color: var(--primary-dark);
+        }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    font-size: 14px;
-}
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 14px;
+        }
 
-th, td {
-    padding: 12px 15px;
-    text-align: right;
-    border-bottom: 1px solid #ddd;
-}
+        th, td {
+            padding: 12px 15px;
+            text-align: right;
+            border-bottom: 1px solid #ddd;
+        }
 
-th {
-    background-color: var(--primary-very-light);
-    font-weight: 600;
-    color: #444;
-}
+        th {
+            background-color: var(--primary-very-light);
+            font-weight: 600;
+            color: #444;
+        }
 
-td:first-child, th:first-child {
-    text-align: left;
-}
+        td:first-child, th:first-child {
+            text-align: left;
+        }
 
-tr:hover {
-    background-color: #f5f5f5;
-}
+        tr:hover {
+            background-color: #f5f5f5;
+        }
 
-.summary {
-    background-color: var(--primary-very-light);
-    padding: 15px;
-    border-radius: 5px;
-    margin-top: 20px;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.05);
-    border-left: 4px solid var(--primary-color);
-}
+        .summary {
+            background-color: var(--primary-very-light);
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--primary-color);
+        }
 
-.summary h3 {
-    margin-top: 0;
-    color: var(--primary-dark);
-}
+        .summary h3 {
+            margin-top: 0;
+            color: var(--primary-dark);
+        }
 
-.summary-row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
-}
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
 
-.summary-label {
-    font-weight: 600;
-    color: #444;
-}
+        .summary-label {
+            font-weight: 600;
+            color: #444;
+        }
 
-.loan-description {
-    font-style: italic;
-    color: #666;
-    margin-top: 8px;
-    padding-left: 5px;
-    border-left: 2px solid var(--primary-light);
-}
+        .loan-description {
+            font-style: italic;
+            color: #666;
+            margin-top: 8px;
+            padding-left: 5px;
+            border-left: 2px solid var(--primary-light);
+        }
 
-.loading {
-    text-align: center;
-    padding: 20px;
-    font-style: italic;
-    color: #666;
-}
+        .loading {
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+            color: #666;
+        }
 
-.error-message {
-    background-color: #ffe6e6;
-    color: #d33;
-    padding: 10px;
-    border-radius: 4px;
-    margin-bottom: 15px;
-    border-left: 4px solid #d33;
-}
+        .error-message {
+            background-color: #ffe6e6;
+            color: #d33;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            border-left: 4px solid #d33;
+        }
 
-.success-message {
-    background-color: #e6ffe6;
-    color: #3a3;
-    padding: 10px;
-    border-radius: 4px;
-    margin-bottom: 15px;
-    border-left: 4px solid #3a3;
-}
+        .success-message {
+            background-color: #e6ffe6;
+            color: #3a3;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            border-left: 4px solid #3a3;
+        }
 
-.member-info {
-    background-color: #f8f8f8;
-    padding: 15px;
-    margin: 15px 0;
-    border-radius: 5px;
-    border-left: 4px solid var(--primary-light);
-}
+        .member-info {
+            background-color: #f8f8f8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            border-left: 4px solid var(--primary-light);
+        }
 
-.member-info p {
-    margin: 5px 0;
-}
+        .member-info p {
+            margin: 5px 0;
+        }
 
-.existing-loans {
-    margin-top: 15px;
-}
+        .existing-loans {
+            margin-top: 15px;
+        }
 
-.existing-loans h4 {
-    margin-bottom: 10px;
-    color: var(--primary-dark);
-}
+        .existing-loans h4 {
+            margin-bottom: 10px;
+            color: var(--primary-dark);
+        }
 
-.existing-loan-item {
-    background-color: #fff;
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 4px;
-    border: 1px solid #ddd;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
+        .existing-loan-item {
+            background-color: #fff;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
 
-.existing-loan-item:hover {
-    background-color: var(--primary-very-light);
-}
+        .existing-loan-item:hover {
+            background-color: var(--primary-very-light);
+        }
 
-.existing-loan-item.selected {
-    background-color: var(--primary-very-light);
-    border-color: var(--primary-color);
-}
+        .existing-loan-item.selected {
+            background-color: var(--primary-very-light);
+            border-color: var(--primary-color);
+        }
 
-/* Header Styles */
-.header-container {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    margin-bottom: 30px;
-    padding: 15px 20px;
-    border-bottom: 2px solid var(--primary-color);
-    background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%);
-    border-radius: 8px 8px 0 0;
-    margin: -20px -20px 30px -20px;
-}
+        /* Header Styles */
+        .header-container {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            margin-bottom: 30px;
+            padding: 15px 20px;
+            border-bottom: 2px solid var(--primary-color);
+            background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%);
+            border-radius: 8px 8px 0 0;
+            margin: -20px -20px 30px -20px;
+        }
 
-.logo-container {
-    margin-right: 20px;
-    flex-shrink: 0;
-}
+        .logo-container {
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
 
-.logo {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    object-fit: cover;
-    box-shadow: 0 2px 8px rgba(255, 140, 0, 0.3);
-    border: 2px solid var(--primary-color);
-}
+        .logo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: 0 2px 8px rgba(255, 140, 0, 0.3);
+            border: 2px solid var(--primary-color);
+        }
 
-.header-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
+        .header-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
 
-.organization-header {
-    text-align: left;
-}
+        .organization-header {
+            text-align: left;
+        }
 
-.org-title {
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--primary-dark);
-    margin: 0 0 5px 0;
-    letter-spacing: 0.5px;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-}
+        .org-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin: 0 0 5px 0;
+            letter-spacing: 0.5px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
 
-.org-subtitle {
-    font-size: 16px;
-    font-weight: 600;
-    color: #444;
-    margin: 0 0 5px 0;
-    letter-spacing: 0.3px;
-}
+        .org-subtitle {
+            font-size: 16px;
+            font-weight: 600;
+            color: #444;
+            margin: 0 0 5px 0;
+            letter-spacing: 0.3px;
+        }
 
-.org-location {
-    font-size: 14px;
-    color: #666;
-    margin-bottom: 8px;
-    font-style: italic;
-}
+        .org-location {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+            font-style: italic;
+        }
 
-.org-contact {
-    font-size: 12px;
-    color: #555;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-}
+        .org-contact {
+            font-size: 12px;
+            color: #555;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
 
-.contact-item {
-    font-weight: 500;
-}
+        .contact-item {
+            font-weight: 500;
+        }
 
-.contact-separator {
-    color: var(--primary-color);
-    font-weight: bold;
-}
+        .contact-separator {
+            color: var(--primary-color);
+            font-weight: bold;
+        }
 
-.page-title-section {
-    text-align: left;
-    margin-top: 10px;
-}
+        .page-title-section {
+            text-align: left;
+            margin-top: 10px;
+        }
 
-.page-title {
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--primary-dark);
-    margin: 0;
-    padding: 8px 0;
-    position: relative;
-}
+        .page-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-dark);
+            margin: 0;
+            padding: 8px 0;
+            position: relative;
+        }
 
-.page-title::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 80px;
-    height: 2px;
-    background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
-    border-radius: 1px;
-}
+        .page-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 80px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+            border-radius: 1px;
+        }
 
-/* Remove duplicate page title */
-.duplicate-title {
-    display: none;
-}
+        /* Remove duplicate page title */
+        .duplicate-title {
+            display: none;
+        }
 
-/* Mobile Responsive */
-@media (max-width: 768px) {
-    .header-container {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        padding: 15px;
-    }
-    
-    .logo-container {
-        margin-right: 0;
-        margin-bottom: 15px;
-    }
-    
-    .logo {
-        width: 80px;
-        height: 80px;
-    }
-    
-    .organization-header {
-        text-align: center;
-    }
-    
-    .page-title-section {
-        text-align: center;
-    }
-    
-    .page-title::after {
-        left: 50%;
-        transform: translateX(-50%);
-    }
-    
-    .org-title {
-        font-size: 18px;
-    }
-    
-    .org-subtitle {
-        font-size: 14px;
-    }
-    
-    .org-contact {
-        flex-direction: column;
-        gap: 5px;
-    }
-    
-    .contact-separator {
-        display: none;
-    }
-    
-    .page-title {
-        font-size: 16px;
-    }
-}
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                padding: 15px;
+            }
+            
+            .logo-container {
+                margin-right: 0;
+                margin-bottom: 15px;
+            }
+            
+            .logo {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .organization-header {
+                text-align: center;
+            }
+            
+            .page-title-section {
+                text-align: center;
+            }
+            
+            .page-title::after {
+                left: 50%;
+                transform: translateX(-50%);
+            }
+            
+            .org-title {
+                font-size: 18px;
+            }
+            
+            .org-subtitle {
+                font-size: 14px;
+            }
+            
+            .org-contact {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .contact-separator {
+                display: none;
+            }
+            
+            .page-title {
+                font-size: 16px;
+            }
+        }
 
-@media (max-width: 480px) {
-    .logo {
-        width: 70px;
-        height: 70px;
-    }
-    
-    .org-title {
-        font-size: 16px;
-        line-height: 1.3;
-    }
-    
-    .org-subtitle {
-        font-size: 13px;
-    }
-    
-    .org-location {
-        font-size: 12px;
-    }
-    
-    .org-contact {
-        font-size: 11px;
-    }
-    
-    .page-title {
-        font-size: 14px;
-    }
-}
-
-/* Print Styles */
-@media print {
-    body {
-        background-color: white;
-        padding: 0;
-        font-size: 10px; /* Reduced from 12px */
-    }
-    
-    .container {
-        box-shadow: none;
-        padding: 0;
-        margin-bottom: 5px; /* Reduced from 10px */
-    }
-    
-    .header-container {
-        background: none;
-        border-bottom: 1px solid #333;
-        margin: 0 0 10px 0; /* Reduced from 20px */
-        padding: 5px 0; /* Reduced from 10px */
-        page-break-inside: avoid;
-    }
-    
-    .logo {
-        width: 40px; /* Reduced from 60px */
-        height: 40px; /* Reduced from 60px */
-    }
-    
-    .org-title {
-        font-size: 14px !important; /* Reduced significantly */
-    }
-    
-    .org-subtitle {
-        font-size: 10px !important; /* Reduced from 13px */
-    }
-    
-    .org-location {
-        font-size: 9px !important; /* Reduced from 11px */
-    }
-    
-    .org-contact {
-        font-size: 8px !important; /* Reduced from 10px */
-    }
-    
-    .page-title {
-        font-size: 11px !important; /* Reduced from 14px */
-    }
-    
-    button, select, input {
-        display: none;
-    }
-    
-    .no-print {
-        display: none;
-    }
-    
-    .form-group {
-        display: none;
-    }
-    
-    .input-row {
-        display: none;
-    }
-    
-    /* Hide the duplicate title */
-    .duplicate-title {
-        display: none !important;
-    }
-    
-    table {
-        font-size: 9px; /* Reduced from 11px */
-    }
-    
-    th, td {
-        padding: 3px 5px; /* Reduced from 6px 8px */
-    }
-    
-    .summary {
-        font-size: 9px; /* Reduced from 11px */
-        padding: 5px; /* Reduced from 10px */
-        margin-top: 5px; /* Reduced spacing */
-    }
-    
-    .summary h3 {
-        font-size: 10px !important; /* Added specific size for summary title */
-        margin-bottom: 5px;
-    }
-    
-    .summary-row {
-        margin-bottom: 3px; /* Reduced spacing between summary rows */
-    }
-}
-</style>
+        @media (max-width: 480px) {
+            .logo {
+                width: 70px;
+                height: 70px;
+            }
+            
+            .org-title {
+                font-size: 16px;
+                line-height: 1.3;
+            }
+            
+            .org-subtitle {
+                font-size: 13px;
+            }
+            
+            .org-location {
+                font-size: 12px;
+            }
+            
+            .org-contact {
+                font-size: 11px;
+            }
+            
+            .page-title {
+                font-size: 14px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-    <div class="header-container">
-    <div class="logo-container">
-        <img src="Sarwodaya logo.jpg" alt="Sarvodaya Logo" class="logo">
-    </div>
-    <div class="header-content">
-        <div class="organization-header" >
-            <h1 class="org-title" style="font-size: 3rem;">SARVODAYA SHRAMADHANA SOCIETY</h1>
-            <h2 class="org-subtitle" style="font-size: 1.5rem;">Samaghi Sarvodaya Shramadhana Society</h2>
-            <div class="org-location" style="font-size: 1.25rem;">Kubaloluwa, Veyangoda</div>
-            <div class="org-contact" >
-                <span class="contact-item" style="font-size: 1.25rem;">Phone: 077 690 6605</span>
-                <span class="contact-separator">|</span>
-                <span class="contact-item" style="font-size: 1.25rem;">Email: info@sarvodayabank.com</span>
+        <div class="header-container">
+            <div class="logo-container">
+                <img src="Sarwodaya logo.jpg" alt="Sarvodaya Logo" class="logo">
+            </div>
+            <div class="header-content">
+                <div class="organization-header">
+                    <h1 class="org-title" style="font-size: 3rem;">SARVODAYA SHRAMADHANA SOCIETY</h1>
+                    <h2 class="org-subtitle" style="font-size: 1.5rem;">Samaghi Sarvodaya Shramadhana Society</h2>
+                    <div class="org-location" style="font-size: 1.25rem;">Kubaloluwa, Veyangoda</div>
+                    <div class="org-contact">
+                        <span class="contact-item" style="font-size: 1.25rem;">Phone: 077 690 6605</span>
+                        <span class="contact-separator">|</span>
+                        <span class="contact-item" style="font-size: 1.25rem;">Email: info@sarvodayabank.com</span>
+                    </div>
+                </div>
+                <div class="page-title-section">
+                    <h3 class="page-title" style="font-size: 1.5rem;">Loan Repayment Schedule Calculator</h3>
+                </div>
             </div>
         </div>
-        <div class="page-title-section">
-            <h3 class="page-title" style="font-size: 1.5rem;">Loan Repayment Schedule Calculator</h3>
-        </div>
-    </div>
-</div>
 
         <?php if ($error): ?>
         <div class="error-message">
@@ -799,15 +827,15 @@ tr:hover {
         <?php endif; ?>
         
         <div id="calculatorForm" <?php echo (empty($loanTypes) && !$error) ? 'style="display: none;"' : ''; ?>>
-        <div class="input-row">
-    <div class="form-group" style="flex: 3;">
-        <label for="memberId" style="font-size: 1.25rem;">Membership No:</label>
-        <input type="number" id="memberId" placeholder="Enter member ID" style="font-size: 1.25rem;">
-    </div>
-    <div class="form-group" style="flex: 1; display: flex; align-items: flex-end;">
-        <button type="button" onclick="loadMemberInfo()" style="margin: 0; width: 100%;">Search</button>
-    </div>
-</div>
+            <div class="input-row">
+                <div class="form-group" style="flex: 3;">
+                    <label for="memberId" style="font-size: 1.25rem;">Membership No:</label>
+                    <input type="number" id="memberId" placeholder="Enter member ID" style="font-size: 1.25rem;">
+                </div>
+                <div class="form-group" style="flex: 1; display: flex; align-items: flex-end;">
+                    <button type="button" onclick="loadMemberInfo()" style="margin: 0; width: 100%;">Search</button>
+                </div>
+            </div>
             
             <div id="memberInfoContainer" style="display: none;" class="member-info">
                 <p id="memberDetails" style="font-size: 1.25rem;"></p>
@@ -832,7 +860,7 @@ tr:hover {
             
             <div class="input-row">
                 <div class="form-group">
-                    <label for="loanAmount" style="font-size: 1.25rem;" >Loan Amount (LKR):</label>
+                    <label for="loanAmount" style="font-size: 1.25rem;">Loan Amount (LKR):</label>
                     <input type="number" id="loanAmount" placeholder="Enter loan amount" style="font-size: 1.25rem;">
                 </div>
                 
@@ -882,8 +910,8 @@ tr:hover {
                 <tbody id="scheduleBody"></tbody>
             </table>
         </div>
-        <div class="no-print" style="text-align: center; margin-top: 20px;" style="font-size: 1.25rem;">
-            <button onclick="window.print()" style="font-size: 1.25rem;">Print Schedule</button>
+        <div class="no-print" style="text-align: center; margin-top: 20px;">
+            <button onclick="generatePDF()" style="font-size: 1.25rem;">Download PDF</button>
         </div>
         <div id="saveButtonContainer" class="no-print" style="text-align: center; margin-top: 20px;">
             <button id="saveButton" onclick="saveScheduleToDatabase()" style="font-size: 1.25rem;">Save Schedule to Database</button>
@@ -900,11 +928,9 @@ tr:hover {
 
         // Initialize the page
         document.addEventListener('DOMContentLoaded', function() {
-            // If no loan types loaded during page render, try with AJAX
             if (loanTypes.length === 0 && !document.querySelector('.error-message')) {
                 fetchLoanTypes();
             } else {
-                // Set up loan details for pre-loaded loan types
                 setUpLoanDetails();
             }
             
@@ -913,7 +939,6 @@ tr:hover {
 
         // Set up loan details event handlers
         function setUpLoanDetails() {
-            // If we have loan data but the form is hidden, show it
             if (loanTypes.length > 0) {
                 const loadingMessage = document.getElementById('loadingMessage');
                 if (loadingMessage) loadingMessage.style.display = 'none';
@@ -933,13 +958,11 @@ tr:hover {
                 
                 loanTypes = await response.json();
                 
-                // Hide loading message and show form
                 const loadingMessage = document.getElementById('loadingMessage');
                 if (loadingMessage) loadingMessage.style.display = 'none';
                 
                 document.getElementById('calculatorForm').style.display = 'block';
                 
-                // Populate loan types dropdown
                 populateLoanTypes();
             } catch (error) {
                 console.error('Error:', error);
@@ -957,12 +980,10 @@ tr:hover {
         function populateLoanTypes() {
             const loanTypeSelect = document.getElementById('loanType');
             
-            // Clear existing options except the first one
             while (loanTypeSelect.options.length > 1) {
                 loanTypeSelect.remove(1);
             }
             
-            // Add options
             loanTypes.forEach(loan => {
                 const option = document.createElement('option');
                 option.value = loan.id;
@@ -972,92 +993,84 @@ tr:hover {
         }
 
         // Load member information when selected
-        // Load member information when selected
-// Load member information when selected
-async function loadMemberInfo() {
-    const memberId = document.getElementById('memberId').value;
-    
-    if (!memberId) {
-        document.getElementById('memberInfoContainer').style.display = 'none';
-        document.getElementById('existingLoansContainer').style.display = 'none';
-        return;
-    }
-    
-    try {
-        const response = await fetch(`?fetch=member_info&member_id=${memberId}`);
-        
-        if (!response.ok) {
-            throw new Error('Failed to fetch member info');
-        }
-        
-        const data = await response.json();
-        
-        if (data.error) {
-            // Hide member info containers
-            document.getElementById('memberInfoContainer').style.display = 'none';
-            document.getElementById('existingLoansContainer').style.display = 'none';
+        async function loadMemberInfo() {
+            const memberId = document.getElementById('memberId').value;
             
-            // Show error message
-            alert(data.error);
-            return;
-        }
-        
-        // Update member info
-        const member = data.member;
-        if (member) {
-            document.getElementById('memberDetails').textContent = 
-                `Member ID: ${member.id} | Name: ${member.name} | NIC: ${member.nic}`;
-            document.getElementById('memberInfoContainer').style.display = 'block';
-            selectedMemberName = member.name;
-        }
-        
-        // Process existing loans
-        memberLoans = data.loans || [];
-        
-        if (memberLoans.length > 0) {
-            const loansList = document.getElementById('existingLoansList');
-            loansList.innerHTML = '';
+            if (!memberId) {
+                document.getElementById('memberInfoContainer').style.display = 'none';
+                document.getElementById('existingLoansContainer').style.display = 'none';
+                return;
+            }
             
-            memberLoans.forEach(loan => {
-                // Find loan type name
-                const loanType = loanTypes.find(type => type.id === parseInt(loan.loan_type_id));
-                const loanTypeName = loanType ? loanType.loan_name : 'Unknown Loan Type';
+            try {
+                const response = await fetch(`?fetch=member_info&member_id=${memberId}`);
                 
-                const loanItem = document.createElement('div');
-                loanItem.className = 'existing-loan-item';
-                loanItem.dataset.loanId = loan.id;
-                loanItem.dataset.loanAmount = loan.amount;
-                loanItem.dataset.interestRate = loan.interest_rate;
-                loanItem.dataset.loanTerm = loan.max_period;
-                loanItem.dataset.startDate = loan.start_date;
-                loanItem.dataset.loanTypeId = loan.loan_type_id;
+                if (!response.ok) {
+                    throw new Error('Failed to fetch member info');
+                }
                 
-                loanItem.innerHTML = `
-                    <strong>Loan ID: ${loan.id}</strong> - ${loanTypeName}<br>
-                    Amount: ${formatCurrency(loan.amount)} | Interest: ${loan.interest_rate}% | 
-                    Term: ${loan.max_period} months | Start Date: ${formatDateString(loan.start_date)}
-                `;
+                const data = await response.json();
                 
-                loanItem.addEventListener('click', function() {
-                    selectLoan(this);
-                });
+                if (data.error) {
+                    document.getElementById('memberInfoContainer').style.display = 'none';
+                    document.getElementById('existingLoansContainer').style.display = 'none';
+                    alert(data.error);
+                    return;
+                }
                 
-                loansList.appendChild(loanItem);
-            });
-            
-            document.getElementById('existingLoansContainer').style.display = 'block';
-        } else {
-            document.getElementById('existingLoansContainer').style.display = 'none';
-        }
+                const member = data.member;
+                if (member) {
+                    document.getElementById('memberDetails').textContent = 
+                        `Member ID: ${member.id} | Name: ${member.name} | NIC: ${member.nic}`;
+                    document.getElementById('memberInfoContainer').style.display = 'block';
+                    selectedMemberName = member.name;
+                }
+                
+                memberLoans = data.loans || [];
+                
+                if (memberLoans.length > 0) {
+                    const loansList = document.getElementById('existingLoansList');
+                    loansList.innerHTML = '';
+                    
+                    memberLoans.forEach(loan => {
+                        const loanType = loanTypes.find(type => type.id === parseInt(loan.loan_type_id));
+                        const loanTypeName = loanType ? loanType.loan_name : 'Unknown Loan Type';
+                        
+                        const loanItem = document.createElement('div');
+                        loanItem.className = 'existing-loan-item';
+                        loanItem.dataset.loanId = loan.id;
+                        loanItem.dataset.loanAmount = loan.amount;
+                        loanItem.dataset.interestRate = loan.interest_rate;
+                        loanItem.dataset.loanTerm = loan.max_period;
+                        loanItem.dataset.startDate = loan.start_date;
+                        loanItem.dataset.loanTypeId = loan.loan_type_id;
+                        
+                        loanItem.innerHTML = `
+                            <strong>Loan ID: ${loan.id}</strong> - ${loanTypeName}<br>
+                            Amount: ${formatCurrency(loan.amount)} | Interest: ${loan.interest_rate}% | 
+                            Term: ${loan.max_period} months | Start Date: ${formatDateString(loan.start_date)}
+                        `;
+                        
+                        loanItem.addEventListener('click', function() {
+                            selectLoan(this);
+                        });
+                        
+                        loansList.appendChild(loanItem);
+                    });
+                    
+                    document.getElementById('existingLoansContainer').style.display = 'block';
+                } else {
+                    document.getElementById('existingLoansContainer').style.display = 'none';
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('memberInfoContainer').style.display = 'none';
+                document.getElementById('existingLoansContainer').style.display = 'none';
+                alert('Failed to load member information. Please try again.');
+            }
+        }  
         
-    } catch (error) {
-        console.error('Error:', error);
-        // Hide member info containers
-        document.getElementById('memberInfoContainer').style.display = 'none';
-        document.getElementById('existingLoansContainer').style.display = 'none';
-        alert('Failed to load member information. Please try again.');
-    }
-}  
         // Format date string from database (YYYY-MM-DD)
         function formatDateString(dateStr) {
             if (!dateStr) return 'N/A';
@@ -1069,15 +1082,12 @@ async function loadMemberInfo() {
         
         // Select an existing loan
         function selectLoan(loanElement) {
-            // Remove selected class from all loans
             document.querySelectorAll('.existing-loan-item').forEach(item => {
                 item.classList.remove('selected');
             });
             
-            // Add selected class to clicked loan
             loanElement.classList.add('selected');
             
-            // Populate form with loan details
             const loanId = loanElement.dataset.loanId;
             const loanAmount = loanElement.dataset.loanAmount;
             const interestRate = loanElement.dataset.interestRate;
@@ -1089,12 +1099,10 @@ async function loadMemberInfo() {
             document.getElementById('loanAmount').value = loanAmount;
             document.getElementById('loanTerm').value = loanTerm;
             
-            // Set the loan type dropdown
             const loanTypeSelect = document.getElementById('loanType');
             loanTypeSelect.value = loanTypeId;
             updateLoanDetails();
             
-            // Set the start date if valid
             if (startDate && startDate !== '1970-01-01') {
                 document.getElementById('startDate').value = startDate;
             }
@@ -1135,7 +1143,6 @@ async function loadMemberInfo() {
 
         // Generate the loan repayment schedule
         function generateSchedule() {
-            // Get input values
             const loanTypeId = document.getElementById('loanType').value;
             const loanAmount = parseFloat(document.getElementById('loanAmount').value);
             const interestRate = parseFloat(document.getElementById('interestRate').value);
@@ -1143,8 +1150,6 @@ async function loadMemberInfo() {
             const startDate = new Date(document.getElementById('startDate').value);
             const memberId = document.getElementById('memberId').value;
             
-            // Input validation
-            // Input validation
             if (!memberId) {
                 alert('Please enter a member ID.');
                 return;
@@ -1177,7 +1182,6 @@ async function loadMemberInfo() {
             
             const selectedLoan = loanTypes.find(loan => loan.id == loanTypeId);
             
-            // Check against maximum values
             if (loanAmount > selectedLoan.maximum_amount) {
                 alert(`Loan amount exceeds the maximum allowed amount of ${formatCurrency(selectedLoan.maximum_amount)} for this loan type.`);
                 return;
@@ -1188,12 +1192,9 @@ async function loadMemberInfo() {
                 return;
             }
             
-            // Calculate monthly payment using the PMT formula
-            // Using the interest rate directly as it's already a monthly rate
             const monthlyInterestRate = interestRate / 100;
             const monthlyPayment = calculateMonthlyPayment(loanAmount, monthlyInterestRate, loanTerm);
             
-            // Generate schedule
             const schedule = [];
             let remainingBalance = loanAmount;
             let totalInterest = 0;
@@ -1207,7 +1208,6 @@ async function loadMemberInfo() {
                 const principalPayment = monthlyPayment - interestPayment;
                 
                 remainingBalance -= principalPayment;
-                // Ensure final payment is exact
                 if (month === loanTerm) {
                     remainingBalance = 0;
                 }
@@ -1224,10 +1224,7 @@ async function loadMemberInfo() {
                 });
             }
             
-            // Store the schedule for later use
             currentSchedule = schedule;
-            
-            // Display the results
             displayResults(schedule, loanAmount, monthlyPayment, totalInterest, selectedLoan.loan_name);
         }
         
@@ -1246,38 +1243,36 @@ async function loadMemberInfo() {
             const memberId = document.getElementById('memberId').value;
             const memberName = selectedMemberName || 'Unknown Member';
             
-            // Update summary
             const summaryHTML = `
-                <h3 style="font-size: 1.25rem;" >Loan Summary - ${loanName}</h3>
+                <h3 style="font-size: 1.25rem;">Loan Summary - ${loanName}</h3>
                 <div class="summary-row">
-                    <span class="summary-label" style="font-size: 1.25rem;" >Member:</span>
-                    <span style="font-size: 1.25rem;" >ID: ${memberId} - ${memberName}</span>
+                    <span class="summary-label" style="font-size: 1.25rem;">Member:</span>
+                    <span style="font-size: 1.25rem;">ID: ${memberId} - ${memberName}</span>
                 </div>
                 <div class="summary-row">
-                    <span class="summary-label" style="font-size: 1.25rem;" >Loan ID:</span>
-                    <span style="font-size: 1.25rem;" >${document.getElementById('loanId').value || 'Not specified'}</span>
+                    <span class="summary-label" style="font-size: 1.25rem;">Loan ID:</span>
+                    <span style="font-size: 1.25rem;">${document.getElementById('loanId').value || 'Not specified'}</span>
                 </div>
                 <div class="summary-row">
-                    <span class="summary-label" style="font-size: 1.25rem;" >Loan Amount:</span>
-                    <span style="font-size: 1.25rem;" >${formatCurrency(loanAmount)}</span>
+                    <span class="summary-label" style="font-size: 1.25rem;">Loan Amount:</span>
+                    <span style="font-size: 1.25rem;">${formatCurrency(loanAmount)}</span>
                 </div>
                 <div class="summary-row">
-                    <span class="summary-label" style="font-size: 1.25rem;" >Monthly Payment:</span>
-                    <span style="font-size: 1.25rem;" >${formatCurrency(monthlyPayment)}</span>
+                    <span class="summary-label" style="font-size: 1.25rem;">Monthly Payment:</span>
+                    <span style="font-size: 1.25rem;">${formatCurrency(monthlyPayment)}</span>
                 </div>
                 <div class="summary-row">
-                    <span class="summary-label" style="font-size: 1.25rem;" >Total Interest:</span>
-                    <span style="font-size: 1.25rem;" >${formatCurrency(totalInterest)}</span>
+                    <span class="summary-label" style="font-size: 1.25rem;">Total Interest:</span>
+                    <span style="font-size: 1.25rem;">${formatCurrency(totalInterest)}</span>
                 </div>
                 <div class="summary-row">
-                    <span class="summary-label" style="font-size: 1.25rem;" >Total Amount to Repay:</span>
-                    <span style="font-size: 1.25rem;" >${formatCurrency(totalPayment)}</span>
+                    <span class="summary-label" style="font-size: 1.25rem;">Total Amount to Repay:</span>
+                    <span style="font-size: 1.25rem;">${formatCurrency(totalPayment)}</span>
                 </div>
             `;
             
             document.getElementById('summary').innerHTML = summaryHTML;
             
-            // Update table
             const tableBody = document.getElementById('scheduleBody');
             tableBody.innerHTML = '';
             
@@ -1285,7 +1280,7 @@ async function loadMemberInfo() {
                 const row = document.createElement('tr');
                 
                 row.innerHTML = `
-                    <td style="font-size: 1.25rem;"> ${payment.paymentNumber}</td>
+                    <td style="font-size: 1.25rem;">${payment.paymentNumber}</td>
                     <td style="font-size: 1.25rem;">${formatDate(payment.paymentDate)}</td>
                     <td style="font-size: 1.25rem;">${formatCurrency(payment.paymentAmount)}</td>
                     <td style="font-size: 1.25rem;">${formatCurrency(payment.principal)}</td>
@@ -1296,11 +1291,73 @@ async function loadMemberInfo() {
                 tableBody.appendChild(row);
             });
             
-            // Show results
             document.getElementById('results').style.display = 'block';
-            
-            // Scroll to results
             document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Generate PDF report
+        function generatePDF() {
+            if (!currentSchedule) {
+                alert('Please generate a schedule first.');
+                return;
+            }
+            
+            const memberId = document.getElementById('memberId').value;
+            const memberName = selectedMemberName || 'Unknown Member';
+            const loanId = document.getElementById('loanId').value || 'Not specified';
+            const loanAmount = parseFloat(document.getElementById('loanAmount').value);
+            const monthlyPayment = currentSchedule[0].paymentAmount;
+            const totalInterest = currentSchedule.reduce((sum, payment) => sum + payment.interest, 0);
+            const totalPayment = loanAmount + totalInterest;
+            const loanName = selectedLoanName;
+            
+            // Prepare summary data
+            const summaryData = {
+                memberId: memberId,
+                memberName: memberName,
+                loanId: loanId,
+                loanName: loanName,
+                loanAmount: formatCurrency(loanAmount),
+                monthlyPayment: formatCurrency(monthlyPayment),
+                totalInterest: formatCurrency(totalInterest),
+                totalPayment: formatCurrency(totalPayment)
+            };
+            
+            // Prepare schedule data for PDF
+            const pdfScheduleData = currentSchedule.map(payment => {
+                return {
+                    paymentNumber: payment.paymentNumber,
+                    paymentDate: formatDate(payment.paymentDate),
+                    paymentAmount: formatCurrency(payment.paymentAmount),
+                    principal: formatCurrency(payment.principal),
+                    interest: formatCurrency(payment.interest),
+                    remainingBalance: formatCurrency(payment.remainingBalance)
+                };
+            });
+            
+            // Create a form to submit the data
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '?generate_pdf=1';
+            form.style.display = 'none';
+            
+            // Add summary data
+            const summaryInput = document.createElement('input');
+            summaryInput.type = 'hidden';
+            summaryInput.name = 'summaryData';
+            summaryInput.value = JSON.stringify(summaryData);
+            form.appendChild(summaryInput);
+            
+            // Add schedule data
+            const scheduleInput = document.createElement('input');
+            scheduleInput.type = 'hidden';
+            scheduleInput.name = 'scheduleData';
+            scheduleInput.value = JSON.stringify(pdfScheduleData);
+            form.appendChild(scheduleInput);
+            
+            // Append to body and submit
+            document.body.appendChild(form);
+            form.submit();
         }
         
         // Save schedule to database
@@ -1316,7 +1373,6 @@ async function loadMemberInfo() {
                 return;
             }
             
-            // Prepare schedule data for submission
             const scheduleData = currentSchedule.map(payment => {
                 return {
                     paymentNumber: payment.paymentNumber,
@@ -1328,37 +1384,31 @@ async function loadMemberInfo() {
                 };
             });
             
-            // Create a form to submit the data
             const form = document.createElement('form');
             form.method = 'POST';
             form.style.display = 'none';
             
-            // Add loan ID
             const loanIdInput = document.createElement('input');
             loanIdInput.type = 'hidden';
             loanIdInput.name = 'loanId';
             loanIdInput.value = loanId;
             form.appendChild(loanIdInput);
             
-            // Add schedule data
             const scheduleInput = document.createElement('input');
             scheduleInput.type = 'hidden';
             scheduleInput.name = 'scheduleData';
             scheduleInput.value = JSON.stringify(scheduleData);
             form.appendChild(scheduleInput);
             
-            // Add submit button name
             const submitInput = document.createElement('input');
             submitInput.type = 'hidden';
             submitInput.name = 'saveSchedule';
             submitInput.value = '1';
             form.appendChild(submitInput);
             
-            // Disable save button while submitting
             document.getElementById('saveButton').disabled = true;
             document.getElementById('saveButton').textContent = 'Saving...';
             
-            // Append to body and submit
             document.body.appendChild(form);
             form.submit();
         }
@@ -1382,5 +1432,5 @@ async function loadMemberInfo() {
             }).format(date);
         }
     </script>
-   </body>
-   </html> 
+</body>
+</html>
