@@ -11,7 +11,189 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Get member by membership number from form POST, URL parameter, or set to empty if none provided
+// Check if PDF generation is requested
+if (isset($_GET['generate_pdf']) && $_GET['generate_pdf'] == '1' && isset($_GET['membership_number']) && !empty($_GET['membership_number'])) {
+    require('fpdf/fpdf.php');
+    
+    $membership_number = trim($_GET['membership_number']);
+    $start_date = isset($_GET['start_date']) && !empty($_GET['start_date']) ? $_GET['start_date'] : '2000-01-01';
+    $end_date = isset($_GET['end_date']) && !empty($_GET['end_date']) ? $_GET['end_date'] : date('Y-m-d');
+    
+    // Get member details
+    $stmt = $conn->prepare("SELECT * FROM members WHERE id = ?");
+    $stmt->bind_param("s", $membership_number);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $member = $result->fetch_assoc();
+    
+    if ($member) {
+        // Get transactions
+        $query = "SELECT t.*, at.account_name as account_type_name 
+                  FROM savings_transactions t
+                  JOIN savings_account_types at ON t.account_type_id = at.id
+                  WHERE t.member_id = ? 
+                  AND DATE(t.transaction_date) BETWEEN ? AND ?
+                  ORDER BY t.transaction_date ASC";
+        
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param("iss", $membership_number, $start_date, $end_date);
+        $stmt->execute();
+        $transactions = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        
+        // Calculate totals
+        $total_deposits = 0;
+        $total_withdrawals = 0;
+        foreach ($transactions as $transaction) {
+            if ($transaction['transaction_type'] == 'DEPOSIT' || $transaction['transaction_type'] == 'INTEREST') {
+                $total_deposits += $transaction['amount'];
+            } else {
+                $total_withdrawals += $transaction['amount'];
+            }
+        }
+        
+        $current_balance = !empty($transactions) ? end($transactions)['running_balance'] : 0;
+        
+        // Create PDF with custom class for styling
+        class PDF extends FPDF {
+            // Orange header
+            function Header() {
+                $this->SetFont('Arial','B',16);
+                $this->SetTextColor(255, 140, 0);
+                $this->Cell(0,10,'SARVODAYA SHRAMADHANA SOCIETY',0,1,'C');
+                $this->SetFont('Arial','',12);
+                $this->Cell(0,8,'Samaghi Sarvodaya Shramadhana Society, Kubaloluwa, Veyangoda',0,1,'C');
+                $this->SetFont('Arial','B',14);
+                $this->SetTextColor(230, 120, 0);
+                $this->Cell(0,10,'MEMBER PASSBOOK',0,1,'C');
+                $this->Ln(5);
+            }
+            
+            // Orange footer
+            function Footer() {
+                $this->SetY(-15);
+                $this->SetFont('Arial','I',8);
+                $this->SetTextColor(255, 140, 0);
+                $this->Cell(0,10,'Page '.$this->PageNo().'/{nb}',0,0,'C');
+            }
+            
+            // Colored table header
+            function TableHeader() {
+                $this->SetFillColor(255, 140, 0);
+                $this->SetTextColor(255);
+                $this->SetDrawColor(230, 120, 0);
+                $this->SetLineWidth(.3);
+                $this->SetFont('Arial','B',12);
+            }
+            
+            // Light orange table row
+            function TableRowLight() {
+                $this->SetFillColor(255, 236, 214);
+                $this->SetTextColor(0);
+                $this->SetFont('Arial','',10);
+            }
+            
+            // White table row
+            function TableRowWhite() {
+                $this->SetFillColor(255);
+                $this->SetTextColor(0);
+                $this->SetFont('Arial','',10);
+            }
+        }
+        
+        $pdf = new PDF('P','mm','A4');
+        $pdf->AliasNbPages();
+        $pdf->AddPage();
+        
+        // Member info section with light orange background
+        $pdf->SetFillColor(255, 236, 214);
+        $pdf->SetDrawColor(255, 140, 0);
+        $pdf->SetLineWidth(.5);
+        $pdf->Rect(10, $pdf->GetY(), 190, 35, 'DF');
+        
+        $pdf->SetFont('Arial','B',12);
+        $pdf->SetTextColor(230, 120, 0);
+        $pdf->Cell(0,8,'Member Information',0,1);
+        
+        $pdf->SetFont('Arial','',11);
+        $pdf->SetTextColor(0);
+        $pdf->Cell(95,6,'Member: ' . $member['name'],0,0);
+        $pdf->Cell(95,6,'Membership Number: ' . $membership_number,0,1);
+        $pdf->Cell(95,6,'NIC: ' . $member['nic'],0,0);
+        $pdf->Cell(95,6,'Contact: ' . $member['phone'],0,1);
+        $pdf->Cell(95,6,'Member Since: ' . date('d M Y', strtotime($member['created_at'])),0,0);
+        $pdf->Cell(95,6,'Statement Period: ' . date('d M Y', strtotime($start_date)) . ' - ' . date('d M Y', strtotime($end_date)),0,1);
+        $pdf->Ln(10);
+        
+        // Transactions table header
+        $pdf->TableHeader();
+        $pdf->Cell(40,10,'Date',1,0,'C',true);
+        $pdf->Cell(30,10,'Type',1,0,'C',true);
+        $pdf->Cell(40,10,'Deposit(Rs.)',1,0,'C',true);
+        $pdf->Cell(40,10,'Withdrawal(Rs.)',1,0,'C',true);
+        $pdf->Cell(40,10,'Balance(Rs.)',1,1,'C',true);
+        
+        // Transactions rows with alternating colors
+        $fill = false;
+        foreach ($transactions as $transaction) {
+            $fill ? $pdf->TableRowLight() : $pdf->TableRowWhite();
+            $fill = !$fill;
+            
+            $pdf->Cell(40,8,date('Y-m-d H:i', strtotime($transaction['transaction_date'])),1,0,'L',true);
+            $pdf->Cell(30,8,$transaction['transaction_type'],1,0,'C',true);
+            
+            if ($transaction['transaction_type'] == 'DEPOSIT' || $transaction['transaction_type'] == 'INTEREST') {
+                $pdf->SetTextColor(40, 167, 69); // Green for deposits
+                $pdf->Cell(40,8,number_format($transaction['amount'],2),1,0,'R',true);
+                $pdf->Cell(40,8,'',1,0,'R',true);
+            } else {
+                $pdf->Cell(40,8,'',1,0,'R',true);
+                $pdf->SetTextColor(220, 53, 69); // Red for withdrawals
+                $pdf->Cell(40,8,number_format($transaction['amount'],2),1,0,'R',true);
+            }
+            
+            $pdf->SetTextColor(0);
+            $pdf->Cell(40,8,number_format($transaction['running_balance'],2),1,1,'R',true);
+        }
+        
+        // Summary section with light orange background
+        $pdf->Ln(5);
+        $pdf->SetFillColor(255, 236, 214);
+        $pdf->SetDrawColor(255, 140, 0);
+        $pdf->SetLineWidth(.5);
+        $pdf->Rect(10, $pdf->GetY(), 190, 30, 'DF');
+        
+        $pdf->SetFont('Arial','B',12);
+        $pdf->SetTextColor(230, 120, 0);
+        $pdf->Cell(0,8,'Transaction Summary',0,1);
+        
+        $pdf->SetFont('Arial','',11);
+        $pdf->SetTextColor(0);
+        $pdf->Cell(95,6,'Total Deposits: Rs. ' . number_format($total_deposits,2),0,0);
+        $pdf->Cell(95,6,'Total Withdrawals: Rs. ' . number_format($total_withdrawals,2),0,1);
+        $pdf->Cell(95,6,'Current Balance: Rs. ' . number_format($current_balance,2),0,0);
+        $pdf->Cell(95,6,'Generated on: ' . date('Y-m-d H:i:s'),0,1);
+        
+        // Manager signature section
+        $pdf->Ln(15);
+        $pdf->SetFont('Arial','',11);
+        $pdf->Cell(0,6,'Certified Correct:',0,1);
+        $pdf->Ln(15);
+        
+        $pdf->SetDrawColor(150);
+        $pdf->Line($pdf->GetX()+30, $pdf->GetY(), $pdf->GetX()+80, $pdf->GetY());
+        $pdf->Line($pdf->GetX()+110, $pdf->GetY(), $pdf->GetX()+160, $pdf->GetY());
+        
+        $pdf->SetFont('Arial','I',10);
+        $pdf->Cell(80,6,'Manager Signature',0,0,'C');
+        $pdf->Cell(30,6,'',0,0);
+        $pdf->Cell(80,6,'Date',0,1,'C');
+        
+        $pdf->Output('I', 'Passbook_' . $membership_number . '.pdf');
+        exit;
+    }
+}
+
+// Rest of your existing code for the web view
 $membership_number = '';
 $member_id = 0;
 
@@ -535,13 +717,13 @@ $current_balance = !empty($transactions) ? end($transactions)['running_balance']
                             <p style="font-size: 20px;"><?php echo date('d M Y', strtotime($start_date)); ?> - <?php echo date('d M Y', strtotime($end_date)); ?></p>
                             <?php if (!empty($transactions)): ?>
                             <div class="mt-3 no-print">
-                                <button type="button" class="btn btn-secondary" style="font-size: 20px;" onclick="window.print()">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-printer me-1" viewBox="0 0 16 16">
-                                        <path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/>
-                                        <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2H5zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4V3zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2H5zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1z"/>
+                                <a href="?generate_pdf=1&membership_number=<?php echo $member_id; ?>&start_date=<?php echo $start_date; ?>&end_date=<?php echo $end_date; ?>" class="btn btn-danger" style="font-size: 20px;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-pdf me-1" viewBox="0 0 16 16">
+                                        <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/>
+                                        <path d="M4.603 14.087a.81.81 0 0 1-.438-.42c-.195-.388-.13-.776.08-1.102.198-.307.526-.568.897-.787a7.68 7.68 0 0 1 1.482-.645 19.697 19.697 0 0 0 1.062-2.227 7.269 7.269 0 0 1-.43-1.295c-.086-.4-.119-.796-.046-1.136.075-.354.274-.672.65-.823.192-.077.4-.12.602-.077a.7.7 0 0 1 .477.365c.088.164.12.356.127.538.007.188-.012.396-.047.614-.084.51-.27 1.134-.52 1.794a10.954 10.954 0 0 0 .98 1.686 5.753 5.753 0 0 1 1.334.05c.364.066.734.195.96.465.12.144.193.32.2.518.007.192-.047.382-.138.563a1.04 1.04 0 0 1-.354.416.856.856 0 0 1-.51.138c-.331-.014-.654-.196-.933-.417a5.712 5.712 0 0 1-.911-.95 11.651 11.651 0 0 0-1.997.406 11.307 11.307 0 0 1-1.02 1.51c-.292.35-.609.656-.927.787a.793.793 0 0 1-.58.029zm1.379-1.901c-.166.076-.32.156-.459.238-.328.194-.541.383-.647.547-.094.145-.096.25-.04.361.01.022.02.036.026.044a.266.266 0 0 0 .035-.012c.137-.056.355-.235.635-.572a8.18 8.18 0 0 0 .45-.606zm1.64-1.33a12.71 12.71 0 0 1 1.01-.193 11.744 11.744 0 0 1-.51-.858 20.801 20.801 0 0 1-.5 1.05zm2.446.45c.15.163.296.3.435.41.24.19.407.253.498.256a.107.107 0 0 0 .07-.015.307.307 0 0 0 .094-.125.436.436 0 0 0 .059-.2.095.095 0 0 0-.026-.063c-.052-.062-.2-.152-.518-.242a8.136 8.136 0 0 0-1.102-.283 7.647 7.647 0 0 1-.585.193zM8 12.022a7.771 7.771 0 0 0 .19-.015c.327-.042.642-.126.93-.242.19-.076.36-.182.493-.314a1.8 1.8 0 0 0 .165-.203c.028-.038.053-.077.074-.118.024-.043.047-.092.058-.145.013-.056.014-.113.002-.171a1.023 1.023 0 0 0-.063-.165.91.91 0 0 0-.157-.221 1.482 1.482 0 0 0-.393-.3 3.639 3.639 0 0 0-.554-.243 8.976 8.976 0 0 0-.87-.151 7.726 7.726 0 0 0-.539-.006 2.31 2.31 0 0 0-.497.038 2.668 2.668 0 0 0-.45.117 1.933 1.933 0 0 0-.398.208 1.27 1.27 0 0 0-.257.246 1.113 1.113 0 0 0-.129.239.94.94 0 0 0-.039.289c.003.062.01.118.022.17.015.062.04.12.07.171.03.051.065.095.102.131.038.036.08.064.124.085.05.025.104.04.16.046a.937.937 0 0 0 .187.013 3.89 3.89 0 0 0 .57-.069 6.405 6.405 0 0 0 .68-.176 6.833 6.833 0 0 0 .618-.299z"/>
                                     </svg>
-                                    Print Passbook
-                                </button>
+                                    Download PDF
+                                </a>
                             </div>
                             <?php endif; ?>
                         </div>

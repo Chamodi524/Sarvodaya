@@ -20,6 +20,244 @@ if (isset($_GET['filter'])) {
     $start_date = $_GET['start_date'];
     $end_date = $_GET['end_date'];
 }
+
+// Handle PDF generation
+if (isset($_GET['download_pdf'])) {
+    require('fpdf/fpdf.php');
+    
+    // Get filtered transactions
+    $query = "SELECT 
+                'payment' AS transaction_type,
+                id,
+                member_id,
+                payment_date AS transaction_date,
+                0 AS debit_amount,
+                amount AS credit_amount,
+                description AS details,
+                NULL AS reference_id,
+                payment_type AS reference_type
+              FROM payments
+              WHERE DATE(payment_date) BETWEEN ? AND ?
+              
+              UNION ALL
+              
+              SELECT 
+                'receipt' AS transaction_type,
+                id,
+                member_id,
+                receipt_date AS transaction_date,
+                amount AS debit_amount,
+                0 AS credit_amount,
+                NULL AS details,
+                loan_id AS reference_id,
+                receipt_type AS reference_type
+              FROM receipts
+              WHERE DATE(receipt_date) BETWEEN ? AND ?
+              
+              UNION ALL
+              
+              SELECT 
+                'interest' AS transaction_type,
+                id,
+                member_id,
+                created_at AS transaction_date,
+                0 AS debit_amount,
+                interest_amount AS credit_amount,
+                CONCAT('Interest for ', period_start_date, ' to ', period_end_date) AS details,
+                account_type_id AS reference_id,
+                status AS reference_type
+              FROM interest_calculations
+              WHERE DATE(created_at) BETWEEN ? AND ?
+              
+              ORDER BY transaction_date DESC";
+
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("ssssss", $start_date, $end_date, $start_date, $end_date, $start_date, $end_date);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    // Calculate totals
+    $total_query = "SELECT 
+                    SUM(debit) AS total_debit,
+                    SUM(credit) AS total_credit
+                  FROM (
+                    SELECT 0 AS debit, amount AS credit FROM payments WHERE DATE(payment_date) BETWEEN ? AND ?
+                    UNION ALL
+                    SELECT amount AS debit, 0 AS credit FROM receipts WHERE DATE(receipt_date) BETWEEN ? AND ?
+                    UNION ALL
+                    SELECT 0 AS debit, interest_amount AS credit FROM interest_calculations WHERE DATE(created_at) BETWEEN ? AND ?
+                  ) AS combined_transactions";
+
+    $total_stmt = $conn->prepare($total_query);
+    $total_stmt->bind_param("ssssss", $start_date, $end_date, $start_date, $end_date, $start_date, $end_date);
+    $total_stmt->execute();
+    $totals = $total_stmt->get_result()->fetch_assoc();
+    
+    $net_liquidity = $totals['total_debit'] - $totals['total_credit'];
+    
+    // Create PDF with orange theme
+    class PDF extends FPDF {
+        // Colors for orange theme
+        private $primaryColor = array(255, 140, 0);  // Main orange
+        private $lightOrange = array(255, 237, 217); // Light background
+        private $darkOrange = array(230, 120, 0);    // Darker orange
+        private $white = array(255, 255, 255);
+        private $black = array(0, 0, 0);
+        private $gray = array(200, 200, 200);
+        
+        function Header() {
+            // Header with orange gradient
+            $this->SetFillColor($this->primaryColor[0], $this->primaryColor[1], $this->primaryColor[2]);
+            $this->Rect(0, 0, $this->w, 25, 'F');
+            
+            // Title
+            $this->SetY(8);
+            $this->SetFont('Arial', 'B', 16);
+            $this->SetTextColor(255, 255, 255);
+            $this->Cell(0, 10, 'General Journal Report', 0, 1, 'C');
+            
+            // Report period
+            $this->SetFont('Arial', '', 10);
+            $this->Cell(0, 5, 'Period: ' . $GLOBALS['start_date'] . ' to ' . $GLOBALS['end_date'], 0, 1, 'C');
+            
+            $this->Ln(10);
+        }
+        
+        function Footer() {
+            $this->SetY(-15);
+            $this->SetFont('Arial', 'I', 8);
+            $this->SetTextColor($this->black[0], $this->black[1], $this->black[2]);
+            $this->Cell(0, 10, 'Page ' . $this->PageNo() . '/{nb}', 0, 0, 'C');
+            $this->Cell(0, 10, 'Generated on: ' . date('F j, Y'), 0, 0, 'R');
+        }
+        
+        function SummaryStats($totals, $net_liquidity) {
+            $this->SetFont('Arial', 'B', 12);
+            $this->SetTextColor($this->black[0], $this->black[1], $this->black[2]);
+            
+            // Summary boxes
+            $this->SetFillColor($this->primaryColor[0], $this->primaryColor[1], $this->primaryColor[2]);
+            $this->SetDrawColor($this->darkOrange[0], $this->darkOrange[1], $this->darkOrange[2]);
+            
+            $this->Cell(60, 10, 'Total Receipts', 1, 0, 'C', true);
+            $this->Cell(60, 10, 'Total Payments', 1, 0, 'C', true);
+            $this->Cell(60, 10, 'Net Position', 1, 1, 'C', true);
+            
+            // Values
+            $this->SetFont('Arial', '', 12);
+            $this->SetTextColor(0, 0, 0);
+            $this->Cell(60, 10, number_format($totals['total_debit'], 2), 1, 0, 'C');
+            $this->Cell(60, 10, number_format($totals['total_credit'], 2), 1, 0, 'C');
+            
+            if($net_liquidity >= 0) {
+                $this->SetTextColor(0, 100, 0); // Green for positive
+            } else {
+                $this->SetTextColor(150, 0, 0); // Red for negative
+            }
+            $this->Cell(60, 10, number_format($net_liquidity, 2), 1, 1, 'C');
+            
+            $this->Ln(8);
+        }
+    }
+
+    $pdf = new PDF('L');
+    $pdf->AliasNbPages();
+    $pdf->AddPage();
+    $pdf->SetFont('Arial', '', 10);
+    
+    // Add summary statistics
+    $pdf->SummaryStats($totals, $net_liquidity);
+    
+    // Table header
+    $pdf->SetFont('Arial', 'B', 11);
+    $pdf->SetFillColor(255, 140, 0); // Primary orange color
+    $pdf->SetTextColor(255, 255, 255);
+    $pdf->Cell(25, 10, 'Date', 1, 0, 'C', true);
+    $pdf->Cell(25, 10, 'Type', 1, 0, 'C', true);
+    $pdf->Cell(20, 10, 'Member', 1, 0, 'C', true);
+    $pdf->Cell(40, 10, 'Reference', 1, 0, 'C', true);
+    $pdf->Cell(60, 10, 'Details', 1, 0, 'C', true);
+    $pdf->Cell(30, 10, 'Debit', 1, 0, 'C', true);
+    $pdf->Cell(30, 10, 'Credit', 1, 1, 'C', true);
+    
+    // Table data
+    $pdf->SetFont('Arial', '', 9);
+    $pdf->SetTextColor(0, 0, 0);
+    $fill = false;
+    
+    if($result->num_rows > 0) {
+        while($row = $result->fetch_assoc()) {
+            // Alternate row colors
+            $fill = !$fill;
+            if($fill) {
+                $pdf->SetFillColor(255, 237, 217); // Light orange
+            } else {
+                $pdf->SetFillColor(255, 255, 255);
+            }
+            
+            $pdf->Cell(25, 10, date('M j, Y', strtotime($row['transaction_date'])), 1, 0, 'L', true);
+            
+            // Transaction type
+            $pdf->SetFont('Arial', 'B', 9);
+            if($row['transaction_type'] == 'payment') {
+                $pdf->Cell(25, 10, 'Payment', 1, 0, 'C', true);
+            } elseif($row['transaction_type'] == 'receipt') {
+                $pdf->Cell(25, 10, 'Receipt', 1, 0, 'C', true);
+            } else {
+                $pdf->Cell(25, 10, 'Interest', 1, 0, 'C', true);
+            }
+            $pdf->SetFont('Arial', '', 9);
+            
+            $pdf->Cell(20, 10, '#'.$row['member_id'], 1, 0, 'C', true);
+            
+            $reference = $row['reference_type'];
+            if($row['reference_id']) {
+                $reference .= "\nRef #" . $row['reference_id'];
+            }
+            $pdf->Cell(40, 10, $reference, 1, 0, 'L', true);
+            
+            $pdf->Cell(60, 10, $row['details'] ? $row['details'] : '-', 1, 0, 'L', true);
+            
+            // Debit amount
+            if($row['debit_amount'] > 0) {
+                $pdf->Cell(30, 10, number_format($row['debit_amount'], 2), 1, 0, 'R', true);
+            } else {
+                $pdf->Cell(30, 10, '0.00', 1, 0, 'R', true);
+            }
+            
+            // Credit amount
+            if($row['credit_amount'] > 0) {
+                $pdf->Cell(30, 10, number_format($row['credit_amount'], 2), 1, 1, 'R', true);
+            } else {
+                $pdf->Cell(30, 10, '0.00', 1, 1, 'R', true);
+            }
+        }
+    } else {
+        $pdf->Cell(0, 10, 'No transactions found for the selected period', 1, 1, 'C', true);
+    }
+    
+    // Table footer with totals
+    $pdf->SetFont('Arial', 'B', 11);
+    $pdf->SetFillColor(255, 140, 0); // Primary orange color
+    $pdf->SetTextColor(255, 255, 255);
+    $pdf->Cell(170, 10, 'Totals:', 1, 0, 'R', true);
+    $pdf->Cell(30, 10, number_format($totals['total_debit'], 2), 1, 0, 'R', true);
+    $pdf->Cell(30, 10, number_format($totals['total_credit'], 2), 1, 1, 'R', true);
+    
+    // Net position row
+    $pdf->SetFillColor(230, 120, 0); // Darker orange
+    $pdf->Cell(170, 10, 'Net Position:', 1, 0, 'R', true);
+    if($net_liquidity >= 0) {
+        $pdf->SetTextColor(255, 255, 255);
+    } else {
+        $pdf->SetTextColor(255, 255, 255);
+    }
+    $pdf->Cell(60, 10, number_format($net_liquidity, 2), 1, 1, 'C', true);
+    
+    // Output PDF
+    $pdf->Output('D', 'General_Journal_'.date('Y-m-d').'.pdf');
+    exit;
+}
 ?>
 
 <!DOCTYPE html>
@@ -30,6 +268,7 @@ if (isset($_GET['filter'])) {
     <title>General Journal - Financial Overview</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
+        /* Your existing CSS styles remain unchanged */
         :root {
             --primary: linear-gradient(135deg, rgb(255, 140, 0) 0%, rgb(230, 120, 0) 100%);
             --primary-solid: rgb(255, 140, 0);
@@ -813,8 +1052,8 @@ if (isset($_GET['filter'])) {
                     <i class="fas fa-filter" style="font-size: 20px;"></i> Apply Filter
                 </button>
                 
-                <button type="button" class="btn btn-secondary" onclick="window.print()">
-                    <i class="fas fa-print" style="font-size: 20px;"></i> Print Journal
+                <button type="submit" name="download_pdf" class="btn btn-secondary">
+                    <i class="fas fa-download" style="font-size: 20px;"></i> Download PDF
                 </button>
             </form>
         </div>
