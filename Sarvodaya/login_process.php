@@ -13,6 +13,30 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+// Function to check for date alerts
+function checkDateAlerts($conn) {
+    $today = date('Y-m-d');
+    $alerts = [];
+    
+    // Check if today's date matches any date_value in selected_dates table
+    $stmt = $conn->prepare("SELECT id, date_number, date_value FROM selected_dates WHERE date_value = ?");
+    $stmt->bind_param("s", $today);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    while ($row = $result->fetch_assoc()) {
+        $alerts[] = [
+            'id' => $row['id'],
+            'date_number' => $row['date_number'],
+            'date_value' => $row['date_value'],
+            'message' => "Important Date Alert: Today (" . date('F j, Y') . ") . Calculate interest today." 
+        ];
+    }
+    
+    $stmt->close();
+    return $alerts;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email']);
     $password = $_POST['password'];
@@ -31,6 +55,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['user_id'] = $id;
             $_SESSION['username'] = $db_username;
             $_SESSION['position'] = $position;
+            
+            // Check for date alerts
+            $alerts = checkDateAlerts($conn);
+            
+            // Store alerts in session if any exist
+            if (!empty($alerts)) {
+                $_SESSION['date_alerts'] = $alerts;
+                $_SESSION['show_alerts'] = true;
+            }
             
             // Redirect based on position
             switch ($position) {

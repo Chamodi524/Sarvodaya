@@ -106,12 +106,22 @@ if (isset($_GET['download_pdf'])) {
         private $gray = array(200, 200, 200);
         
         function Header() {
-            // Header with orange gradient
+            // Organization header
+            $this->SetFont('Arial', 'B', 12);
+            $this->SetTextColor(0, 0, 0);
+            $this->Cell(0, 6, 'SARVODAYA SHRAMADHANA SOCIETY', 0, 1, 'C');
+            $this->SetFont('Arial', '', 10);
+            $this->Cell(0, 6, 'Samaghi Sarvodaya Shramadhana Society', 0, 1, 'C');
+            $this->Cell(0, 6, 'Kubaloluwa, Veyangoda', 0, 1, 'C');
+            $this->Cell(0, 6, 'Phone: 077 690 6605 | Email: info@sarvodayabank.com', 0, 1, 'C');
+            $this->Ln(5);
+            
+            // Report header with orange gradient
             $this->SetFillColor($this->primaryColor[0], $this->primaryColor[1], $this->primaryColor[2]);
-            $this->Rect(0, 0, $this->w, 25, 'F');
+            $this->Rect(0, $this->GetY(), $this->w, 25, 'F');
             
             // Title
-            $this->SetY(8);
+            $this->SetY($this->GetY() + 8);
             $this->SetFont('Arial', 'B', 16);
             $this->SetTextColor(255, 255, 255);
             $this->Cell(0, 10, 'General Journal Report', 0, 1, 'C');
@@ -120,7 +130,7 @@ if (isset($_GET['download_pdf'])) {
             $this->SetFont('Arial', '', 10);
             $this->Cell(0, 5, 'Period: ' . $GLOBALS['start_date'] . ' to ' . $GLOBALS['end_date'], 0, 1, 'C');
             
-            $this->Ln(10);
+            $this->Ln(15);
         }
         
         function Footer() {
@@ -1027,6 +1037,14 @@ if (isset($_GET['download_pdf'])) {
         <!-- Print-only elements -->
         <div class="print-date" style="display: none;">
             Generated on: <?= date('F j, Y \a\t g:i A') ?>
+        </div>
+        
+        <!-- Organization Header -->
+        <div class="print-header" style="display: none; text-align: center; margin-bottom: 20px;">
+            <h2 style="margin-bottom: 5px;">SARVODAYA SHRAMADHANA SOCIETY</h2>
+            <p style="margin: 5px 0;">Samaghi Sarvodaya Shramadhana Society</p>
+            <p style="margin: 5px 0;">Kubaloluwa, Veyangoda</p>
+            <p style="margin: 5px 0;">Phone: 077 690 6605 | Email: info@sarvodayabank.com</p>
         </div>
 
         <!-- Header -->

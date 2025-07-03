@@ -1,3 +1,43 @@
+<?php 
+session_start();
+
+// Include the date alert system
+$alertScript = '';
+$alertDivs = '';
+
+if (isset($_SESSION['show_alerts']) && $_SESSION['show_alerts'] === true) {
+    $alerts = $_SESSION['date_alerts'] ?? [];
+    
+    if (!empty($alerts)) {
+        $alertScript = '<script>';
+        $alertScript .= 'document.addEventListener("DOMContentLoaded", function() {';
+        
+        foreach ($alerts as $alert) {
+            $alertScript .= 'alert("' . addslashes($alert['message']) . '");';
+        }
+        
+        $alertScript .= '});';
+        $alertScript .= '</script>';
+        
+        // Create visual alert divs
+        $alertDivs = '<div id="dateAlerts" style="position: fixed; top: 20px; right: 20px; z-index: 9999; max-width: 400px;">';
+        
+        foreach ($alerts as $index => $alert) {
+            $alertDivs .= '<div class="alert alert-warning alert-dismissible fade show" role="alert" style="margin-bottom: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); background-color: #fff3cd; border-left: 4px solid #ffc107; color: #856404; padding: 15px; border-radius: 8px;">';
+            $alertDivs .= '<strong>📅 Date Alert!</strong><br>';
+            $alertDivs .= htmlspecialchars($alert['message']);
+            $alertDivs .= '<button type="button" onclick="this.parentElement.style.display=\'none\'" style="position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 18px; cursor: pointer; color: #856404;">&times;</button>';
+            $alertDivs .= '</div>';
+        }
+        
+        $alertDivs .= '</div>';
+    }
+    
+    // Clear the alerts after displaying
+    unset($_SESSION['show_alerts']);
+    unset($_SESSION['date_alerts']);
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -128,6 +168,36 @@
             left: 100%;
         }
 
+        .logout-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 30px;
+            background: #e67300;
+            color: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .logout-btn:hover {
+            background: #cc6600;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Alert styles */
+        .alert {
+            border-radius: 8px;
+            border: none;
+            font-size: 14px;
+            position: relative;
+        }
+
         @media (max-width: 600px) {
             .container {
                 margin: 20px;
@@ -142,11 +212,25 @@
             body {
                 background: linear-gradient(135deg, #FFA500, #FF6347);
             }
+            
+            #dateAlerts {
+                position: fixed !important;
+                top: 10px !important;
+                left: 10px !important;
+                right: 10px !important;
+                max-width: none !important;
+            }
         }
     </style>
+    
+    <?php echo $alertScript; ?>
 </head>
 <body>
+    <?php echo $alertDivs; ?>
+    
     <div class="container">
+        <button class="logout-btn" onclick="location.href='logout.php'">Logout</button>
+        
         <img src="Sarwodaya logo.jpg" alt="Sarvodaya Bank Logo" class="logo">
         <h1 class="title">Sarvodaya Shramadhana Society</h1>
         <p class="subtitle" style="font-size: 1.25rem;">Empowering Your Financial Journey with Trust and Innovation</p>
