@@ -2,24 +2,13 @@
 session_start();
 
 // Include the date alert system
-$alertScript = '';
 $alertDivs = '';
 
 if (isset($_SESSION['show_alerts']) && $_SESSION['show_alerts'] === true) {
     $alerts = $_SESSION['date_alerts'] ?? [];
     
     if (!empty($alerts)) {
-        $alertScript = '<script>';
-        $alertScript .= 'document.addEventListener("DOMContentLoaded", function() {';
-        
-        foreach ($alerts as $alert) {
-            $alertScript .= 'alert("' . addslashes($alert['message']) . '");';
-        }
-        
-        $alertScript .= '});';
-        $alertScript .= '</script>';
-        
-        // Create visual alert divs
+        // Create visual alert divs only (no JavaScript alerts)
         $alertDivs = '<div id="dateAlerts" style="position: fixed; top: 20px; right: 20px; z-index: 9999; max-width: 400px;">';
         
         foreach ($alerts as $index => $alert) {
@@ -222,8 +211,6 @@ if (isset($_SESSION['show_alerts']) && $_SESSION['show_alerts'] === true) {
             }
         }
     </style>
-    
-    <?php echo $alertScript; ?>
 </head>
 <body>
     <?php echo $alertDivs; ?>
