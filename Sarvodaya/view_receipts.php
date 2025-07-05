@@ -385,8 +385,8 @@ while ($type = $typesResult->fetch_assoc()) {
             <form method="GET" action="" class="row g-3">
                 <!-- Receipt Type Filter -->
                 <div class="col-md-4">
-                    <label for="filter_type" class="form-label">Filter by Receipt Type:</label>
-                    <select name="filter_type" id="filter_type" class="form-select <?php echo (!empty($filterType)) ? 'active-filter' : ''; ?>">
+                    <label for="filter_type" class="form-label" style="font-size: 20px;">Filter by Receipt Type:</label>
+                    <select name="filter_type" id="filter_type" style="font-size: 20px;" class="form-select <?php echo (!empty($filterType)) ? 'active-filter' : ''; ?>">
                         <option value="">All Receipt Types</option>
                         <?php foreach ($receiptTypes as $type): ?>
                             <option value="<?php echo htmlspecialchars($type); ?>" <?php echo ($filterType == $type) ? 'selected' : ''; ?>>
@@ -398,8 +398,8 @@ while ($type = $typesResult->fetch_assoc()) {
                 
                 <!-- Direct Member Number Input -->
                 <div class="col-md-4">
-                    <label for="filter_member_number" class="form-label">Filter by Member Number:</label>
-                    <input type="text" name="filter_member_number" id="filter_member_number" 
+                    <label for="filter_member_number" class="form-label" style="font-size: 20px;">Filter by Member Number:</label>
+                    <input type="text" name="filter_member_number" id="filter_member_number" style="font-size: 20px;"ss 
                            class="form-control <?php echo (!empty($filterMemberNumber)) ? 'active-filter' : ''; ?>" 
                            placeholder="Enter Member ID" 
                            value="<?php echo htmlspecialchars($filterMemberNumber); ?>">
@@ -407,11 +407,11 @@ while ($type = $typesResult->fetch_assoc()) {
                 
                 <!-- Filter Buttons -->
                 <div class="col-md-4 d-flex align-items-end">
-                    <button type="submit" class="btn-action me-2">
-                        <i class="bi bi-filter"></i> Apply Filters
+                    <button type="submit" class="btn-action me-2" style="font-size: 20px;">
+                        <i class="bi bi-filter" style="font-size: 20px;"></i> Apply Filters
                     </button>
-                    <a href="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" class="btn-action btn-pdf">
-                        <i class="bi bi-x-circle"></i> Reset
+                    <a href="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" class="btn-action btn-pdf" style="font-size: 20px;">
+                        <i class="bi bi-x-circle" style="font-size: 20px;"></i> Reset
                     </a>
                 </div>
             </form>
@@ -440,8 +440,8 @@ while ($type = $typesResult->fetch_assoc()) {
                 <h3>Receipt Records</h3>
                 <div class="no-print">
                     <!-- Only PDF button remains -->
-                    <a href="?generate_pdf=1&<?php echo http_build_query($_GET); ?>" class="btn-action btn-pdf">
-                        <i class="bi bi-file-earmark-pdf"></i> Generate PDF
+                    <a href="?generate_pdf=1&<?php echo http_build_query($_GET); ?>" class="btn-action btn-pdf" style="font-size: 20px;">
+                        <i class="bi bi-file-earmark-pdf" style="font-size: 20px;"></i> Generate PDF
                     </a>
                 </div>
             </div>
@@ -450,13 +450,13 @@ while ($type = $typesResult->fetch_assoc()) {
                 <table class="table-custom">
                     <thead>
                         <tr>
-                            <th>Receipt ID</th>
-                            <th>Member ID</th>
-                            <th>Member Name</th>
-                            <th>Receipt Type</th>
-                            <th>Amount (Rs.)</th>
-                            <th>Receipt Date</th>
-                            <th class="no-print">Actions</th>
+                            <th style="font-size: 20px;">Receipt ID</th>
+                            <th style="font-size: 20px;">Member ID</th>
+                            <th style="font-size: 20px;">Member Name</th>
+                            <th style="font-size: 20px;">Receipt Type</th>
+                            <th style="font-size: 20px;">Amount (Rs.)</th>
+                            <th style="font-size: 20px;">Receipt Date</th>
+                            <th class="no-print" style="font-size: 20px;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -468,13 +468,13 @@ while ($type = $typesResult->fetch_assoc()) {
                                 $totalAmount += $row['amount'];
                             ?>
                                 <tr>
-                                    <td><?php echo htmlspecialchars($row['receipt_id']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['member_id']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['member_name']); ?></td>
-                                    <td><?php echo htmlspecialchars(ucfirst(str_replace('_', ' ', $row['receipt_type']))); ?></td>
-                                    <td><?php echo htmlspecialchars(number_format($row['amount'], 2)); ?></td>
-                                    <td><?php echo htmlspecialchars(date('d M Y, h:i A', strtotime($row['receipt_date']))); ?></td>
-                                    <td class="no-print">
+                                    <td style="font-size: 20px;"><?php echo htmlspecialchars($row['receipt_id']); ?></td>
+                                    <td style="font-size: 20px;"><?php echo htmlspecialchars($row['member_id']); ?></td>
+                                    <td style="font-size: 20px;"><?php echo htmlspecialchars($row['member_name']); ?></td>
+                                    <td style="font-size: 20px;"><?php echo htmlspecialchars(ucfirst(str_replace('_', ' ', $row['receipt_type']))); ?></td>
+                                    <td style="font-size: 20px;"><?php echo htmlspecialchars(number_format($row['amount'], 2)); ?></td>
+                                    <td style="font-size: 20px;"><?php echo htmlspecialchars(date('d M Y, h:i A', strtotime($row['receipt_date']))); ?></td>
+                                    <td class="no-print" style="font-size: 20px;">
                                         <div class="action-buttons">
                                             <a href="view_receipt_detail.php?receipt_id=<?php echo htmlspecialchars($row['receipt_id']); ?>" class="btn-action action-btn">
                                                 <i class="bi bi-eye"></i> View

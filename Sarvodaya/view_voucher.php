@@ -425,9 +425,9 @@ while ($type = $typesResult->fetch_assoc()) {
             <form method="GET" action="" class="row g-3">
                 <!-- Payment Type Filter -->
                 <div class="col-md-4">
-                    <label for="filter_type" class="form-label">Filter by Payment Type:</label>
-                    <select name="filter_type" id="filter_type" class="form-select <?php echo (!empty($filterType)) ? 'active-filter' : ''; ?>">
-                        <option value="">All Payment Types</option>
+                    <label for="filter_type" class="form-label" style="font-size: 20px;">Filter by Payment Type:</label>
+                    <select name="filter_type" id="filter_type" style="font-size: 20px;" class="form-select <?php echo (!empty($filterType)) ? 'active-filter' : ''; ?>">
+                        <option value="" style="font-size: 20px;" >All Payment Types</option>
                         <?php foreach ($paymentTypes as $type): ?>
                             <option value="<?php echo htmlspecialchars($type); ?>" <?php echo ($filterType == $type) ? 'selected' : ''; ?>>
                                 <?php echo htmlspecialchars(ucfirst(str_replace('_', ' ', $type))); ?>
@@ -438,8 +438,8 @@ while ($type = $typesResult->fetch_assoc()) {
                 
                 <!-- Direct Member Number Input -->
                 <div class="col-md-4">
-                    <label for="filter_member_number" class="form-label">Filter by Member Number:</label>
-                    <input type="text" name="filter_member_number" id="filter_member_number" 
+                    <label for="filter_member_number" class="form-label" style="font-size: 20px;">Filter by Member Number:</label>
+                    <input type="text" name="filter_member_number" id="filter_member_number" style="font-size: 20px;"
                            class="form-control <?php echo (!empty($filterMemberNumber)) ? 'active-filter' : ''; ?>" 
                            placeholder="Enter Member ID" 
                            value="<?php echo htmlspecialchars($filterMemberNumber); ?>">
@@ -447,14 +447,14 @@ while ($type = $typesResult->fetch_assoc()) {
                 
                 <!-- Filter Buttons -->
                 <div class="col-md-4 d-flex align-items-end">
-                    <button type="submit" class="btn-action me-2">
-                        <i class="bi bi-filter"></i> Apply Filters
+                    <button type="submit" class="btn-action me-2" style="font-size: 20px;"sss>
+                        <i class="bi bi-filter" style="font-size: 20px;"></i> Apply Filters
                     </button>
-                    <a href="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" class="btn-action">
-                        <i class="bi bi-x-circle"></i> Reset
+                    <a href="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" class="btn-action" style="font-size: 20px;">
+                        <i class="bi bi-x-circle" style="font-size: 20px;"></i> Reset
                     </a>
-                    <button type="submit" name="generate_pdf" value="1" class="btn-action btn-pdf ms-2">
-                        <i class="bi bi-file-earmark-pdf"></i> Generate PDF
+                    <button type="submit" name="generate_pdf" value="1" class="btn-action btn-pdf ms-2" >
+                        <i class="bi bi-file-earmark-pdf" style="font-size: 20px;"></i> Generate PDF
                     </button>
                 </div>
             </form>
@@ -487,13 +487,13 @@ while ($type = $typesResult->fetch_assoc()) {
                 <table class="table-custom">
                     <thead>
                         <tr>
-                            <th>Payment ID</th>
-                            <th>Member ID</th>
-                            <th>Member Name</th>
-                            <th>Payment Type</th>
-                            <th>Amount (Rs.)</th>
-                            <th>Payment Date</th>
-                            <th>Actions</th>
+                            <th style="font-size: 20px;">Payment ID</th>
+                            <th style="font-size: 20px;">Member ID</th>
+                            <th style="font-size: 20px;">Member Name</th>
+                            <th style="font-size: 20px;">Payment Type</th>
+                            <th style="font-size: 20px;">Amount (Rs.)</th>
+                            <th style="font-size: 20px;">Payment Date</th>
+                            <th style="font-size: 20px;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -505,16 +505,16 @@ while ($type = $typesResult->fetch_assoc()) {
                                 $totalAmount += $row['amount'];
                             ?>
                                 <tr>
-                                    <td><?php echo htmlspecialchars($row['payment_id']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['member_id']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['member_name']); ?></td>
-                                    <td><?php echo htmlspecialchars(ucfirst(str_replace('_', ' ', $row['payment_type']))); ?></td>
-                                    <td><?php echo htmlspecialchars(number_format($row['amount'], 2)); ?></td>
-                                    <td><?php echo htmlspecialchars(date('d M Y, h:i A', strtotime($row['payment_date']))); ?></td>
-                                    <td>
+                                    <td style="font-size: 20px;"><?php echo htmlspecialchars($row['payment_id']); ?></td>
+                                    <td style="font-size: 20px;"><?php echo htmlspecialchars($row['member_id']); ?></td>
+                                    <td style="font-size: 20px;"><?php echo htmlspecialchars($row['member_name']); ?></td>
+                                    <td style="font-size: 20px;"><?php echo htmlspecialchars(ucfirst(str_replace('_', ' ', $row['payment_type']))); ?></td>
+                                    <td style="font-size: 20px;"><?php echo htmlspecialchars(number_format($row['amount'], 2)); ?></td>
+                                    <td style="font-size: 20px;"><?php echo htmlspecialchars(date('d M Y, h:i A', strtotime($row['payment_date']))); ?></td>
+                                    <td style="font-size: 20px;">
                                         <div class="action-buttons">
                                             <a href="view_payment_detail.php?payment_id=<?php echo htmlspecialchars($row['payment_id']); ?>" class="btn-action action-btn" onclick="event.stopPropagation();">
-                                                <i class="bi bi-eye"></i> View
+                                                <i class="bi bi-eye" style="font-size: 20px;"></i> View
                                             </a>
                                         </div>
                                     </td>
@@ -522,7 +522,7 @@ while ($type = $typesResult->fetch_assoc()) {
                             <?php endwhile; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="7" class="text-center">No payments found matching your filter criteria.</td>
+                                <td colspan="7" class="text-center" style="font-size: 20px;"s>No payments found matching your filter criteria.</td>
                             </tr>
                         <?php endif; ?>
                     </tbody>
@@ -534,10 +534,10 @@ while ($type = $typesResult->fetch_assoc()) {
                 <div class="row">
                     <div class="col-md-6 text-start">
                         <?php if ($result): ?>
-                            <span>Total Records: <?php echo $result->num_rows; ?></span>
+                            <span style="font-size: 20px;">Total Records: <?php echo $result->num_rows; ?></span>
                         <?php endif; ?>
                     </div>
-                    <div class="col-md-6 text-end">
+                    <div class="col-md-6 text-end" style="font-size: 20px;">
                         Total Amount: Rs. <?php echo number_format($totalAmount, 2); ?>
                     </div>
                 </div>

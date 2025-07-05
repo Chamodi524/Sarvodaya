@@ -309,20 +309,20 @@ if (isset($_GET['download']) && $_GET['download'] == 'pdf') {
                     echo '<table class="table table-bordered table-hover">';
                     echo '<thead>
                             <tr>
-                                <th style="font-size: 18px;">Member ID</th>
-                                <th style="font-size: 18px;">Member Name</th>
-                                <th style="font-size: 18px;">Phone</th>
-                                <th style="font-size: 18px;">Address</th>
+                                <th style="font-size: 20px;">Member ID</th>
+                                <th style="font-size: 20px;">Member Name</th>
+                                <th style="font-size: 20px;">Phone</th>
+                                <th style="font-size: 20px;">Address</th>
                             </tr>
                           </thead>
                           <tbody>';
 
                     while ($member = $members_result->fetch_assoc()) {
                         echo '<tr>
-                                <td style="font-size: 16px;">' . htmlspecialchars($member['id']) . '</td>
-                                <td style="font-size: 16px;">' . htmlspecialchars($member['name']) . '</td>
-                                <td style="font-size: 16px;">' . htmlspecialchars($member['phone']) . '</td>
-                                <td style="font-size: 16px;">' . htmlspecialchars($member['address']) . '</td>
+                                <td style="font-size: 20px;">' . htmlspecialchars($member['id']) . '</td>
+                                <td style="font-size: 20px;">' . htmlspecialchars($member['name']) . '</td>
+                                <td style="font-size: 20px;">' . htmlspecialchars($member['phone']) . '</td>
+                                <td style="font-size: 20px;">' . htmlspecialchars($member['address']) . '</td>
                               </tr>';
                     }
 
