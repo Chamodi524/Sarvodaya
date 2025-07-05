@@ -116,63 +116,99 @@ if (isset($_POST['export_pdf'])) {
     // Generate PDF
     $pdf = new FPDF();
     $pdf->AddPage();
+    
+    // Organization Header with colors
     $pdf->SetFont('Arial', 'B', 16);
+    $pdf->SetTextColor(255, 140, 0); // Orange color
+    $pdf->Cell(0, 10, 'SARVODAYA SHRAMADHANA SOCIETY', 0, 1, 'C');
+    
+    $pdf->SetFont('Arial', 'B', 12);
+    $pdf->SetTextColor(0, 0, 0); // Black color
+    $pdf->Cell(0, 8, 'Samaghi Sarvodaya Shramadhana Society', 0, 1, 'C');
+    
+    $pdf->SetFont('Arial', '', 10);
+    $pdf->Cell(0, 6, 'Kubaloluwa, Veyangoda', 0, 1, 'C');
+    
+    $pdf->SetTextColor(0, 0, 128); // Navy blue
+    $pdf->Cell(0, 6, 'Phone: 077 690 6605 | Email: info@sarvodayabank.com', 0, 1, 'C');
+    $pdf->Ln(5);
 
-    // Add title
+    // Report title
+    $pdf->SetFont('Arial', 'B', 16);
+    $pdf->SetTextColor(0, 0, 0); // Black
     $pdf->Cell(0, 10, 'Income Statement', 0, 1, 'C');
     
-    // Add date range information
+    // Date range
     $pdf->SetFont('Arial', 'I', 10);
+    $pdf->SetTextColor(128, 128, 128); // Gray
     $pdf->Cell(0, 8, 'Period: ' . date('Y-m-d', strtotime($_POST['start_date'])) . ' to ' . date('Y-m-d', strtotime($_POST['end_date'])), 0, 1, 'C');
     $pdf->Ln(4);
 
-    // Add receipts table
+    // Receipts table
     $pdf->SetFont('Arial', 'B', 12);
+    $pdf->SetTextColor(0, 100, 0); // Dark green
     $pdf->Cell(0, 10, 'Income', 0, 1);
+    
     $pdf->SetFont('Arial', '', 10);
-    $pdf->Cell(20, 10, 'ID', 1);
-    $pdf->Cell(70, 10, 'Description', 1);
-    $pdf->Cell(35, 10, 'Amount (Rs.)', 1);
-    $pdf->Cell(65, 10, 'Date', 1);
+    $pdf->SetTextColor(0, 0, 0); // Black
+    $pdf->SetFillColor(220, 230, 220); // Light green background for header
+    $pdf->Cell(20, 10, 'ID', 1, 0, 'C', true);
+    $pdf->Cell(70, 10, 'Description', 1, 0, 'C', true);
+    $pdf->Cell(35, 10, 'Amount (Rs.)', 1, 0, 'C', true);
+    $pdf->Cell(65, 10, 'Date', 1, 0, 'C', true);
     $pdf->Ln();
 
     foreach ($receiptsData['receipts'] as $receipt) {
+        $pdf->SetTextColor(0, 0, 0); // Black
         $formatted_date = date('Y-m-d', strtotime($receipt['receipt_date']));
         
         $pdf->Cell(20, 10, $receipt['id'], 1);
         $pdf->Cell(70, 10, $receipt['receipt_type'], 1);
-        $pdf->Cell(35, 10, number_format($receipt['amount'], 2), 1);
+        $pdf->Cell(35, 10, number_format($receipt['amount'], 2), 1, 0, 'R');
         $pdf->Cell(65, 10, $formatted_date, 1);
         $pdf->Ln();
     }
 
-    // Add payments table (including interest)
+    // Payments table
     $pdf->SetFont('Arial', 'B', 12);
+    $pdf->SetTextColor(139, 0, 0); // Dark red
     $pdf->Cell(0, 10, 'Outcome', 0, 1);
+    
     $pdf->SetFont('Arial', '', 10);
-    $pdf->Cell(20, 10, 'ID', 1);
-    $pdf->Cell(70, 10, 'Description', 1);
-    $pdf->Cell(35, 10, 'Amount (Rs.)', 1);
-    $pdf->Cell(65, 10, 'Date', 1);
+    $pdf->SetFillColor(255, 220, 220); // Light red background for header
+    $pdf->Cell(20, 10, 'ID', 1, 0, 'C', true);
+    $pdf->Cell(70, 10, 'Description', 1, 0, 'C', true);
+    $pdf->Cell(35, 10, 'Amount (Rs.)', 1, 0, 'C', true);
+    $pdf->Cell(65, 10, 'Date', 1, 0, 'C', true);
     $pdf->Ln();
 
     foreach ($paymentsData['payments'] as $payment) {
         $formatted_date = date('Y-m-d', strtotime($payment['date']));
         
+        // Different color for interest payments
+        if ($payment['type'] == 'interest') {
+            $pdf->SetTextColor(153, 102, 0); // Brown for interest
+        } else {
+            $pdf->SetTextColor(0, 0, 0); // Black for regular payments
+        }
+        
         $pdf->Cell(20, 10, $payment['id'], 1);
         $pdf->Cell(70, 10, $payment['description'], 1);
-        $pdf->Cell(35, 10, number_format($payment['amount'], 2), 1);
+        $pdf->Cell(35, 10, number_format($payment['amount'], 2), 1, 0, 'R');
         $pdf->Cell(65, 10, $formatted_date, 1);
         $pdf->Ln();
     }
 
-    // Add totals and profit/loss
+    // Totals section
     $pdf->SetFont('Arial', 'B', 12);
+    $pdf->SetTextColor(0, 0, 0); // Black
     $pdf->Cell(0, 10, 'Totals', 0, 1);
+    
+    $pdf->SetFont('Arial', '', 10);
     $pdf->Cell(100, 10, 'Total Receipts: Rs. ' . number_format($totalReceipts, 2), 0, 1);
     $pdf->Cell(100, 10, 'Total Payments: Rs. ' . number_format($totalPayments, 2), 0, 1);
     
-    // Different color for profit/loss
+    // Profit/Loss with appropriate color
     if ($profitOrLoss >= 0) {
         $pdf->SetTextColor(0, 128, 0); // Green for profit
         $pdf->Cell(100, 10, 'Profit: Rs. ' . number_format($profitOrLoss, 2), 0, 1);
@@ -184,23 +220,18 @@ if (isset($_POST['export_pdf'])) {
     // Reset text color
     $pdf->SetTextColor(0, 0, 0);
     
-    // Add date and signature spaces
-    $pdf->Ln(20);
-    
-    // Date section
-    $pdf->SetFont('Arial', '', 10);
-    $pdf->Cell(50, 10, 'Date: _______________', 0, 0);
-    
     // Signature section
+    $pdf->Ln(20);
+    $pdf->Cell(50, 10, 'Date: _______________', 0, 0);
     $pdf->Cell(0, 10, 'Signature: _________________________', 0, 1, 'R');
     
-    // Add a note at the bottom
+    // Footer note
     $pdf->Ln(10);
     $pdf->SetFont('Arial', 'I', 8);
+    $pdf->SetTextColor(128, 128, 128); // Gray
     $pdf->Cell(0, 10, 'This is a computer generated report. No signature required if printed with official seal.', 0, 1, 'C');
 
-    // Output the PDF
-    $pdf->Output('D', 'balance_sheet_report.pdf');
+    $pdf->Output('D', 'income_statement_report.pdf');
     exit();
 }
 
@@ -209,15 +240,11 @@ if (isset($_POST['generate_balance_sheet'])) {
     $start_date = $_POST['start_date'] . ' 00:00:00';
     $end_date = $_POST['end_date'] . ' 23:59:59';
     
-    // Fetch payments and receipts for the selected period
     $paymentsData = getAllPaymentsByPeriod($start_date, $end_date);
     $receiptsData = getReceiptsByPeriod($start_date, $end_date);
     
-    // Extract totals
     $totalPayments = $paymentsData['totalPayments'];
     $totalReceipts = $receiptsData['totalReceipts'];
-    
-    // Calculate profit or loss
     $profitOrLoss = calculateProfitOrLoss($totalReceipts, $totalPayments);
 }
 ?>
@@ -227,157 +254,245 @@ if (isset($_POST['generate_balance_sheet'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Income statement</title>
+    <title>Income Statement</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/css/bootstrap.min.css">
     <style>
+        body {
+            background-color: #f5f5f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
         .balance-sheet {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f9f9f9;
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 30px;
+            background-color: white;
             border-radius: 10px;
-            box-shadow: 0 0 10px #ff8c00;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        .organization-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #ff8c00;
+        }
+        .organization-header h1 {
+            color: #ff8c00;
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        .organization-header h3 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .organization-header p {
+            color: #0066cc;
+            margin-bottom: 0;
+        }
+        .report-title {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
         }
         .table {
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+            border-radius: 5px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
+        .table thead th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            font-size: 18px;
+        }
+        .table tbody td {
+            font-size: 16px;
+            vertical-align: middle;
+        }
+        .income-header {
+            background-color: #e8f5e9 !important;
+            color: #2e7d32 !important;
+        }
+        .outcome-header {
+            background-color: #ffebee !important;
+            color: #c62828 !important;
+        }
+        .interest-row {
+            background-color: #fff8e1;
         }
         .profit {
-            color: green;
+            color: #2e7d32;
             font-weight: bold;
         }
         .loss {
-            color: red;
+            color: #c62828;
             font-weight: bold;
         }
-        .interest-row {
-            background-color: #fff3cd;
+        .summary-box {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
         }
-        /* Custom button styles */
-        .btn {
-            background-color: orange;
-            border-color: orange;
+        .btn-orange {
+            background-color: #ff8c00;
+            border-color: #ff8c00;
             color: white;
+            font-weight: 600;
+            padding: 10px 20px;
+            transition: all 0.3s;
         }
-        .btn:hover {
-            background-color: darkorange;
-            border-color: darkorange;
+        .btn-orange:hover {
+            background-color: #e67e00;
+            border-color: #e67e00;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .date-label {
+            font-size: 18px;
+            font-weight: 500;
+            color: #555;
+        }
+        .form-control {
+            font-size: 18px;
+            padding: 10px 15px;
+            border-radius: 5px;
+        }
+        .total-row {
+            font-weight: bold;
+            background-color: #f1f1f1;
         }
     </style>
 </head>
 <body>
-    <div class="container mt-5">
+    <div class="container">
         <div class="balance-sheet">
-            <h2 class="text-center mb-4">Income statement</h2>
+            <!-- Organization Header -->
+            <div class="organization-header">
+                <h1>SARVODAYA SHRAMADHANA SOCIETY</h1>
+                <h3>Samaghi Sarvodaya Shramadhana Society</h3>
+                <p>Kubaloluwa, Veyangoda | Phone: 077 690 6605 | Email: info@sarvodayabank.com</p>
+            </div>
+            
+            <h2 class="report-title">Income Statement</h2>
             
             <!-- Date Selection Form -->
             <form method="post" action="">
                 <div class="row mb-4">
                     <div class="col-md-5">
-                        <label for="start_date" class="form-label" style="font-size: 20px;">Start Date:</label>
-                        <input type="date" class="form-control" id="start_date" style="font-size: 20px;" name="start_date" required>
+                        <label for="start_date" class="date-label">Start Date:</label>
+                        <input type="date" class="form-control" id="start_date" name="start_date" required>
                     </div>
                     <div class="col-md-5">
-                        <label for="end_date" class="form-label" style="font-size: 20px;">End Date:</label>
-                        <input type="date" class="form-control" id="end_date" style="font-size: 20px;" name="end_date" required>
+                        <label for="end_date" class="date-label">End Date:</label>
+                        <input type="date" class="form-control" id="end_date" name="end_date" required>
                     </div>
                     <div class="col-md-2 d-flex align-items-end">
-                        <button type="submit" name="generate_balance_sheet" class="btn btn-primary w-100" style="font-size: 20px;">Generate</button>
+                        <button type="submit" name="generate_balance_sheet" class="btn btn-orange w-100">Generate</button>
                     </div>
                 </div>
             </form>
             
             <?php if (isset($paymentsData) && isset($receiptsData)): ?>
                 <!-- Export Buttons -->
-                <div class="mb-4">
+                <div class="mb-4 text-center">
                     <form method="post" action="">
                         <input type="hidden" name="start_date" value="<?php echo $_POST['start_date']; ?>">
                         <input type="hidden" name="end_date" value="<?php echo $_POST['end_date']; ?>">
-                        <button type="submit" name="export_pdf" class="btn" style="font-size: 20px;">Export Income Statement to PDF</button>
+                        <button type="submit" name="export_pdf" class="btn btn-orange">
+                            <i class="bi bi-file-earmark-pdf"></i> Export to PDF
+                        </button>
                     </form>
                 </div>
 
                 <!-- Receipts Section -->
-                <h3>Income</h3>
-                <table class="table table-bordered">
-                    <thead>
+                <h3 class="income-header p-2 rounded">Income</h3>
+                <table class="table">
+                    <thead class="income-header">
                         <tr>
-                            <th style="font-size: 20px;">ID</th>
-                            <th style="font-size: 20px;">Description</th>
-                            <th style="font-size: 20px;">Amount (Rs.)</th>
-                            <th style="font-size: 20px;">Date</th>
+                            <th>ID</th>
+                            <th>Description</th>
+                            <th>Amount (Rs.)</th>
+                            <th>Date</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($receiptsData['receipts'] as $receipt): ?>
                         <tr>
-                            <td style="font-size: 20px;"><?php echo $receipt['id']; ?></td>
-                            <td style="font-size: 20px;"><?php echo $receipt['receipt_type']; ?></td>
-                            <td style="font-size: 20px;"><?php echo number_format($receipt['amount'], 2); ?></td>
-                            <td style="font-size: 20px;"><?php echo date('Y-m-d', strtotime($receipt['receipt_date'])); ?></td>
+                            <td><?php echo $receipt['id']; ?></td>
+                            <td><?php echo $receipt['receipt_type']; ?></td>
+                            <td><?php echo number_format($receipt['amount'], 2); ?></td>
+                            <td><?php echo date('Y-m-d', strtotime($receipt['receipt_date'])); ?></td>
                         </tr>
                         <?php endforeach; ?>
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <th colspan="2" style="font-size: 20px;">Total Receipts</th>
-                            <th style="font-size: 20px;"><?php echo number_format($totalReceipts, 2); ?></th>
-                            <th style="font-size: 20px;"></th>
+                        <tr class="total-row">
+                            <td colspan="2"><strong>Total Income</strong></td>
+                            <td><strong><?php echo number_format($totalReceipts, 2); ?></strong></td>
+                            <td></td>
                         </tr>
-                    </tfoot>
+                    </tbody>
                 </table>
 
-                <!-- Payments Section (Including Interest) -->
-                <h3>Outcome</h3>
-                <table class="table table-bordered">
-                    <thead>
+                <!-- Payments Section -->
+                <h3 class="outcome-header p-2 rounded">Outcome</h3>
+                <table class="table">
+                    <thead class="outcome-header">
                         <tr>
-                            <th style="font-size: 20px;">ID</th>
-                            <th style="font-size: 20px;">Description</th>
-                            <th style="font-size: 20px;">Amount (Rs.)</th>
-                            <th style="font-size: 20px;">Date</th>
+                            <th>ID</th>
+                            <th>Description</th>
+                            <th>Amount (Rs.)</th>
+                            <th>Date</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($paymentsData['payments'] as $payment): ?>
                         <tr class="<?php echo ($payment['type'] == 'interest') ? 'interest-row' : ''; ?>">
-                            <td style="font-size: 20px;"><?php echo $payment['id']; ?></td>
-                            <td style="font-size: 20px;"><?php echo $payment['description']; ?></td>
-                            <td style="font-size: 20px;"><?php echo number_format($payment['amount'], 2); ?></td>
-                            <td style="font-size: 20px;"><?php echo date('Y-m-d', strtotime($payment['date'])); ?></td>
+                            <td><?php echo $payment['id']; ?></td>
+                            <td><?php echo $payment['description']; ?></td>
+                            <td><?php echo number_format($payment['amount'], 2); ?></td>
+                            <td><?php echo date('Y-m-d', strtotime($payment['date'])); ?></td>
                         </tr>
                         <?php endforeach; ?>
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <th colspan="2" style="font-size: 20px;">Total Payments</th>
-                            <th style="font-size: 20px;"><?php echo number_format($totalPayments, 2); ?></th>
-                            <th style="font-size: 20px;"></th>
+                        <tr class="total-row">
+                            <td colspan="2"><strong>Total Outcome</strong></td>
+                            <td><strong><?php echo number_format($totalPayments, 2); ?></strong></td>
+                            <td></td>
                         </tr>
-                    </tfoot>
+                    </tbody>
                 </table>
                 
                 <!-- Summary Section -->
-                <div class="text-center mt-4">
-                    <h3>Financial Summary</h3>
+                <div class="summary-box">
+                    <h3 class="text-center mb-4">Financial Summary</h3>
                     <div class="row">
-                        <div class="col-md-4">
-                            <p style="font-size: 20px;"><strong>Total income:</strong><br>Rs. <?php echo number_format($totalReceipts, 2); ?></p>
+                        <div class="col-md-4 text-center">
+                            <div class="p-3 bg-light rounded">
+                                <h5>Total Income</h5>
+                                <p class="h4">Rs. <?php echo number_format($totalReceipts, 2); ?></p>
+                            </div>
                         </div>
-                        <div class="col-md-4">
-                            <p style="font-size: 20px;"><strong>Total Outcome:</strong><br>Rs. <?php echo number_format($totalPayments, 2); ?></p>
+                        <div class="col-md-4 text-center">
+                            <div class="p-3 bg-light rounded">
+                                <h5>Total Outcome</h5>
+                                <p class="h4">Rs. <?php echo number_format($totalPayments, 2); ?></p>
+                            </div>
                         </div>
-                        <div class="col-md-4">
-                            <p class="<?php echo ($profitOrLoss >= 0) ? 'profit' : 'loss'; ?>" style="font-size: 20px;">
-                                <strong>
-                                <?php
-                                if ($profitOrLoss >= 0) {
-                                    echo "Net Profit:<br>Rs. " . number_format($profitOrLoss, 2);
-                                } else {
-                                    echo "Net Loss:<br>Rs. " . number_format(abs($profitOrLoss), 2);
-                                }
-                                ?>
-                                </strong>
-                            </p>
+                        <div class="col-md-4 text-center">
+                            <div class="p-3 bg-light rounded">
+                                <h5>Net Result</h5>
+                                <p class="h4 <?php echo ($profitOrLoss >= 0) ? 'profit' : 'loss'; ?>">
+                                    <?php
+                                    if ($profitOrLoss >= 0) {
+                                        echo "Profit: Rs. " . number_format($profitOrLoss, 2);
+                                    } else {
+                                        echo "Loss: Rs. " . number_format(abs($profitOrLoss), 2);
+                                    }
+                                    ?>
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
