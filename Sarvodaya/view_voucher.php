@@ -5,7 +5,204 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Initialize variables
+// Check if PDF generation is requested
+if (isset($_GET['generate_pdf'])) {
+    require('fpdf/fpdf.php');
+    
+    // Initialize variables
+    $filterType = isset($_GET['filter_type']) ? $_GET['filter_type'] : '';
+    $filterMemberNumber = isset($_GET['filter_member_number']) ? trim($_GET['filter_member_number']) : '';
+
+    // Base query for all payments
+    $baseQuery = "
+        SELECT 
+            payments.id AS payment_id,
+            members.id AS member_id,
+            members.name AS member_name,
+            payments.payment_type,
+            payments.amount,
+            payments.payment_date
+        FROM payments
+        JOIN members ON payments.member_id = members.id
+    ";
+
+    // Apply filters if provided
+    $query = $baseQuery . " WHERE 1=1";
+    
+    if (!empty($filterType)) {
+        $query .= " AND payments.payment_type = '" . $conn->real_escape_string($filterType) . "'";
+    }
+    
+    if (!empty($filterMemberNumber)) {
+        $query .= " AND members.id = " . (int)$filterMemberNumber;
+    }
+    
+    $query .= " ORDER BY payments.payment_date DESC";
+    $result = $conn->query($query);
+
+    // Create PDF with colorful header
+    class PDF extends FPDF {
+        private $colWidths = [25, 25, 50, 40, 30, 35]; // Adjusted column widths
+        
+        function Header() {
+            // Top border with orange color
+            $this->SetDrawColor(255, 165, 0);
+            $this->SetLineWidth(1);
+            $this->Line(10, 10, $this->GetPageWidth()-10, 10);
+            
+            // Organization Header - Main Title (Orange)
+            $this->SetY(15);
+            $this->SetFont('Arial','B',16);
+            $this->SetTextColor(230, 81, 0); // Dark Orange
+            $this->Cell(0,8,'SARVODAYA SHRAMADHANA SOCIETY',0,1,'C');
+            
+            // Subtitle (Dark Blue)
+            $this->SetFont('Arial','',12);
+            $this->SetTextColor(0, 51, 102); // Dark Blue
+            $this->Cell(0,6,'Samaghi Sarvodaya Shramadhana Society',0,1,'C');
+            $this->Cell(0,6,'Kubaloluwa, Veyangoda',0,1,'C');
+            
+            // Contact Info (Teal)
+            $this->SetFont('Arial','',11);
+            $this->SetTextColor(0, 128, 128); // Teal
+            $this->Cell(0,6,'077 690 6605 | info@sarvodayabank.com',0,1,'C');
+            
+            // Registration (Gray)
+            $this->SetFont('Arial','I',10);
+            $this->SetTextColor(128, 128, 128); // Gray
+            $this->Cell(0,6,'Reg. No: 12345/SS/2020',0,1,'C');
+            
+            // Report Title (Orange)
+            $this->Ln(5);
+            $this->SetFont('Arial','B',14);
+            $this->SetTextColor(230, 81, 0); // Dark Orange
+            $this->Cell(0,8,'PAYMENT RECORDS REPORT',0,1,'C');
+            $this->Ln(5);
+            
+            // Print filters if any (Dark Blue)
+            global $filterType, $filterMemberNumber;
+            if (!empty($filterType) || !empty($filterMemberNumber)) {
+                $this->SetFont('Arial','I',10);
+                $this->SetTextColor(0, 51, 102); // Dark Blue
+                $this->Cell(0,6,'FILTERS APPLIED:',0,1,'L');
+                $this->SetFont('Arial','',10);
+                
+                if (!empty($filterType)) {
+                    $this->Cell(0,6,'Payment Type: ' . ucfirst(str_replace('_', ' ', $filterType)),0,1,'L');
+                }
+                if (!empty($filterMemberNumber)) {
+                    $this->Cell(0,6,'Member Number: ' . $filterMemberNumber,0,1,'L');
+                }
+                $this->Ln(5);
+            }
+        }
+        
+        function Footer() {
+            // Position at 3 cm from bottom
+            $this->SetY(-40);
+            
+            // Divider line (Orange)
+            $this->SetDrawColor(255, 165, 0);
+            $this->SetLineWidth(0.5);
+            $this->Line(10, $this->GetY(), $this->GetPageWidth()-10, $this->GetY());
+            $this->Ln(10);
+            
+            // Date field (left aligned - Dark Blue)
+            $this->SetFont('Arial','',11);
+            $this->SetTextColor(0, 51, 102); // Dark Blue
+            $this->Cell(80, 8, 'Date: _________________________', 0, 0, 'L');
+            
+            // Manager signature field (right aligned - Dark Blue)
+            $this->Cell(0, 8, 'Manager Signature: _________________________', 0, 0, 'R');
+            $this->Ln(15);
+            
+            // Standard footer (Gray)
+            $this->SetFont('Arial','I',8);
+            $this->SetTextColor(128, 128, 128); // Gray
+            $this->Cell(0,10,'Page '.$this->PageNo().'/{nb}',0,0,'C');
+            $this->SetY(-15);
+            $this->Cell(0,10,'Generated on: '.date('d M Y, h:i A'),0,0,'L');
+            $this->Cell(0,10,'Computer Generated Report',0,0,'R');
+        }
+        
+        function ImprovedTable($header, $data) {
+            // Set column widths
+            $w = $this->colWidths;
+            
+            // Header (Orange background with white text)
+            $this->SetFont('Arial','B',12);
+            $this->SetFillColor(255, 165, 0); // Orange
+            $this->SetTextColor(255); // White
+            $this->SetDrawColor(200, 200, 200); // Light gray border
+            for($i=0;$i<count($header);$i++) {
+                $this->Cell($w[$i],8,$header[$i],1,0,'C',true);
+            }
+            $this->Ln();
+            
+            // Data (Alternating row colors)
+            $this->SetFont('Arial','',11);
+            $this->SetTextColor(0); // Black text
+            $fill = false;
+            
+            foreach($data as $row) {
+                // Check if we need a new page
+                if($this->GetY() > 250) {
+                    $this->AddPage();
+                }
+                
+                // Alternate row colors
+                $fill = !$fill;
+                $this->SetFillColor($fill ? 240 : 255); // Light gray or white
+                
+                $this->Cell($w[0],7,$row['payment_id'],'LR',0,'C',$fill);
+                $this->Cell($w[1],7,$row['member_id'],'LR',0,'C',$fill);
+                $this->Cell($w[2],7,$row['member_name'],'LR',0,'L',$fill);
+                $this->Cell($w[3],7,ucfirst(str_replace('_', ' ', $row['payment_type'])),'LR',0,'L',$fill);
+                $this->Cell($w[4],7,number_format($row['amount'], 2),'LR',0,'R',$fill);
+                $this->Cell($w[5],7,date('d M Y', strtotime($row['payment_date'])),'LR',0,'C',$fill);
+                $this->Ln();
+            }
+            
+            // Closing line
+            $this->Cell(array_sum($w),0,'','T');
+            $this->Ln(5);
+        }
+    }
+
+    // Create new PDF
+    $pdf = new PDF('L');
+    $pdf->AliasNbPages();
+    $pdf->AddPage();
+    
+    // Column titles
+    $header = array('Payment ID', 'Member ID', 'Member Name', 'Payment Type', 'Amount', 'Date');
+    
+    // Prepare data
+    $data = array();
+    $totalAmount = 0;
+    if ($result && $result->num_rows > 0) {
+        while($row = $result->fetch_assoc()) {
+            $totalAmount += $row['amount'];
+            $data[] = $row;
+        }
+    }
+    
+    // Print table
+    $pdf->ImprovedTable($header, $data);
+    $pdf->Ln(8);
+    
+    // Total section (Dark Blue)
+    $pdf->SetFont('Arial','B',12);
+    $pdf->SetTextColor(0, 51, 102); // Dark Blue
+    $pdf->Cell(0,10,'Total Records: '.count($data),0,0,'L');
+    $pdf->Cell(0,10,'Total Amount: Rs. '.number_format($totalAmount, 2),0,0,'R');
+    
+    // Output PDF
+    $pdf->Output('D', 'Payment_Report_'.date('Ymd').'.pdf');
+    exit;
+}
+
+// Initialize variables for HTML view
 $filterType = isset($_GET['filter_type']) ? $_GET['filter_type'] : '';
 $filterMemberNumber = isset($_GET['filter_member_number']) ? trim($_GET['filter_member_number']) : '';
 
@@ -17,7 +214,6 @@ $baseQuery = "
         members.name AS member_name,
         payments.payment_type,
         payments.amount,
-        payments.description,
         payments.payment_date
     FROM payments
     JOIN members ON payments.member_id = members.id
@@ -36,7 +232,6 @@ if (!empty($filterType) || !empty($filterMemberNumber)) {
     }
     
     if (!empty($filterMemberNumber)) {
-        // Assuming member.id is the member number - adjust if your system uses a different field
         $filterQuery .= " AND members.id = " . (int)$filterMemberNumber;
     }
     
@@ -62,8 +257,18 @@ while ($type = $typesResult->fetch_assoc()) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
+        :root {
+            --primary-orange: #e65100;
+            --secondary-orange: #ffa726;
+            --dark-blue: #003366;
+            --teal: #008080;
+            --light-gray: #f8f9fa;
+            --medium-gray: #dddddd;
+            --dark-gray: #888888;
+        }
+        
         body {
-            background-color: #f8f9fa;
+            background-color: var(--light-gray);
             padding: 20px;
             font-family: 'Arial', sans-serif;
         }
@@ -72,7 +277,6 @@ while ($type = $typesResult->fetch_assoc()) {
             margin: 0 auto;
         }
         
-        /* Header Styles */
         .header-section {
             background-color: #fff;
             border-radius: 10px;
@@ -80,34 +284,34 @@ while ($type = $typesResult->fetch_assoc()) {
             margin-bottom: 25px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             text-align: center;
-            border: 2px solid #ffa726;
+            border: 2px solid var(--secondary-orange);
         }
         .organization-title {
             font-size: 2.2rem;
             font-weight: bold;
-            color: #e65100;
+            color: var(--primary-orange);
             margin-bottom: 8px;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
         .organization-subtitle {
             font-size: 1.2rem;
-            color: #333;
+            color: var(--dark-blue);
             margin-bottom: 10px;
             font-weight: 600;
         }
         .organization-contact {
             font-size: 1rem;
-            color: #666;
+            color: var(--teal);
             margin-bottom: 8px;
         }
         .organization-reg {
             font-size: 0.9rem;
-            color: #888;
+            color: var(--dark-gray);
             font-style: italic;
         }
         .header-divider {
-            border: 1px solid #ffa726;
+            border: 1px solid var(--secondary-orange);
             margin: 15px auto;
             width: 80%;
         }
@@ -127,17 +331,17 @@ while ($type = $typesResult->fetch_assoc()) {
         .table-custom td {
             padding: 12px;
             text-align: left;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid var(--medium-gray);
         }
         .table-custom th {
-            background-color: #ffa726;
+            background-color: var(--secondary-orange);
             color: white;
         }
         .table-custom tbody tr:hover {
             background-color: #ffe0b2;
         }
         .btn-action {
-            background-color: #ffa726; /* Orange color */
+            background-color: var(--secondary-orange);
             color: white;
             border-radius: 5px;
             border: none;
@@ -148,16 +352,16 @@ while ($type = $typesResult->fetch_assoc()) {
             display: inline-block;
         }
         .btn-action:hover {
-            background-color: #fb8c00; /* Darker orange on hover */
+            background-color: #fb8c00;
             transform: scale(1.05);
             color: white;
         }
-        .btn-print {
-            background-color: #28a745; /* Green color */
+        .btn-pdf {
+            background-color: #dc3545;
             color: white;
         }
-        .btn-print:hover {
-            background-color: #218838; /* Darker green on hover */
+        .btn-pdf:hover {
+            background-color: #c82333;
         }
         .filter-section {
             background-color: #fff;
@@ -175,25 +379,13 @@ while ($type = $typesResult->fetch_assoc()) {
             text-align: right;
             font-size: 1.1em;
         }
-        .description-cell {
-            max-width: 250px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .description-cell:hover {
-            white-space: normal;
-            overflow: visible;
-        }
-        /* Highlight active filters */
         .active-filter {
-            border: 2px solid #ffa726;
+            border: 2px solid var(--secondary-orange);
             background-color: #fff8e1;
         }
-        /* Action buttons spacing and style */
         .action-buttons {
             display: flex;
-            gap: 10px; /* Increased space between buttons */
+            gap: 10px;
         }
         .action-btn {
             padding: 6px 12px;
@@ -201,49 +393,18 @@ while ($type = $typesResult->fetch_assoc()) {
             text-align: center;
         }
         
-        /* Print styles */
-        @media print {
-            .no-print {
-                display: none !important;
-            }
-            .filter-section {
-                display: none;
-            }
-            body {
-                padding: 10px;
-                background-color: white;
-                font-size: 12px;
-            }
-            .container {
-                max-width: 100%;
-                margin: 0;
-            }
-            .card {
-                box-shadow: none;
-                padding: 10px;
-            }
-            .header-section {
-                box-shadow: none;
-                padding: 15px;
-                margin-bottom: 20px;
-                page-break-inside: avoid;
-            }
-            .organization-title {
-                font-size: 1.8rem;
-            }
-            .organization-subtitle {
-                font-size: 1rem;
-            }
-            .organization-contact {
-                font-size: 0.9rem;
-            }
-            .table-custom {
-                font-size: 11px;
-            }
-            .table-custom th,
-            .table-custom td {
-                padding: 6px;
-            }
+        /* Report title in web interface */
+        .report-title {
+            color: var(--primary-orange);
+            margin-top: 15px;
+            margin-bottom: 0;
+        }
+        
+        /* Active filters alert */
+        .alert-info {
+            background-color: #e7f5fe;
+            border-color: #b8e2fb;
+            color: var(--dark-blue);
         }
     </style>
 </head>
@@ -256,11 +417,11 @@ while ($type = $typesResult->fetch_assoc()) {
             <div class="organization-contact">077 690 6605 | info@sarvodayabank.com</div>
             <div class="organization-reg">Reg. No: 12345/SS/2020</div>
             <hr class="header-divider">
-            <h2 style="color: #ffa726; margin-top: 15px; margin-bottom: 0;">Payment Records Report</h2>
+            <h2 class="report-title">Payment Records Report</h2>
         </div>
 
         <!-- Filter Section -->
-        <div class="filter-section no-print">
+        <div class="filter-section">
             <form method="GET" action="" class="row g-3">
                 <!-- Payment Type Filter -->
                 <div class="col-md-4">
@@ -289,16 +450,19 @@ while ($type = $typesResult->fetch_assoc()) {
                     <button type="submit" class="btn-action me-2">
                         <i class="bi bi-filter"></i> Apply Filters
                     </button>
-                    <a href="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" class="btn-action btn-print">
+                    <a href="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" class="btn-action">
                         <i class="bi bi-x-circle"></i> Reset
                     </a>
+                    <button type="submit" name="generate_pdf" value="1" class="btn-action btn-pdf ms-2">
+                        <i class="bi bi-file-earmark-pdf"></i> Generate PDF
+                    </button>
                 </div>
             </form>
         </div>
 
         <!-- Active Filters Display -->
         <?php if (!empty($filterType) || !empty($filterMemberNumber)): ?>
-        <div class="alert alert-info mb-3 no-print">
+        <div class="alert alert-info mb-3">
             <strong>Active Filters:</strong> 
             <?php 
             $appliedFilters = [];
@@ -315,20 +479,8 @@ while ($type = $typesResult->fetch_assoc()) {
 
         <!-- Payments Table -->
         <div class="card">
-            <div class="d-flex justify-content-between align-items-center mb-3 no-print">
-                <h3 style="color: #333; margin: 0;">Payment Details</h3>
-                <div>
-                    <a href="#" onclick="window.print();" class="btn-action btn-print">
-                        <i class="bi bi-printer"></i> Print Report
-                    </a>
-                </div>
-            </div>
-            
-            <!-- Print-only date and time -->
-            <div style="display: none;">
-                <div class="print-only" style="text-align: right; margin-bottom: 15px; font-size: 0.9rem; color: #666;">
-                    Generated on: <?php echo date('d M Y, h:i A'); ?>
-                </div>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 style="color: var(--dark-blue); margin: 0;">Payment Details</h3>
             </div>
             
             <div class="table-responsive">
@@ -340,9 +492,8 @@ while ($type = $typesResult->fetch_assoc()) {
                             <th>Member Name</th>
                             <th>Payment Type</th>
                             <th>Amount (Rs.)</th>
-                            <th>Description</th>
                             <th>Payment Date</th>
-                            <th class="no-print">Actions</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -359,17 +510,11 @@ while ($type = $typesResult->fetch_assoc()) {
                                     <td><?php echo htmlspecialchars($row['member_name']); ?></td>
                                     <td><?php echo htmlspecialchars(ucfirst(str_replace('_', ' ', $row['payment_type']))); ?></td>
                                     <td><?php echo htmlspecialchars(number_format($row['amount'], 2)); ?></td>
-                                    <td class="description-cell" title="<?php echo htmlspecialchars($row['description']); ?>">
-                                        <?php echo htmlspecialchars($row['description']); ?>
-                                    </td>
                                     <td><?php echo htmlspecialchars(date('d M Y, h:i A', strtotime($row['payment_date']))); ?></td>
-                                    <td class="no-print">
+                                    <td>
                                         <div class="action-buttons">
                                             <a href="view_payment_detail.php?payment_id=<?php echo htmlspecialchars($row['payment_id']); ?>" class="btn-action action-btn" onclick="event.stopPropagation();">
                                                 <i class="bi bi-eye"></i> View
-                                            </a>
-                                            <a href="generate_payment_receipt.php?payment_id=<?php echo htmlspecialchars($row['payment_id']); ?>" class="btn-action action-btn" onclick="event.stopPropagation();">
-                                                <i class="bi bi-file-earmark-pdf"></i> Receipt
                                             </a>
                                         </div>
                                     </td>
@@ -377,7 +522,7 @@ while ($type = $typesResult->fetch_assoc()) {
                             <?php endwhile; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="8" class="text-center">No payments found matching your filter criteria.</td>
+                                <td colspan="7" class="text-center">No payments found matching your filter criteria.</td>
                             </tr>
                         <?php endif; ?>
                     </tbody>
@@ -398,13 +543,6 @@ while ($type = $typesResult->fetch_assoc()) {
                 </div>
             </div>
         </div>
-        
-        <!-- Print Footer -->
-        <div style="display: none;">
-            <div class="print-only" style="margin-top: 30px; text-align: center; font-size: 0.8rem; color: #666; border-top: 1px solid #ddd; padding-top: 10px;">
-                This is a computer-generated report from Sarvodaya Shramadhana Society Management System
-            </div>
-        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
@@ -421,21 +559,6 @@ while ($type = $typesResult->fetch_assoc()) {
                     }
                 });
                 row.style.cursor = 'pointer';
-            });
-            
-            // Show print-only elements when printing
-            window.addEventListener('beforeprint', function() {
-                const printOnlyElements = document.querySelectorAll('.print-only');
-                printOnlyElements.forEach(element => {
-                    element.style.display = 'block';
-                });
-            });
-            
-            window.addEventListener('afterprint', function() {
-                const printOnlyElements = document.querySelectorAll('.print-only');
-                printOnlyElements.forEach(element => {
-                    element.style.display = 'none';
-                });
             });
         });
     </script>
