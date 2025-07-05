@@ -128,7 +128,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
                 $total_payment_amount = $principal_amount + $interest_amount;
                 if ($total_payment_amount > 0) {
                     $receipt_sql = "INSERT INTO receipts (member_id, loan_id, receipt_type, amount, receipt_date) 
-                                   VALUES (?, ?, 'loan_payment', ?, ?)";
+                                   VALUES (?, ?, 'loan_repayment', ?, ?)";
                     $receipt_stmt = $conn->prepare($receipt_sql);
                     $receipt_stmt->bind_param("iids", $member_id_from_loan, $loan_id, $total_payment_amount, $actual_payment_date);
                     $receipt_stmt->execute();
@@ -197,7 +197,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
                 // Record combined payment receipt (principal + interest + late fee)
                 if ($total_payment_amount > 0) {
                     $receipt_sql = "INSERT INTO receipts (member_id, loan_id, receipt_type, amount, receipt_date) 
-                                VALUES (?, ?, 'overdue_payment', ?, ?)";
+                                VALUES (?, ?, 'loan_repayment', ?, ?)";
                     $receipt_stmt = $conn->prepare($receipt_sql);
                     $receipt_stmt->bind_param("iids", $member_id_from_loan, $loan_id, $total_payment_amount, $receipt_date);
                     $receipt_stmt->execute();
@@ -326,9 +326,13 @@ function showReceipt($conn) {
             members.phone,
             receipts.receipt_type,
             receipts.amount,
-            receipts.receipt_date
+            receipts.receipt_date,
+            loans.id AS loan_id,
+            loan_types.loan_name
         FROM receipts
         JOIN members ON receipts.member_id = members.id
+        LEFT JOIN loans ON receipts.loan_id = loans.id
+        LEFT JOIN loan_types ON loans.loan_type_id = loan_types.id
         WHERE receipts.id = ?
     ";
 
@@ -348,7 +352,7 @@ function showReceipt($conn) {
     $receipt_number = 'RCT-' . str_pad($receipt['receipt_id'], 6, '0', STR_PAD_LEFT);
 
     // Format receipt type for display
-    $receipt_type_formatted = "Loan Payment"; // Simplified receipt type
+    $receipt_type_formatted = "Loan Repayment"; // Simplified receipt type
 
     // Function to convert number to words for Indian Rupees
     function numberToWords($number) {
@@ -641,6 +645,13 @@ function showReceipt($conn) {
                     <div class="receipt-label">Payment For:</div>
                     <div class="receipt-value"><?php echo htmlspecialchars($receipt_type_formatted); ?></div>
                 </div>
+                
+                <?php if (!empty($receipt['loan_name'])): ?>
+                <div class="receipt-row">
+                    <div class="receipt-label">Loan Name:</div>
+                    <div class="receipt-value"><?php echo htmlspecialchars($receipt['loan_name']); ?></div>
+                </div>
+                <?php endif; ?>
                 
                 <div class="receipt-amount">
                     Rs.<?php echo htmlspecialchars(number_format($receipt['amount'], 2)); ?>
