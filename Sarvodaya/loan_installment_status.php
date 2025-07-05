@@ -1426,7 +1426,7 @@ function showReceipt($conn) {
                 </div>
                 
                 <div class="form-group">
-                    <label for="actual_payment_amount"><i class="fas fa-dollar-sign"></i> Payment Amount (Rs.):</label>
+                    <label for="actual_payment_amount">Payment Amount (Rs.):</label>
                     <input type="number" name="actual_payment_amount" id="actual_payment_amount" step="0.01" required>
                 </div>
                 
