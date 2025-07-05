@@ -16,7 +16,7 @@ $start_date = date('Y-m-01');
 $end_date = date('Y-m-t');
 
 // Handle date filter
-if (isset($_GET['filter'])) {
+if (isset($_GET['filter']) || isset($_GET['download_pdf'])) {
     $start_date = $_GET['start_date'];
     $end_date = $_GET['end_date'];
 }
@@ -95,181 +95,206 @@ if (isset($_GET['download_pdf'])) {
     
     $net_liquidity = $totals['total_debit'] - $totals['total_credit'];
     
-    // Create PDF with orange theme
     class PDF extends FPDF {
-        // Colors for orange theme
-        private $primaryColor = array(255, 140, 0);  // Main orange
-        private $lightOrange = array(255, 237, 217); // Light background
-        private $darkOrange = array(230, 120, 0);    // Darker orange
-        private $white = array(255, 255, 255);
-        private $black = array(0, 0, 0);
-        private $gray = array(200, 200, 200);
         
         function Header() {
-            // Organization header
-            $this->SetFont('Arial', 'B', 12);
-            $this->SetTextColor(0, 0, 0);
-            $this->Cell(0, 6, 'SARVODAYA SHRAMADHANA SOCIETY', 0, 1, 'C');
-            $this->SetFont('Arial', '', 10);
-            $this->Cell(0, 6, 'Samaghi Sarvodaya Shramadhana Society', 0, 1, 'C');
-            $this->Cell(0, 6, 'Kubaloluwa, Veyangoda', 0, 1, 'C');
-            $this->Cell(0, 6, 'Phone: 077 690 6605 | Email: info@sarvodayabank.com', 0, 1, 'C');
-            $this->Ln(5);
-            
-            // Report header with orange gradient
-            $this->SetFillColor($this->primaryColor[0], $this->primaryColor[1], $this->primaryColor[2]);
-            $this->Rect(0, $this->GetY(), $this->w, 25, 'F');
-            
-            // Title
-            $this->SetY($this->GetY() + 8);
-            $this->SetFont('Arial', 'B', 16);
-            $this->SetTextColor(255, 255, 255);
-            $this->Cell(0, 10, 'General Journal Report', 0, 1, 'C');
-            
-            // Report period
-            $this->SetFont('Arial', '', 10);
-            $this->Cell(0, 5, 'Period: ' . $GLOBALS['start_date'] . ' to ' . $GLOBALS['end_date'], 0, 1, 'C');
-            
-            $this->Ln(15);
+            if($this->PageNo() == 1) {
+                // Company name in orange - no background box
+                $this->SetTextColor(255, 140, 0); // Orange color
+                $this->SetFont('Arial', 'B', 16);
+                $this->SetXY(10, 18);
+                $this->Cell($this->GetPageWidth()-20, 8, 'SARVODAYA SHRAMADHANA SOCIETY', 0, 1, 'C');
+                
+                // Contact info in regular black
+                $this->SetTextColor(0, 0, 0);
+                $this->SetFont('Arial', '', 11);
+                $this->SetX(10);
+                $this->Cell($this->GetPageWidth()-20, 6, 'Kubaloluwa, Veyangoda | Phone: 077 690 6605', 0, 1, 'C');
+                
+                // Report title section
+                $this->SetY(35);
+                $this->SetTextColor(255, 140, 0); // Orange color for title
+                $this->SetFont('Arial', 'B', 18);
+                $this->Cell(0, 10, 'GENERAL JOURNAL REPORT', 0, 1, 'C');
+                
+                // Date range in black
+                $this->SetTextColor(0, 0, 0);
+                $this->SetFont('Arial', '', 12);
+                $this->Cell(0, 8, 'Period: ' . date('M j, Y', strtotime($GLOBALS['start_date'])) . ' to ' . date('M j, Y', strtotime($GLOBALS['end_date'])), 0, 1, 'C');
+                
+                $this->Ln(10);
+            }
         }
         
         function Footer() {
             $this->SetY(-15);
             $this->SetFont('Arial', 'I', 8);
-            $this->SetTextColor($this->black[0], $this->black[1], $this->black[2]);
-            $this->Cell(0, 10, 'Page ' . $this->PageNo() . '/{nb}', 0, 0, 'C');
-            $this->Cell(0, 10, 'Generated on: ' . date('F j, Y'), 0, 0, 'R');
+            $this->SetTextColor(100, 100, 100);
+            $this->Cell(0, 10, 'Page ' . $this->PageNo() . '/{nb} | Generated: ' . date('M j, Y g:i A'), 0, 0, 'C');
         }
         
         function SummaryStats($totals, $net_liquidity) {
-            $this->SetFont('Arial', 'B', 12);
-            $this->SetTextColor($this->black[0], $this->black[1], $this->black[2]);
+            $this->SetFont('Arial', 'B', 11);
             
             // Summary boxes
-            $this->SetFillColor($this->primaryColor[0], $this->primaryColor[1], $this->primaryColor[2]);
-            $this->SetDrawColor($this->darkOrange[0], $this->darkOrange[1], $this->darkOrange[2]);
+            $boxWidth = 60;
+            $startX = ($this->GetPageWidth() - ($boxWidth * 3)) / 2;
             
-            $this->Cell(60, 10, 'Total Receipts', 1, 0, 'C', true);
-            $this->Cell(60, 10, 'Total Payments', 1, 0, 'C', true);
-            $this->Cell(60, 10, 'Net Position', 1, 1, 'C', true);
+            // Total Receipts - using orange theme
+            $this->SetFillColor(255, 140, 0);
+            $this->SetTextColor(255, 255, 255);
+            $this->SetXY($startX, $this->GetY());
+            $this->Cell($boxWidth, 8, 'Total Receipts', 1, 0, 'C', true);
+            $this->SetXY($startX, $this->GetY() + 8);
+            $this->Cell($boxWidth, 8, number_format($totals['total_debit'], 2), 1, 0, 'C', true);
             
-            // Values
-            $this->SetFont('Arial', '', 12);
+            // Total Payments - using darker orange
+            $this->SetFillColor(255, 100, 0);
+            $this->SetXY($startX + $boxWidth, $this->GetY() - 8);
+            $this->Cell($boxWidth, 8, 'Total Payments', 1, 0, 'C', true);
+            $this->SetXY($startX + $boxWidth, $this->GetY() + 8);
+            $this->Cell($boxWidth, 8, number_format($totals['total_credit'], 2), 1, 0, 'C', true);
+            
+            // Net Position - using orange theme variations
+            $netColor = $net_liquidity >= 0 ? array(255, 140, 0) : array(255, 100, 0);
+            $this->SetFillColor($netColor[0], $netColor[1], $netColor[2]);
+            $this->SetXY($startX + ($boxWidth * 2), $this->GetY() - 8);
+            $this->Cell($boxWidth, 8, 'Net Position', 1, 0, 'C', true);
+            $this->SetXY($startX + ($boxWidth * 2), $this->GetY() + 8);
+            $this->Cell($boxWidth, 8, number_format($net_liquidity, 2), 1, 1, 'C', true);
+            
+            $this->Ln(15);
+        }
+        
+        function TransactionTable($result, $totals, $net_liquidity) {
+            // Table positioning
+            $tableWidth = 250;
+            $this->SetLeftMargin(($this->GetPageWidth() - $tableWidth) / 2);
+            
+            // Column widths - perfectly aligned
+            $colWidths = array(30, 30, 25, 45, 70, 25, 25);
+            
+            // Table header - using orange theme
+            $this->SetFont('Arial', 'B', 10);
+            $this->SetFillColor(255, 140, 0);
+            $this->SetTextColor(255, 255, 255);
+            
+            $this->Cell($colWidths[0], 10, 'Date', 1, 0, 'C', true);
+            $this->Cell($colWidths[1], 10, 'Type', 1, 0, 'C', true);
+            $this->Cell($colWidths[2], 10, 'Member', 1, 0, 'C', true);
+            $this->Cell($colWidths[3], 10, 'Reference', 1, 0, 'C', true);
+            $this->Cell($colWidths[4], 10, 'Details', 1, 0, 'C', true);
+            $this->Cell($colWidths[5], 10, 'Debit', 1, 0, 'C', true);
+            $this->Cell($colWidths[6], 10, 'Credit', 1, 1, 'C', true);
+            
+            // Table data
+            $this->SetFont('Arial', '', 9);
             $this->SetTextColor(0, 0, 0);
-            $this->Cell(60, 10, number_format($totals['total_debit'], 2), 1, 0, 'C');
-            $this->Cell(60, 10, number_format($totals['total_credit'], 2), 1, 0, 'C');
+            $rowCount = 0;
             
-            if($net_liquidity >= 0) {
-                $this->SetTextColor(0, 100, 0); // Green for positive
+            if($result->num_rows > 0) {
+                while($row = $result->fetch_assoc()) {
+                    $rowCount++;
+                    $fill = ($rowCount % 2 == 0);
+                    
+                    if($fill) {
+                        $this->SetFillColor(255, 245, 230); // Light orange tint
+                    } else {
+                        $this->SetFillColor(255, 255, 255);
+                    }
+                    
+                    // Check for page break
+                    if($this->GetY() > 180) {
+                        $this->AddPage();
+                        $this->SetLeftMargin(($this->GetPageWidth() - $tableWidth) / 2);
+                        
+                        // Repeat header
+                        $this->SetFont('Arial', 'B', 10);
+                        $this->SetFillColor(255, 140, 0);
+                        $this->SetTextColor(255, 255, 255);
+                        
+                        $this->Cell($colWidths[0], 10, 'Date', 1, 0, 'C', true);
+                        $this->Cell($colWidths[1], 10, 'Type', 1, 0, 'C', true);
+                        $this->Cell($colWidths[2], 10, 'Member', 1, 0, 'C', true);
+                        $this->Cell($colWidths[3], 10, 'Reference', 1, 0, 'C', true);
+                        $this->Cell($colWidths[4], 10, 'Details', 1, 0, 'C', true);
+                        $this->Cell($colWidths[5], 10, 'Debit', 1, 0, 'C', true);
+                        $this->Cell($colWidths[6], 10, 'Credit', 1, 1, 'C', true);
+                        
+                        $this->SetFont('Arial', '', 9);
+                        $this->SetTextColor(0, 0, 0);
+                    }
+                    
+                    // Row data
+                    $this->Cell($colWidths[0], 8, date('M j, Y', strtotime($row['transaction_date'])), 1, 0, 'C', $fill);
+                    $this->Cell($colWidths[1], 8, ucfirst($row['transaction_type']), 1, 0, 'C', $fill);
+                    $this->Cell($colWidths[2], 8, '#'.$row['member_id'], 1, 0, 'C', $fill);
+                    
+                    $reference = $row['reference_type'];
+                    if($row['reference_id']) {
+                        $reference .= ' #' . $row['reference_id'];
+                    }
+                    $this->Cell($colWidths[3], 8, $reference, 1, 0, 'L', $fill);
+                    
+                    $details = $row['details'] ? $row['details'] : '-';
+                    if(strlen($details) > 30) {
+                        $details = substr($details, 0, 27) . '...';
+                    }
+                    $this->Cell($colWidths[4], 8, $details, 1, 0, 'L', $fill);
+                    
+                    $this->Cell($colWidths[5], 8, $row['debit_amount'] > 0 ? number_format($row['debit_amount'], 2) : '-', 1, 0, 'R', $fill);
+                    $this->Cell($colWidths[6], 8, $row['credit_amount'] > 0 ? number_format($row['credit_amount'], 2) : '-', 1, 1, 'R', $fill);
+                }
             } else {
-                $this->SetTextColor(150, 0, 0); // Red for negative
+                $this->SetFillColor(255, 245, 230);
+                $this->Cell($tableWidth, 10, 'No transactions found for the selected period', 1, 1, 'C', true);
             }
-            $this->Cell(60, 10, number_format($net_liquidity, 2), 1, 1, 'C');
             
-            $this->Ln(8);
+            // Table footer - using orange theme
+            $this->SetFont('Arial', 'B', 10);
+            $this->SetFillColor(255, 140, 0);
+            $this->SetTextColor(255, 255, 255);
+            
+            $this->Cell(array_sum(array_slice($colWidths, 0, 5)), 10, 'TOTALS:', 1, 0, 'R', true);
+            $this->Cell($colWidths[5], 10, number_format($totals['total_debit'], 2), 1, 0, 'R', true);
+            $this->Cell($colWidths[6], 10, number_format($totals['total_credit'], 2), 1, 1, 'R', true);
+            
+            // Net position - using orange theme variations
+            $netColor = $net_liquidity >= 0 ? array(255, 140, 0) : array(255, 100, 0);
+            $this->SetFillColor($netColor[0], $netColor[1], $netColor[2]);
+            $this->Cell(array_sum(array_slice($colWidths, 0, 5)), 10, 'NET POSITION:', 1, 0, 'R', true);
+            $this->Cell($colWidths[5] + $colWidths[6], 10, number_format($net_liquidity, 2), 1, 1, 'C', true);
+        }
+        
+        function SignatureSection() {
+            $this->SetY(-40);
+            $this->SetFont('Arial', '', 10);
+            $this->SetTextColor(0, 0, 0);
+            
+            $this->Cell(100, 8, 'Date: ____________________', 0, 0, 'L');
+            $this->Cell(0, 8, 'Manager Signature: ____________________', 0, 1, 'R');
         }
     }
 
+    // Create PDF
     $pdf = new PDF('L');
     $pdf->AliasNbPages();
     $pdf->AddPage();
-    $pdf->SetFont('Arial', '', 10);
     
-    // Add summary statistics
+    // Add summary
     $pdf->SummaryStats($totals, $net_liquidity);
     
-    // Table header
-    $pdf->SetFont('Arial', 'B', 11);
-    $pdf->SetFillColor(255, 140, 0); // Primary orange color
-    $pdf->SetTextColor(255, 255, 255);
-    $pdf->Cell(25, 10, 'Date', 1, 0, 'C', true);
-    $pdf->Cell(25, 10, 'Type', 1, 0, 'C', true);
-    $pdf->Cell(20, 10, 'Member', 1, 0, 'C', true);
-    $pdf->Cell(40, 10, 'Reference', 1, 0, 'C', true);
-    $pdf->Cell(60, 10, 'Details', 1, 0, 'C', true);
-    $pdf->Cell(30, 10, 'Debit', 1, 0, 'C', true);
-    $pdf->Cell(30, 10, 'Credit', 1, 1, 'C', true);
+    // Add transaction table
+    $pdf->TransactionTable($result, $totals, $net_liquidity);
     
-    // Table data
-    $pdf->SetFont('Arial', '', 9);
-    $pdf->SetTextColor(0, 0, 0);
-    $fill = false;
-    
-    if($result->num_rows > 0) {
-        while($row = $result->fetch_assoc()) {
-            // Alternate row colors
-            $fill = !$fill;
-            if($fill) {
-                $pdf->SetFillColor(255, 237, 217); // Light orange
-            } else {
-                $pdf->SetFillColor(255, 255, 255);
-            }
-            
-            $pdf->Cell(25, 10, date('M j, Y', strtotime($row['transaction_date'])), 1, 0, 'L', true);
-            
-            // Transaction type
-            $pdf->SetFont('Arial', 'B', 9);
-            if($row['transaction_type'] == 'payment') {
-                $pdf->Cell(25, 10, 'Payment', 1, 0, 'C', true);
-            } elseif($row['transaction_type'] == 'receipt') {
-                $pdf->Cell(25, 10, 'Receipt', 1, 0, 'C', true);
-            } else {
-                $pdf->Cell(25, 10, 'Interest', 1, 0, 'C', true);
-            }
-            $pdf->SetFont('Arial', '', 9);
-            
-            $pdf->Cell(20, 10, '#'.$row['member_id'], 1, 0, 'C', true);
-            
-            $reference = $row['reference_type'];
-            if($row['reference_id']) {
-                $reference .= "\nRef #" . $row['reference_id'];
-            }
-            $pdf->Cell(40, 10, $reference, 1, 0, 'L', true);
-            
-            $pdf->Cell(60, 10, $row['details'] ? $row['details'] : '-', 1, 0, 'L', true);
-            
-            // Debit amount
-            if($row['debit_amount'] > 0) {
-                $pdf->Cell(30, 10, number_format($row['debit_amount'], 2), 1, 0, 'R', true);
-            } else {
-                $pdf->Cell(30, 10, '0.00', 1, 0, 'R', true);
-            }
-            
-            // Credit amount
-            if($row['credit_amount'] > 0) {
-                $pdf->Cell(30, 10, number_format($row['credit_amount'], 2), 1, 1, 'R', true);
-            } else {
-                $pdf->Cell(30, 10, '0.00', 1, 1, 'R', true);
-            }
-        }
-    } else {
-        $pdf->Cell(0, 10, 'No transactions found for the selected period', 1, 1, 'C', true);
-    }
-    
-    // Table footer with totals
-    $pdf->SetFont('Arial', 'B', 11);
-    $pdf->SetFillColor(255, 140, 0); // Primary orange color
-    $pdf->SetTextColor(255, 255, 255);
-    $pdf->Cell(170, 10, 'Totals:', 1, 0, 'R', true);
-    $pdf->Cell(30, 10, number_format($totals['total_debit'], 2), 1, 0, 'R', true);
-    $pdf->Cell(30, 10, number_format($totals['total_credit'], 2), 1, 1, 'R', true);
-    
-    // Net position row
-    $pdf->SetFillColor(230, 120, 0); // Darker orange
-    $pdf->Cell(170, 10, 'Net Position:', 1, 0, 'R', true);
-    if($net_liquidity >= 0) {
-        $pdf->SetTextColor(255, 255, 255);
-    } else {
-        $pdf->SetTextColor(255, 255, 255);
-    }
-    $pdf->Cell(60, 10, number_format($net_liquidity, 2), 1, 1, 'C', true);
+    // Add signature section
+    $pdf->SignatureSection();
     
     // Output PDF
-    $pdf->Output('D', 'General_Journal_'.date('Y-m-d').'.pdf');
+    $pdf->Output('D', 'General_Journal_Report_'.date('Y-m-d').'.pdf');
     exit;
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -358,6 +383,26 @@ if (isset($_GET['download_pdf'])) {
             position: relative;
             z-index: 1;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .org-info {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 140, 0, 0.1);
+        }
+
+        .org-info h2 {
+            color: var(--primary-solid);
+            margin-bottom: 5px;
+        }
+
+        .org-info p {
+            margin: 3px 0;
+            color: #555;
         }
 
         .filter-card {
@@ -646,13 +691,19 @@ if (isset($_GET['download_pdf'])) {
         .net-position {
             font-size: 1.3rem;
             text-align: center;
+            background: white;
         }
 
-        .surplus {
-            color: #10b981;
+        .net-position td {
+            color: var(--dark);
+            border: 1px solid #f1f5f9;
         }
 
-        .deficit {
+        .net-position.surplus td {
+            color: var(--success);
+        }
+
+        .net-position.deficit td {
             color: var(--dark);
         }
 
@@ -963,6 +1014,20 @@ if (isset($_GET['download_pdf'])) {
             .net-position {
                 font-size: 12pt;
                 text-align: center;
+                background: white !important;
+            }
+
+            .net-position td {
+                color: #000 !important;
+                border: 1px solid #dee2e6 !important;
+            }
+
+            .net-position.surplus td {
+                color: #28a745 !important;
+            }
+
+            .net-position.deficit td {
+                color: #dc3545 !important;
             }
 
             .period-row {
@@ -971,14 +1036,6 @@ if (isset($_GET['download_pdf'])) {
                 text-align: center;
                 font-size: 11pt;
                 font-weight: bold;
-            }
-
-            .surplus {
-                color: #28a745 !important;
-            }
-
-            .deficit {
-                color: white !important;
             }
 
             /* Print-specific elements */
@@ -1045,6 +1102,14 @@ if (isset($_GET['download_pdf'])) {
             <p style="margin: 5px 0;">Samaghi Sarvodaya Shramadhana Society</p>
             <p style="margin: 5px 0;">Kubaloluwa, Veyangoda</p>
             <p style="margin: 5px 0;">Phone: 077 690 6605 | Email: info@sarvodayabank.com</p>
+        </div>
+
+        <!-- Organization Info -->
+        <div class="org-info">
+            <h2>SARVODAYA SHRAMADHANA SOCIETY</h2>
+            <p>Samaghi Sarvodaya Shramadhana Society</p>
+            <p>Kubaloluwa, Veyangoda</p>
+            <p>Phone: 077 690 6605 | Email: info@sarvodayabank.com</p>
         </div>
 
         <!-- Header -->
@@ -1243,11 +1308,11 @@ if (isset($_GET['download_pdf'])) {
                             <td class="amount debit" style="font-size: 20px;"><?= number_format($totals['total_debit'], 2) ?></td>
                             <td class="amount credit" style="font-size: 20px;"><?= number_format($totals['total_credit'], 2) ?></td>
                         </tr>
-                        <tr class="net-position">
+                        <tr class="net-position <?= $net_liquidity >= 0 ? 'surplus' : 'deficit' ?>">
                             <td colspan="5" style="text-align: right;" style="font-size: 20px;">
                                 <i class="fas fa-balance-scale"></i> Net Position:
                             </td>
-                            <td colspan="2" class="<?= $net_liquidity >= 0 ? 'surplus' : 'deficit' ?>" style="font-size: 20px;">
+                            <td colspan="2" style="font-size: 20px;">
                                 <?= number_format($net_liquidity, 2) ?>
                                 <br ><small style="font-size: 20px;">(<?= $net_liquidity >= 0 ? 'Surplus' : 'Deficit' ?>)</small>
                             </td>
