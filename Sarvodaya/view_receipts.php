@@ -5,7 +5,140 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Initialize variables
+// Check if PDF generation is requested
+if (isset($_GET['generate_pdf'])) {
+    require('fpdf/fpdf.php');
+    
+    // Initialize variables
+    $filterType = isset($_GET['filter_type']) ? $_GET['filter_type'] : '';
+    $filterMemberNumber = isset($_GET['filter_member_number']) ? trim($_GET['filter_member_number']) : '';
+    
+    // Base query for all receipts
+    $baseQuery = "
+        SELECT 
+            receipts.id AS receipt_id,
+            members.id AS member_id,
+            members.name AS member_name,
+            receipts.receipt_type,
+            receipts.amount,
+            receipts.receipt_date
+        FROM receipts
+        JOIN members ON receipts.member_id = members.id
+    ";
+    
+    // Apply filters if provided
+    $query = $baseQuery . " WHERE 1=1";
+    
+    if (!empty($filterType)) {
+        $query .= " AND receipts.receipt_type = '" . $conn->real_escape_string($filterType) . "'";
+    }
+    
+    if (!empty($filterMemberNumber)) {
+        $query .= " AND members.id = " . (int)$filterMemberNumber;
+    }
+    
+    $query .= " ORDER BY receipts.receipt_date DESC";
+    $result = $conn->query($query);
+    
+    // Create PDF in Landscape mode for better table fit
+    $pdf = new FPDF('L', 'mm', 'A4');
+    $pdf->AddPage();
+    
+    // Set font for title
+    $pdf->SetFont('Arial', 'B', 16);
+    
+    // Title
+    $pdf->Cell(0, 10, 'SARVODAYA SHRAMADHANA SOCIETY', 0, 1, 'C');
+    $pdf->SetFont('Arial', '', 12);
+    $pdf->Cell(0, 7, 'Samaghi Sarvodaya Shramadhana Society, Kubaloluwa, Veyangoda', 0, 1, 'C');
+    $pdf->Cell(0, 7, 'Receipt Details Report', 0, 1, 'C');
+    $pdf->Ln(10);
+    
+    // Filters applied
+    if (!empty($filterType) || !empty($filterMemberNumber)) {
+        $pdf->SetFont('Arial', 'B', 12);
+        $pdf->Cell(0, 7, 'Filters Applied:', 0, 1, 'L');
+        $pdf->SetFont('Arial', '', 12);
+        
+        $filters = [];
+        if (!empty($filterType)) {
+            $filters[] = "Receipt Type: " . ucfirst(str_replace('_', ' ', $filterType));
+        }
+        if (!empty($filterMemberNumber)) {
+            $filters[] = "Member Number: " . $filterMemberNumber;
+        }
+        
+        $pdf->MultiCell(0, 7, implode(', ', $filters), 0, 'L');
+        $pdf->Ln(5);
+    }
+    
+    // Report date
+    $pdf->SetFont('Arial', 'I', 10);
+    $pdf->Cell(0, 7, 'Report Generated: ' . date('d F Y, h:i A'), 0, 1, 'R');
+    $pdf->Ln(5);
+    
+    // Table header - Adjusted column widths for perfect fit
+    $pdf->SetFont('Arial', 'B', 11);
+    $pdf->SetFillColor(255, 167, 38); // Orange color
+    $pdf->SetTextColor(255);
+    
+    $pdf->Cell(20, 10, 'Receipt ID', 1, 0, 'C', true);
+    $pdf->Cell(25, 10, 'Member ID', 1, 0, 'C', true);
+    $pdf->Cell(60, 10, 'Member Name', 1, 0, 'C', true);
+    $pdf->Cell(50, 10, 'Receipt Type', 1, 0, 'C', true);
+    $pdf->Cell(30, 10, 'Amount (Rs.)', 1, 0, 'C', true);
+    $pdf->Cell(40, 10, 'Receipt Date', 1, 1, 'C', true);
+    
+    // Table data
+    $pdf->SetFont('Arial', '', 10);
+    $pdf->SetTextColor(0);
+    $totalAmount = 0;
+    
+    if ($result && $result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $totalAmount += $row['amount'];
+            
+            $pdf->Cell(20, 8, $row['receipt_id'], 1, 0, 'C');
+            $pdf->Cell(25, 8, $row['member_id'], 1, 0, 'C');
+            $pdf->Cell(60, 8, substr($row['member_name'], 0, 30), 1, 0, 'L');
+            $pdf->Cell(50, 8, ucfirst(str_replace('_', ' ', substr($row['receipt_type'], 0, 25))), 1, 0, 'L');
+            $pdf->Cell(30, 8, number_format($row['amount'], 2), 1, 0, 'R');
+            $pdf->Cell(40, 8, date('d M Y', strtotime($row['receipt_date'])), 1, 1, 'C');
+        }
+    } else {
+        $pdf->Cell(225, 10, 'No receipts found matching your filter criteria.', 1, 1, 'C');
+    }
+    
+    // Total row
+    $pdf->SetFont('Arial', 'B', 11);
+    $pdf->Cell(195, 10, 'Total Amount:', 1, 0, 'R');
+    $pdf->Cell(30, 10, number_format($totalAmount, 2), 1, 1, 'R');
+    
+    // Count row
+    $pdf->Cell(195, 10, 'Total Records:', 1, 0, 'R');
+    $pdf->Cell(30, 10, ($result) ? $result->num_rows : 0, 1, 1, 'R');
+    
+    // Signature section with date left and signature right
+    $pdf->Ln(15);
+    
+    // Date on left
+    $pdf->SetFont('Arial', '', 10);
+    $pdf->Cell(40, 5, 'Date: ' . date('d/m/Y'), 0, 0, 'L');
+    
+    // Signature on right
+    $pdf->SetX(-60); // Move to right side
+    $pdf->Cell(40, 5, '_________________________', 0, 1, 'R');
+    $pdf->SetX(-60);
+    $pdf->Cell(40, 5, 'Manager', 0, 1, 'R');
+    $pdf->SetX(-60);
+    $pdf->Cell(40, 5, 'Sarvodaya Shramadhana Society', 0, 1, 'R');
+    
+    // Output PDF
+    $pdf->Output('Receipt_Report_'.date('Ymd_His').'.pdf', 'D');
+    exit;
+}
+
+// Initialize variables for HTML view
 $filterType = isset($_GET['filter_type']) ? $_GET['filter_type'] : '';
 $filterMemberNumber = isset($_GET['filter_member_number']) ? trim($_GET['filter_member_number']) : '';
 
@@ -35,7 +168,6 @@ if (!empty($filterType) || !empty($filterMemberNumber)) {
     }
     
     if (!empty($filterMemberNumber)) {
-        // Assuming member.id is the member number
         $filterQuery .= " AND members.id = " . (int)$filterMemberNumber;
     }
     
@@ -71,7 +203,6 @@ while ($type = $typesResult->fetch_assoc()) {
             margin: 0 auto;
         }
         
-        /* Header Styles */
         .organization-header {
             background: linear-gradient(135deg, #ffa726 0%, #ff9800 100%);
             color: white;
@@ -128,7 +259,7 @@ while ($type = $typesResult->fetch_assoc()) {
             background-color: #ffe0b2;
         }
         .btn-action {
-            background-color: #ffa726; /* Orange color */
+            background-color: #ffa726;
             color: white;
             border-radius: 5px;
             border: none;
@@ -139,16 +270,16 @@ while ($type = $typesResult->fetch_assoc()) {
             display: inline-block;
         }
         .btn-action:hover {
-            background-color: #fb8c00; /* Darker orange on hover */
+            background-color: #fb8c00;
             transform: scale(1.05);
             color: white;
         }
-        .btn-print {
-            background-color: #28a745; /* Green color */
+        .btn-pdf {
+            background-color: #dc3545;
             color: white;
         }
-        .btn-print:hover {
-            background-color: #218838; /* Darker green on hover */
+        .btn-pdf:hover {
+            background-color: #c82333;
         }
         .filter-section {
             background-color: #fff;
@@ -166,22 +297,19 @@ while ($type = $typesResult->fetch_assoc()) {
             text-align: right;
             font-size: 1.1em;
         }
-        /* Highlight active filters */
         .active-filter {
             border: 2px solid #ffa726;
             background-color: #fff8e1;
         }
-        /* Action buttons spacing and style */
         .action-buttons {
             display: flex;
-            gap: 10px; /* Increased space between buttons */
+            gap: 10px;
         }
         .action-btn {
             padding: 6px 12px;
             display: inline-block;
             text-align: center;
         }
-        /* Print styles */
         @media print {
             .no-print {
                 display: none !important;
@@ -193,7 +321,7 @@ while ($type = $typesResult->fetch_assoc()) {
                 display: block !important;
             }
             .screen-only {
-                display: none !important;
+                display: none;
             }
             body {
                 padding: 0;
@@ -209,9 +337,8 @@ while ($type = $typesResult->fetch_assoc()) {
             }
         }
         
-        /* Signature Section Styles */
         .signature-section {
-            display: none; /* Hidden on screen */
+            display: none;
             background-color: #fff;
             padding: 30px 20px;
             margin-top: 30px;
@@ -229,7 +356,6 @@ while ($type = $typesResult->fetch_assoc()) {
             height: 60px;
         }
         
-        /* Screen only styles */
         .screen-only {
             display: block;
         }
@@ -284,7 +410,7 @@ while ($type = $typesResult->fetch_assoc()) {
                     <button type="submit" class="btn-action me-2">
                         <i class="bi bi-filter"></i> Apply Filters
                     </button>
-                    <a href="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" class="btn-action btn-print">
+                    <a href="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" class="btn-action btn-pdf">
                         <i class="bi bi-x-circle"></i> Reset
                     </a>
                 </div>
@@ -313,8 +439,9 @@ while ($type = $typesResult->fetch_assoc()) {
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h3>Receipt Records</h3>
                 <div class="no-print">
-                    <a href="#" onclick="window.print();" class="btn-action btn-print">
-                        <i class="bi bi-printer"></i> Print Report
+                    <!-- Only PDF button remains -->
+                    <a href="?generate_pdf=1&<?php echo http_build_query($_GET); ?>" class="btn-action btn-pdf">
+                        <i class="bi bi-file-earmark-pdf"></i> Generate PDF
                     </a>
                 </div>
             </div>
@@ -386,17 +513,12 @@ while ($type = $typesResult->fetch_assoc()) {
         <!-- Date and Signature Section (Visible only in print) -->
         <div class="signature-section print-only">
             <div class="row mt-5">
-                <div class="col-md-6">
-                    <div class="date-section">
-                        <p><strong>Report Generated Date:</strong></p>
-                        <p><?php echo date('d F Y, h:i A'); ?></p>
-                    </div>
+                <div class="col-md-6 text-start">
+                    <p><strong>Date:</strong> <?php echo date('d/m/Y'); ?></p>
                 </div>
                 <div class="col-md-6 text-end">
                     <div class="signature-section-content">
-                        <div class="signature-line">
-                            <br><br><br>
-                        </div>
+                        <div style="height: 60px;"></div>
                         <p>_________________________</p>
                         <p><small>Manager<br>Sarvodaya Shramadhana Society</small></p>
                     </div>
