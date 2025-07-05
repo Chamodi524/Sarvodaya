@@ -67,7 +67,7 @@ $result->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Date Selection App - Sarvodaya Shramadhana Society</title>
+    <title>Date Selection-Sarvodaya Shramadhana Society</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -511,14 +511,15 @@ $result->close();
                 </h2>
                 
                 <form method="POST" action="">
-                    <div class="date-grid">
+                    <div class="date-grid" style="font-size: 20px;">
                         <?php for ($i = 1; $i <= 12; $i++): ?>
-                            <div class="date-item">
-                                <label for="date<?php echo $i; ?>">
-                                    <i class="fas fa-calendar-day"></i> Date <?php echo $i; ?>
+                            <div class="date-item" >
+                                <label for="date<?php echo $i; ?>" style="font-size: 20px;">
+                                    <i class="fas fa-calendar-day" style="font-size: 20px;"></i> Date <?php echo $i; ?>
                                 </label>
                                 <input type="date" 
                                        id="date<?php echo $i; ?>" 
+                                       style="font-size: 20px;"
                                        name="dates[<?php echo $i; ?>]" 
                                        class="date-input"
                                        value="<?php echo isset($saved_dates[$i]) ? $saved_dates[$i] : ''; ?>">
@@ -526,8 +527,8 @@ $result->close();
                         <?php endfor; ?>
                     </div>
                     
-                    <button type="submit" class="save-btn">
-                        <i class="fas fa-save"></i> Save All Dates
+                    <button type="submit" class="save-btn" style="font-size: 20px;">
+                        <i class="fas fa-save" style="font-size: 20px;"></i> Save All Dates
                     </button>
                 </form>
             </div>
@@ -541,16 +542,17 @@ $result->close();
                     <?php if (empty($saved_dates)): ?>
                         <div class="empty-state">
                             <i class="fas fa-calendar-times"></i>
-                            <p>No dates saved yet</p>
+                            <p style="font-size: 20px;">No dates saved yet</p>
                         </div>
                     <?php else: ?>
                         <?php foreach ($saved_dates as $num => $date): ?>
                             <div class="date-card">
                                 <div class="date-card-header">
-                                    <span class="date-number">Date <?php echo $num; ?></span>
-                                    <form method="POST" style="display: inline;">
+                                    <span class="date-number" style="font-size: 20px;">Date <?php echo $num; ?></span>
+                                    <form method="POST" style="display: inline;" style="font-size: 20px;">
                                         <button type="submit" 
-                                                name="delete" 
+                                                name="delete"
+                                                style="font-size: 20px;" 
                                                 value="<?php echo $num; ?>" 
                                                 class="delete-btn"
                                                 onclick="return confirm('Are you sure you want to delete this date?')"
@@ -559,8 +561,8 @@ $result->close();
                                         </button>
                                     </form>
                                 </div>
-                                <div class="date-display">
-                                    <i class="fas fa-calendar"></i>
+                                <div class="date-display" style="font-size: 20px;">
+                                    <i class="fas fa-calendar" style="font-size: 20px;"></i>
                                     <?php echo date('F j, Y', strtotime($date)); ?>
                                 </div>
                             </div>
