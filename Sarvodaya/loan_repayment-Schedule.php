@@ -64,14 +64,8 @@ if (isset($_GET['generate_pdf'])) {
     class PDF extends FPDF {
         // Page header
         function Header() {
-            // Logo
-            $this->Image('Sarwodaya logo.jpg', 10, 8, 25);
-            
             // Set font
             $this->SetFont('Arial', 'B', 16);
-            
-            // Move to the right
-            $this->Cell(30);
             
             // Title (orange color)
             $this->SetTextColor(255, 140, 0);
@@ -123,6 +117,11 @@ if (isset($_GET['generate_pdf'])) {
             $this->Cell(80, 6, 'Manager Signature: ________________________', 0, 1, 'L');
             $this->Cell(80, 6, 'Date: ________________________', 0, 0, 'L');
         }
+        
+        // Custom function to format currency with Rs.
+        function FormatCurrency($amount) {
+            return 'Rs. ' . number_format($amount, 2);
+        }
     }
     
     // Create PDF instance
@@ -142,16 +141,16 @@ if (isset($_GET['generate_pdf'])) {
     $pdf->Cell(0, 6, $summaryData['loanId'], 0, 1);
     
     $pdf->Cell(60, 6, 'Loan Amount:', 0, 0);
-    $pdf->Cell(0, 6, $summaryData['loanAmount'], 0, 1);
+    $pdf->Cell(0, 6, $pdf->FormatCurrency(str_replace(['Rs.', 'LKR', 'Â', ','], '', $summaryData['loanAmount'])), 0, 1);
     
     $pdf->Cell(60, 6, 'Monthly Payment:', 0, 0);
-    $pdf->Cell(0, 6, $summaryData['monthlyPayment'], 0, 1);
+    $pdf->Cell(0, 6, $pdf->FormatCurrency(str_replace(['Rs.', 'LKR', 'Â', ','], '', $summaryData['monthlyPayment'])), 0, 1);
     
     $pdf->Cell(60, 6, 'Total Interest:', 0, 0);
-    $pdf->Cell(0, 6, $summaryData['totalInterest'], 0, 1);
+    $pdf->Cell(0, 6, $pdf->FormatCurrency(str_replace(['Rs.', 'LKR', 'Â', ','], '', $summaryData['totalInterest'])), 0, 1);
     
     $pdf->Cell(60, 6, 'Total Amount to Repay:', 0, 0);
-    $pdf->Cell(0, 6, $summaryData['totalPayment'], 0, 1);
+    $pdf->Cell(0, 6, $pdf->FormatCurrency(str_replace(['Rs.', 'LKR', 'Â', ','], '', $summaryData['totalPayment'])), 0, 1);
     
     $pdf->Ln(10);
     
@@ -171,10 +170,10 @@ if (isset($_GET['generate_pdf'])) {
     foreach ($scheduleData as $payment) {
         $pdf->Cell(15, 6, $payment['paymentNumber'], 1, 0, 'C', $fill);
         $pdf->Cell(30, 6, $payment['paymentDate'], 1, 0, 'C', $fill);
-        $pdf->Cell(30, 6, $payment['paymentAmount'], 1, 0, 'R', $fill);
-        $pdf->Cell(30, 6, $payment['principal'], 1, 0, 'R', $fill);
-        $pdf->Cell(30, 6, $payment['interest'], 1, 0, 'R', $fill);
-        $pdf->Cell(30, 6, $payment['remainingBalance'], 1, 1, 'R', $fill);
+        $pdf->Cell(30, 6, $pdf->FormatCurrency(str_replace(['Rs.', 'LKR', 'Â', ','], '', $payment['paymentAmount'])), 1, 0, 'R', $fill);
+        $pdf->Cell(30, 6, $pdf->FormatCurrency(str_replace(['Rs.', 'LKR', 'Â', ','], '', $payment['principal'])), 1, 0, 'R', $fill);
+        $pdf->Cell(30, 6, $pdf->FormatCurrency(str_replace(['Rs.', 'LKR', 'Â', ','], '', $payment['interest'])), 1, 0, 'R', $fill);
+        $pdf->Cell(30, 6, $pdf->FormatCurrency(str_replace(['Rs.', 'LKR', 'Â', ','], '', $payment['remainingBalance'])), 1, 1, 'R', $fill);
         $fill = !$fill;
     }
     
@@ -860,7 +859,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['saveSchedule'])) {
             
             <div class="input-row">
                 <div class="form-group">
-                    <label for="loanAmount" style="font-size: 1.25rem;">Loan Amount (LKR):</label>
+                    <label for="loanAmount" style="font-size: 1.25rem;">Loan Amount (Rs.):</label>
                     <input type="number" id="loanAmount" placeholder="Enter loan amount" style="font-size: 1.25rem;">
                 </div>
                 
@@ -1415,9 +1414,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['saveSchedule'])) {
         
         // Format currency for Sri Lankan Rupees
         function formatCurrency(amount) {
-            return new Intl.NumberFormat('en-LK', {
-                style: 'currency',
-                currency: 'LKR',
+            return 'Rs. ' + new Intl.NumberFormat('en-LK', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
             }).format(amount);
