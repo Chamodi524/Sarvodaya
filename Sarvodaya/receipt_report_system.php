@@ -2,7 +2,7 @@
 // FPDF Library - Ensure you have downloaded from https://fpdf.org/
 require('fpdf/fpdf.php');
 
-// Database Connection Class remains the same
+// Database Connection Class
 class Database {
     private static $instance = null;
     private $host = 'localhost';
@@ -31,7 +31,7 @@ class Database {
     }
 }
 
-// Custom PDF Report Class for Receipts with adjusted signature position
+// Custom PDF Report Class for Receipts
 class ReceiptReportPDF extends FPDF {
     private $data;
     private $startDate;
@@ -45,12 +45,45 @@ class ReceiptReportPDF extends FPDF {
     }
 
     function Header() {
-        $this->SetFont('Arial', 'B', 15);
+        // Organization Name - Main Header
+        $this->SetFont('Arial', 'B', 16);
         $this->SetTextColor(255, 140, 0);
-        $this->Cell(0, 10, 'Sarvodaya Receipts Analysis Report', 0, 1, 'C');
+        $this->Cell(0, 8, 'SARVODAYA SHRAMADHANA SOCIETY', 0, 1, 'C');
+        
+        // Sub-organization Name
+        $this->SetFont('Arial', 'B', 12);
+        $this->SetTextColor(0, 0, 0);
+        $this->Cell(0, 6, 'Samaghi Sarvodaya Shramadhana Society', 0, 1, 'C');
+        
+        // Address
         $this->SetFont('Arial', '', 10);
-        $this->Cell(0, 10, "From: $this->startDate To: $this->endDate", 0, 1, 'C');
-        $this->Ln(10);
+        $this->SetTextColor(80, 80, 80);
+        $this->Cell(0, 5, 'Kubaloluwa, Veyangoda', 0, 1, 'C');
+        
+        // Contact Information
+        $this->SetFont('Arial', '', 9);
+        $this->Cell(0, 5, 'Phone: 077 690 6605 | Email: info@sarvodayabank.com', 0, 1, 'C');
+        
+        // Add a line separator
+        $this->Ln(3);
+        $this->SetDrawColor(255, 140, 0);
+        $this->SetLineWidth(0.5);
+        $this->Line(10, $this->GetY(), 200, $this->GetY());
+        $this->Ln(5);
+        
+        // Report Title
+        $this->SetFont('Arial', 'B', 14);
+        $this->SetTextColor(255, 140, 0);
+        $this->Cell(0, 8, 'Receipt Analysis Report', 0, 1, 'C');
+        
+        // Date Range
+        $this->SetFont('Arial', '', 10);
+        $this->SetTextColor(0, 0, 0);
+        $this->Cell(0, 6, "Report Period: $this->startDate to $this->endDate", 0, 1, 'C');
+        
+        // Reset line color and add space
+        $this->SetDrawColor(0, 0, 0);
+        $this->Ln(8);
     }
 
     function Footer() {
@@ -69,65 +102,141 @@ class ReceiptReportPDF extends FPDF {
         $this->SetFont('Arial', '', 10);
         $this->SetTextColor(0, 0, 0);
         $this->Cell(0, 7, 'Total Transactions: ' . $this->data['totalReceipts']['total_transactions'], 0, 1);
-        $this->Cell(0, 7, 'Total Amount: Rs. ' . number_format($this->data['totalReceipts']['total_amount'], 2), 0, 1);
-        $this->Cell(0, 7, 'Average Transaction: Rs. ' . number_format($this->data['totalReceipts']['average_amount'], 2), 0, 1);
+        $this->Cell(0, 7, 'Total Amount: Rs.' . number_format($this->data['totalReceipts']['total_amount'], 2), 0, 1);
+        $this->Cell(0, 7, 'Average Transaction: Rs.' . number_format($this->data['totalReceipts']['average_amount'], 2), 0, 1);
         $this->Ln(10);
 
-        // Receipts by Type
+        // Receipts by Type - Properly formatted table
         $this->SetFont('Arial', 'B', 12);
         $this->SetTextColor(255, 140, 0);
         $this->Cell(0, 10, 'Receipts by Type', 'B', 1);
+        $this->Ln(2);
         
+        // Set table properties
+        $this->SetDrawColor(128, 128, 128);
+        $this->SetLineWidth(0.3);
+        
+        // Header row with borders
         $this->SetFont('Arial', 'B', 10);
-        $this->SetTextColor(0, 0, 0);
-        $this->Cell(60, 7, 'Receipt Type', 1);
-        $this->Cell(40, 7, 'Transactions', 1);
-        $this->Cell(60, 7, 'Total Amount (Rs.)', 1);
-        $this->Ln();
+        $this->SetFillColor(255, 140, 0);
+        $this->SetTextColor(255, 255, 255);
+        
+        // Calculate column widths (total width = 190mm for A4)
+        $col1_width = 70;  // Receipt Type
+        $col2_width = 40;  // Transactions
+        $col3_width = 50;  // Amount
+        $col4_width = 30;  // Percentage
+        
+        $this->Cell($col1_width, 8, 'Receipt Type', 1, 0, 'C', true);
+        $this->Cell($col2_width, 8, 'Transactions', 1, 0, 'C', true);
+        $this->Cell($col3_width, 8, 'Amount (Rs.)', 1, 0, 'C', true);
+        $this->Cell($col4_width, 8, 'Percentage', 1, 1, 'C', true);
 
-        $this->SetFont('Arial', '', 10);
+        // Data rows with borders
+        $this->SetFont('Arial', '', 9);
+        $this->SetFillColor(245, 245, 245);
+        $this->SetTextColor(0, 0, 0);
+        
+        $fill = false;
         foreach ($this->data['receiptTypes'] as $type) {
-            $this->Cell(60, 7, $type['receipt_type'], 1);
-            $this->Cell(40, 7, $type['count'], 1);
-            $this->Cell(60, 7, 'Rs.' . number_format($type['total_amount'], 2), 1);
-            $this->Ln();
+            $percentage = $this->data['totalReceipts']['total_amount'] > 0 ? 
+                ($type['total_amount'] / $this->data['totalReceipts']['total_amount']) * 100 : 0;
+            
+            $this->Cell($col1_width, 7, $type['receipt_type'], 1, 0, 'L', $fill);
+            $this->Cell($col2_width, 7, number_format($type['count']), 1, 0, 'C', $fill);
+            $this->Cell($col3_width, 7, number_format($type['total_amount'], 2), 1, 0, 'R', $fill);
+            $this->Cell($col4_width, 7, number_format($percentage, 1) . '%', 1, 1, 'C', $fill);
+            
+            $fill = !$fill; // Alternate row colors
         }
+        
         $this->Ln(10);
 
-        // Monthly Receipts Summary
+        // Monthly Receipt Summary - Properly formatted table
         $this->SetFont('Arial', 'B', 12);
         $this->SetTextColor(255, 140, 0);
-        $this->Cell(0, 10, 'Monthly Receipts Summary', 'B', 1);
+        $this->Cell(0, 10, 'Monthly Receipt Summary', 'B', 1);
+        $this->Ln(2);
+        
+        // Header row with borders
+        $this->SetFont('Arial', 'B', 10);
+        $this->SetFillColor(255, 140, 0);
+        $this->SetTextColor(255, 255, 255);
+        
+        // Calculate column widths for monthly summary
+        $month_col1 = 40;  // Year-Month
+        $month_col2 = 40;  // Transactions
+        $month_col3 = 50;  // Amount
+        $month_col4 = 45;  // Average
+        
+        $this->Cell($month_col1, 8, 'Year-Month', 1, 0, 'C', true);
+        $this->Cell($month_col2, 8, 'Transactions', 1, 0, 'C', true);
+        $this->Cell($month_col3, 8, 'Amount (Rs.)', 1, 0, 'C', true);
+        $this->Cell($month_col4, 8, 'Average (Rs.)', 1, 1, 'C', true);
+
+        // Data rows with borders
+        $this->SetFont('Arial', '', 9);
+        $this->SetFillColor(245, 245, 245);
+        $this->SetTextColor(0, 0, 0);
+        
+        $fill = false;
+        foreach ($this->data['monthlySummary'] as $month) {
+            $avgPerTransaction = $month['transaction_count'] > 0 ? 
+                $month['total_amount'] / $month['transaction_count'] : 0;
+            
+            $yearMonth = $month['year'] . '-' . str_pad($month['month'], 2, '0', STR_PAD_LEFT);
+            
+            $this->Cell($month_col1, 7, $yearMonth, 1, 0, 'C', $fill);
+            $this->Cell($month_col2, 7, number_format($month['transaction_count']), 1, 0, 'C', $fill);
+            $this->Cell($month_col3, 7, number_format($month['total_amount'], 2), 1, 0, 'R', $fill);
+            $this->Cell($month_col4, 7, number_format($avgPerTransaction, 2), 1, 1, 'R', $fill);
+            
+            $fill = !$fill; // Alternate row colors
+        }
+        
+        $this->Ln(15);
+        
+        // Add date and signature spaces
+        $this->AddDateAndSignatureSpace();
+    }
+    
+    // Function to add date and signature spaces
+    function AddDateAndSignatureSpace() {
+        // Current date
+        $currentDate = date('Y-m-d');
         
         $this->SetFont('Arial', 'B', 10);
         $this->SetTextColor(0, 0, 0);
-        $this->Cell(40, 7, 'Year-Month', 1);
-        $this->Cell(40, 7, 'Transactions', 1);
-        $this->Cell(60, 7, 'Total Amount (Rs.)', 1);
-        $this->Ln();
-
-        $this->SetFont('Arial', '', 10);
-        foreach ($this->data['monthlySummary'] as $month) {
-            $this->Cell(40, 7, $month['year'] . '-' . str_pad($month['month'], 2, '0', STR_PAD_LEFT), 1);
-            $this->Cell(40, 7, $month['transaction_count'], 1);
-            $this->Cell(60, 7, 'Rs. ' . number_format($month['total_amount'], 2), 1);
-            $this->Ln();
-        }
         
-        // Add signature and date section at the bottom with adjusted position
-        $this->Ln(20);
+        // Left side - Date section
+        $this->Cell(95, 10, 'Date: ' . $currentDate, 0, 0);
         
-        // Date on left side
-        $this->SetFont('Arial', 'B', 10);
-        $this->Cell(80, 7, 'Date: _____________________', 0, 0, 'L');
+        // Right side - Signature section
+        $this->Cell(95, 10, 'Authorized Signature:', 0, 1);
         
-        // Signature positioned further to the right
-        $this->Cell(20, 7, '', 0, 0); // Add empty space to push signature further right
-        $this->Cell(80, 7, 'Manager Signature: _____________________', 0, 1, 'R');
+        // Add space for signature
+        $this->Ln(15);
+        
+        // Signature line on right side
+        $this->Cell(95, 0, '', 0, 0);
+        $this->Cell(95, 0, '', 'B', 1);
+        
+        // Name/Title below signature line
+        $this->Ln(5);
+        $this->Cell(95, 10, '', 0, 0);
+        $this->SetFont('Arial', '', 8);
+        $this->Cell(95, 10, '(Manager/Authorized Personnel)', 0, 1, 'C');
+        
+        // Add verification text
+        $this->Ln(10);
+        $this->SetFont('Arial', 'I', 8);
+        $this->SetTextColor(100, 100, 100);
+        $this->Cell(0, 10, 'This report was automatically generated from the Sarvodaya receipt system.', 0, 1, 'C');
+        $this->Cell(0, 10, 'Report generation date: ' . date('Y-m-d H:i:s'), 0, 1, 'C');
     }
 }
 
-// The rest of the code remains the same
+// Receipt Analysis Class
 class ReceiptAnalysis {
     private $conn;
 
@@ -234,6 +343,10 @@ class ReceiptAnalysis {
 
     // Generate PDF Report with Date Range
     public function generatePDFReport($startDate = null, $endDate = null) {
+        // Format date display
+        $startDateDisplay = $startDate ? date('F j, Y', strtotime($startDate)) : 'Beginning';
+        $endDateDisplay = $endDate ? date('F j, Y', strtotime($endDate)) : 'Present';
+        
         // Collect all necessary data with date range
         $reportData = [
             'totalReceipts' => $this->getTotalReceipts($startDate, $endDate),
@@ -242,12 +355,12 @@ class ReceiptAnalysis {
         ];
 
         // Create PDF
-        $pdf = new ReceiptReportPDF($reportData, $startDate ?? 'Beginning', $endDate ?? 'Now');
+        $pdf = new ReceiptReportPDF($reportData, $startDateDisplay, $endDateDisplay);
         $pdf->AliasNbPages();
         $pdf->AddPage();
         $pdf->GenerateReport();
         
-        $pdfFile = 'receipts_analysis_report.pdf';
+        $pdfFile = 'sarvodaya_receipt_analysis_report.pdf';
         $pdf->Output('F', $pdfFile);
         return $pdfFile;
     }
@@ -263,21 +376,26 @@ if (isset($_GET['action']) && $_GET['action'] == 'download_pdf') {
     
     // Force download
     header('Content-Type: application/pdf');
-    header('Content-Disposition: attachment; filename="receipts_analysis_report.pdf"');
+    header('Content-Disposition: attachment; filename="sarvodaya_receipt_analysis_report.pdf"');
     header('Content-Length: ' . filesize($pdfFile));
     readfile($pdfFile);
     exit;
 }
+
+// Get current filter values
+$startDate = $_GET['start_date'] ?? null;
+$endDate = $_GET['end_date'] ?? null;
+$showFiltered = !empty($startDate) || !empty($endDate);
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Receipts Analysis Dashboard</title>
+    <title>Receipt Analysis Dashboard</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 800px;
+            max-width: 1000px;
             margin: 0 auto;
             padding: 20px;
             background-color: #f4f4f4;
@@ -295,18 +413,76 @@ if (isset($_GET['action']) && $_GET['action'] == 'download_pdf') {
             padding: 15px;
             margin-bottom: 15px;
         }
-        .download-btn {
-            display: inline-block;
-            background-color: rgb(255, 140, 0);
-            color: white;
+        .filter-section {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .filter-form {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .filter-form label {
+            font-weight: bold;
+            font-size: 16px;
+            color: #333;
+        }
+        .filter-form input[type="date"] {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .btn {
             padding: 10px 20px;
-            text-decoration: none;
+            border: none;
             border-radius: 5px;
-            margin-top: 15px;
+            cursor: pointer;
+            font-size: 16px;
+            text-decoration: none;
+            display: inline-block;
             transition: background-color 0.3s ease;
         }
-        .download-btn:hover {
+        .btn-primary {
+            background-color: rgb(255, 140, 0);
+            color: white;
+        }
+        .btn-primary:hover {
             background-color: rgba(255, 140, 0, 0.8);
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-success:hover {
+            background-color: #218838;
+        }
+        .filter-info {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 15px;
+            color: #155724;
+        }
+        .no-filter-info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 15px;
+            color: #0c5460;
         }
         table {
             width: 100%;
@@ -315,109 +491,228 @@ if (isset($_GET['action']) && $_GET['action'] == 'download_pdf') {
         }
         th, td {
             border: 1px solid #ddd;
-            padding: 8px;
+            padding: 12px;
             text-align: left;
         }
         th {
             background-color: rgba(255, 140, 0, 0.1);
             color: rgb(255, 140, 0);
+            font-weight: bold;
+        }
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tbody tr:hover {
+            background-color: rgba(255, 140, 0, 0.05);
         }
         h1, h2 {
             color: rgb(255, 140, 0);
         }
-        .date-range-form {
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
             margin-bottom: 20px;
-            display: flex;
-            gap: 10px;
-            align-items: center;
         }
-        .date-range-form input {
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+        .stat-card {
+            background-color: rgba(255, 140, 0, 0.1);
+            border: 1px solid rgba(255, 140, 0, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: rgb(255, 140, 0);
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+        .section-divider {
+            border-top: 2px solid rgba(255, 140, 0, 0.3);
+            margin: 30px 0;
+        }
+        @media (max-width: 768px) {
+            .filter-form {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .filter-form > * {
+                width: 100%;
+                margin-bottom: 10px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="dashboard">
-        <h1>Receipts Analysis Dashboard</h1>
+        <h1>Receipt Analysis Dashboard</h1>
         
-        <form method="get" class="date-range-form">
-            <label for="start_date" style="font-size: 20px;">Start Date:</label>
-            <input type="date"  style="font-size: 20px;" name="start_date" id="start_date">
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <h2 style="margin-top: 0;">Filter Options</h2>
             
-            <label for="end_date" style="font-size: 20px;">End Date:</label>
-            <input type="date" style="font-size: 20px;" name="end_date" id="end_date">
+            <form method="get" class="filter-form">
+                <label for="start_date">Start Date:</label>
+                <input type="date" name="start_date" id="start_date" value="<?php echo htmlspecialchars($startDate ?? ''); ?>">
+                
+                <label for="end_date">End Date:</label>
+                <input type="date" name="end_date" id="end_date" value="<?php echo htmlspecialchars($endDate ?? ''); ?>">
+                
+                <button type="submit" class="btn btn-primary">Apply Filter</button>
+                <a href="?" class="btn btn-secondary">Clear Filter</a>
+            </form>
             
-            <input type="hidden" style="font-size: 20px;" name="action" value="download_pdf">
-            <button type="submit" class="download-btn" >Generate PDF Report</button>
-        </form>
+            <!-- PDF Download Form -->
+            <form method="get" style="margin-top: 15px;">
+                <input type="hidden" name="start_date" value="<?php echo htmlspecialchars($startDate ?? ''); ?>">
+                <input type="hidden" name="end_date" value="<?php echo htmlspecialchars($endDate ?? ''); ?>">
+                <input type="hidden" name="action" value="download_pdf">
+                <button type="submit" class="btn btn-success">📋 Download PDF Report</button>
+            </form>
+        </div>
+        
+        <!-- Filter Status Information -->
+        <?php if ($showFiltered): ?>
+            <div class="filter-info">
+                <strong>📊 Filtered Results:</strong> 
+                Showing receipt data from 
+                <?php echo $startDate ? date('F j, Y', strtotime($startDate)) : 'beginning'; ?> 
+                to 
+                <?php echo $endDate ? date('F j, Y', strtotime($endDate)) : 'now'; ?>
+            </div>
+        <?php else: ?>
+            <div class="no-filter-info">
+                <strong>📋 All Data:</strong> Displaying all available receipt records. Use the filter above to narrow down results.
+            </div>
+        <?php endif; ?>
         
         <?php
         $analysis = new ReceiptAnalysis();
         
-        // If no date range is selected, show default dashboard
-        $startDate = $_GET['start_date'] ?? null;
-        $endDate = $_GET['end_date'] ?? null;
-        
-        // Total Receipts Summary
+        // Get data based on current filters
         $totalReceipts = $analysis->getTotalReceipts($startDate, $endDate);
-        ?>
-        
-        <div class="summary-card">
-            <h2>Total Receipts Summary</h2>
-            <p style="font-size: 20px;">Total Transactions: <?php echo $totalReceipts['total_transactions']; ?></p>
-            <p style="font-size: 20px;">Total Amount: Rs.<?php echo number_format($totalReceipts['total_amount'], 2); ?></p>
-            <p style="font-size: 20px;">Average Transaction: Rs.<?php echo number_format($totalReceipts['average_amount'], 2); ?></p>
-        </div>
-        
-        <?php
-        // Receipts by Type
         $receiptTypes = $analysis->getReceiptsByType($startDate, $endDate);
-        ?>
-        <h2>Receipts by Type</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th style="font-size: 20px;">Receipt Type</th>
-                    <th style="font-size: 20px;">Transaction Count</th>
-                    <th style="font-size: 20px;">Total Amount(Rs.)</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($receiptTypes as $type): ?>
-                <tr>
-                    <td style="font-size: 20px;"><?php echo htmlspecialchars($type['receipt_type']); ?></td>
-                    <td style="font-size: 20px;"><?php echo $type['count']; ?></td>
-                    <td style="font-size: 20px;">Rs.<?php echo number_format($type['total_amount'], 2); ?></td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-        
-        <?php
-        // Monthly Receipts Summary
         $monthlySummary = $analysis->getMonthlyReceiptsSummary($startDate, $endDate);
         ?>
-        <h2>Monthly Receipts Summary</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th style="font-size: 20px;">Year-Month</th>
-                    <th style="font-size: 20px;">Transaction Count</th>
-                    <th style="font-size: 20px;">Total Amount(Rs.)</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($monthlySummary as $month): ?>
-                <tr>
-                    <td style="font-size: 20px;"><?php echo $month['year'] . '-' . str_pad($month['month'], 2, '0', STR_PAD_LEFT); ?></td>
-                    <td style="font-size: 20px;"><?php echo $month['transaction_count']; ?></td>
-                    <td style="font-size: 20px;"s>Rs. <?php echo number_format($month['total_amount'], 2); ?></td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+        
+        <!-- Summary Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value"><?php echo number_format($totalReceipts['total_transactions']); ?></div>
+                <div class="stat-label">Total Transactions</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">Rs.<?php echo number_format($totalReceipts['total_amount'], 2); ?></div>
+                <div class="stat-label">Total Amount</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">Rs.<?php echo number_format($totalReceipts['average_amount'], 2); ?></div>
+                <div class="stat-label">Average Transaction</div>
+            </div>
+        </div>
+        
+        <div class="section-divider"></div>
+        
+        <!-- Receipts by Type -->
+        <h2>📋 Receipts by Type</h2>
+        <?php if (empty($receiptTypes)): ?>
+            <div class="no-filter-info">
+                <strong>No data found:</strong> No receipt records match the current filter criteria.
+            </div>
+        <?php else: ?>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Receipt Type</th>
+                        <th>Transaction Count</th>
+                        <th>Total Amount (Rs.)</th>
+                        <th>Percentage of Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($receiptTypes as $type): ?>
+                        <?php 
+                        $percentage = $totalReceipts['total_amount'] > 0 ? 
+                            ($type['total_amount'] / $totalReceipts['total_amount']) * 100 : 0;
+                        ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($type['receipt_type']); ?></td>
+                            <td><?php echo number_format($type['count']); ?></td>
+                            <td>Rs.<?php echo number_format($type['total_amount'], 2); ?></td>
+                            <td><?php echo number_format($percentage, 1); ?>%</td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php endif; ?>
+        
+        <div class="section-divider"></div>
+        
+        <!-- Monthly Receipt Summary -->
+        <h2>📅 Monthly Receipt Summary</h2>
+        <?php if (empty($monthlySummary)): ?>
+            <div class="no-filter-info">
+                <strong>No data found:</strong> No receipt records match the current filter criteria.
+            </div>
+        <?php else: ?>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Year-Month</th>
+                        <th>Transaction Count</th>
+                        <th>Total Amount (Rs.)</th>
+                        <th>Average per Transaction</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($monthlySummary as $month): ?>
+                        <?php 
+                        $avgPerTransaction = $month['transaction_count'] > 0 ? 
+                            $month['total_amount'] / $month['transaction_count'] : 0;
+                        ?>
+                        <tr>
+                            <td><?php echo $month['year'] . '-' . str_pad($month['month'], 2, '0', STR_PAD_LEFT); ?></td>
+                            <td><?php echo number_format($month['transaction_count']); ?></td>
+                            <td>Rs.<?php echo number_format($month['total_amount'], 2); ?></td>
+                            <td>Rs.<?php echo number_format($avgPerTransaction, 2); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php endif; ?>
+        
+        <div class="section-divider"></div>
+        
+        <!-- Footer Information -->
+        <div style="text-align: center; color: #666; font-size: 12px; margin-top: 30px;">
+            <p>Report generated on: <?php echo date('F j, Y \a\t g:i A'); ?></p>
+            <p>Sarvodaya Receipt Analysis System</p>
+        </div>
     </div>
+    
+    <script>
+        // Auto-submit form when dates change (optional)
+        document.addEventListener('DOMContentLoaded', function() {
+            const startDate = document.getElementById('start_date');
+            const endDate = document.getElementById('end_date');
+            
+            // Optional: Auto-submit when both dates are selected
+            // Uncomment the following lines if you want automatic filtering
+            /*
+            function autoSubmit() {
+                if (startDate.value && endDate.value) {
+                    startDate.closest('form').submit();
+                }
+            }
+            
+            startDate.addEventListener('change', autoSubmit);
+            endDate.addEventListener('change', autoSubmit);
+            */
+        });
+    </script>
 </body>
 </html>
