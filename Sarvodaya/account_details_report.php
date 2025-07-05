@@ -14,10 +14,38 @@ function generatePDF($conn) {
     class SavingsAccountPDF extends FPDF {
         // Page header
         function Header() {
-            $this->SetFont('Arial', 'B', 15);
-            $this->SetTextColor(255, 167, 38);
-            $this->Cell(0, 10, 'Sarvodaya Bank - Savings Account Types Report', 0, 1, 'C');
-            $this->Ln(10);
+            // Show full header only on first page
+            if ($this->PageNo() == 1) {
+                // Organization header
+                $this->SetFont('Arial', 'B', 16);
+                $this->SetTextColor(255, 167, 38);
+                $this->Cell(0, 8, 'SARVODAYA SHRAMADHANA SOCIETY', 0, 1, 'C');
+                
+                $this->SetFont('Arial', 'B', 12);
+                $this->Cell(0, 6, 'Samaghi Sarvodaya Shramadhana Society', 0, 1, 'C');
+                
+                $this->SetFont('Arial', '', 10);
+                $this->SetTextColor(0, 0, 0);
+                $this->Cell(0, 5, 'Kubaloluwa, Veyangoda', 0, 1, 'C');
+                $this->Cell(0, 5, 'Phone: 077 690 6605 | Email: info@sarvodayabank.com', 0, 1, 'C');
+                
+                // Add a line separator
+                $this->Ln(5);
+                $this->Line(10, $this->GetY(), 200, $this->GetY());
+                $this->Ln(5);
+                
+                // Report title
+                $this->SetFont('Arial', 'B', 14);
+                $this->SetTextColor(255, 167, 38);
+                $this->Cell(0, 8, 'Member Account Registry Report', 0, 1, 'C');
+                $this->Ln(10);
+            } else {
+                // On subsequent pages, show only a simple continuation header
+                $this->SetFont('Arial', 'B', 12);
+                $this->SetTextColor(255, 167, 38);
+                $this->Cell(0, 8, 'Member Account Registry Report (Continued)', 0, 1, 'C');
+                $this->Ln(10);
+            }
         }
         
         // Page footer
@@ -54,21 +82,25 @@ function generatePDF($conn) {
 
             // Fetch members for this specific account type
             $account_type_id = $account_type['id'];
-            $members_query = "SELECT id, name, account_type FROM members WHERE account_type = $account_type_id";
+            $members_query = "SELECT id, name, phone, address, account_type FROM members WHERE account_type = $account_type_id";
             $members_result = $conn->query($members_query);
 
             if ($members_result->num_rows > 0) {
                 // Members Table Header
                 $pdf->SetFont('Arial', 'B', 10);
-                $pdf->Cell(30, 10, 'Member ID', 1);
-                $pdf->Cell(160, 10, 'Member Name', 1);
+                $pdf->Cell(20, 10, 'ID', 1);
+                $pdf->Cell(50, 10, 'Name', 1);
+                $pdf->Cell(35, 10, 'Phone', 1);
+                $pdf->Cell(85, 10, 'Address', 1);
                 $pdf->Ln();
 
                 // Members Table Rows
-                $pdf->SetFont('Arial', '', 10);
+                $pdf->SetFont('Arial', '', 9);
                 while ($member = $members_result->fetch_assoc()) {
-                    $pdf->Cell(30, 7, $member['id'], 1);
-                    $pdf->Cell(160, 7, $member['name'], 1);
+                    $pdf->Cell(20, 7, $member['id'], 1);
+                    $pdf->Cell(50, 7, $member['name'], 1);
+                    $pdf->Cell(35, 7, $member['phone'], 1);
+                    $pdf->Cell(85, 7, $member['address'], 1);
                     $pdf->Ln();
                 }
             } else {
@@ -84,28 +116,31 @@ function generatePDF($conn) {
     // Add space for Date and Bank Manager's signature
     $pdf->Ln(20);
     
+    // Get current Y position for alignment
+    $currentY = $pdf->GetY();
+    
     // Set up date on left side
     $pdf->SetFont('Arial', 'B', 10);
     
     // Date line on left side
-    $pdf->Line(20, $pdf->GetY(), 80, $pdf->GetY());
+    $pdf->Line(20, $currentY, 80, $currentY);
+    
+    // Set up signature on right side (same Y position as date line)
+    $pdf->Line(130, $currentY, 190, $currentY);
+    
+    // Move to next line for text labels
+    $pdf->SetY($currentY + 5);
     
     // Add "Date" text below the date line on left side
-    $pdf->SetY($pdf->GetY() + 5);
     $pdf->SetX(20);
     $pdf->Cell(60, 10, 'Date', 0, 0, 'C');
     
-    // Set up signature on right side (on the same vertical position as date)
-    $pdf->SetX(130);
-    
-    // Signature line on right side
-    $pdf->Line(130, $pdf->GetY() - 5, 190, $pdf->GetY() - 5);
-    
     // Add "Bank Manager" text below the signature line on right side
-    $pdf->Cell(60, 10, 'Bank Manager', 0, 1, 'C');
+    $pdf->SetX(130);
+    $pdf->Cell(60, 10, 'Bank Manager', 0, 0, 'C');
 
     // Output the PDF
-    $pdf->Output('Savings_Account_Types_Report.pdf', 'F'); // Save to file
+    $pdf->Output('Member Account Registry Report.pdf', 'F'); // Save to file
 }
 
 // Check if download is requested
@@ -113,7 +148,7 @@ if (isset($_GET['download']) && $_GET['download'] == 'pdf') {
     generatePDF($conn);
     
     // Force download of the generated PDF
-    $file = 'Savings_Account_Types_Report.pdf';
+    $file = 'Member Account Registry Report.pdf';
     if (file_exists($file)) {
         header('Content-Description: File Transfer');
         header('Content-Type: application/octet-stream');
@@ -133,7 +168,7 @@ if (isset($_GET['download']) && $_GET['download'] == 'pdf') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Savings Account Types Summary - Sarvodaya Bank</title>
+    <title>Member Account Registry Report - Sarvodaya Bank</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -182,15 +217,66 @@ if (isset($_GET['download']) && $_GET['download'] == 'pdf') {
             border-color: #ff9800;
             color: white;
         }
+        /* Header Styles */
+        .organization-header {
+            background: linear-gradient(135deg, #ffa726 0%, #ff9800 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(255, 167, 38, 0.3);
+        }
+        .organization-header h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        .organization-header h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        .organization-header p {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            opacity: 0.9;
+        }
+        .report-title {
+            background-color: white;
+            color: #ffa726;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .report-title h3 {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 0;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 class="text-center mb-4" style="color: #ffa726;">Savings Account Types Summary - Sarvodaya Bank</h1>
+        <!-- Organization Header -->
+        <div class="organization-header">
+            <h1>SARVODAYA SHRAMADHANA SOCIETY</h1>
+            <h2>Samaghi Sarvodaya Shramadhana Society</h2>
+            <p>Kubaloluwa, Veyangoda</p>
+            <p>Phone: 077 690 6605 | Email: info@sarvodayabank.com</p>
+        </div>
+
+        <!-- Report Title -->
+        <div class="report-title">
+            <h3>Member Account Registry Report</h3>
+        </div>
 
         <!-- Download PDF Button with Orange Color -->
         <div class="text-center download-btn">
-            <a href="?download=pdf" class="btn btn-orange">
+            <a href="?download=pdf" class="btn btn-orange btn-lg">
                 <i class="fas fa-download"></i> Download PDF Report
             </a>
         </div>
@@ -205,7 +291,7 @@ if (isset($_GET['download']) && $_GET['download'] == 'pdf') {
             while ($account_type = $account_types_result->fetch_assoc()) {
                 // Fetch members for this specific account type
                 $account_type_id = $account_type['id'];
-                $members_query = "SELECT id, name, account_type FROM members WHERE account_type = $account_type_id";
+                $members_query = "SELECT id, name, phone, address, account_type FROM members WHERE account_type = $account_type_id";
                 $members_result = $conn->query($members_query);
 
                 echo '<div class="card">';
@@ -223,16 +309,20 @@ if (isset($_GET['download']) && $_GET['download'] == 'pdf') {
                     echo '<table class="table table-bordered table-hover">';
                     echo '<thead>
                             <tr>
-                                <th style="font-size: 20px;">Member ID</th>
-                                <th style="font-size: 20px;">Member Name</th>
+                                <th style="font-size: 18px;">Member ID</th>
+                                <th style="font-size: 18px;">Member Name</th>
+                                <th style="font-size: 18px;">Phone</th>
+                                <th style="font-size: 18px;">Address</th>
                             </tr>
                           </thead>
                           <tbody>';
 
                     while ($member = $members_result->fetch_assoc()) {
                         echo '<tr>
-                                <td style="font-size: 20px;">' . htmlspecialchars($member['id']) . '</td>
-                                <td style="font-size: 20px;">' . htmlspecialchars($member['name']) . '</td>
+                                <td style="font-size: 16px;">' . htmlspecialchars($member['id']) . '</td>
+                                <td style="font-size: 16px;">' . htmlspecialchars($member['name']) . '</td>
+                                <td style="font-size: 16px;">' . htmlspecialchars($member['phone']) . '</td>
+                                <td style="font-size: 16px;">' . htmlspecialchars($member['address']) . '</td>
                               </tr>';
                     }
 
