@@ -260,7 +260,7 @@ $conn->close();
     <div class="container main-container">
         <!-- Breadcrumb -->
         <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
+            <ol class="breadcrumb" style="font-size: 20px;">
                 <li class="breadcrumb-item"><a href="index.php">Home</a></li>
                 <li class="breadcrumb-item"><a href="loanTypes.php">Loan Types</a></li>
                 <li class="breadcrumb-item active" aria-current="page">Edit Loan Type</li>
@@ -278,76 +278,76 @@ $conn->close();
                     
                     <!-- Basic Info Section -->
                     <div class="card-section">
-                        <div class="section-title">
-                            <i class="bi bi-info-circle"></i>
+                        <div class="section-title" style="font-size: 20px;">
+                            <i class="bi bi-info-circle" style="font-size: 20px;"></i>
                             Basic Information
                         </div>
                         <div class="mb-3">
-                            <label for="loan_name" class="form-label">Loan Name</label>
-                            <input type="text" class="form-control" name="loan_name" id="loan_name" value="<?php echo $row['loan_name']; ?>" required>
+                            <label for="loan_name" class="form-label" style="font-size: 20px;">Loan Name</label>
+                            <input type="text" class="form-control" style="font-size: 20px;" name="loan_name" id="loan_name" value="<?php echo $row['loan_name']; ?>" required>
                         </div>
                         <div class="mb-3">
-                            <label for="description" class="form-label">Description</label>
-                            <textarea class="form-control" name="description" id="description" rows="3"><?php echo $row['description']; ?></textarea>
-                            <div class="form-text text-muted">Provide a brief description of the loan type and its purpose.</div>
+                            <label for="description" class="form-label"style="font-size: 20px;" >Description</label>
+                            <textarea class="form-control" style="font-size: 20px;" name="description" id="description" rows="3"><?php echo $row['description']; ?></textarea>
+                            <div class="form-text text-muted" style="font-size: 17px;">Provide a brief description of the loan type and its purpose.</div>
                         </div>
                     </div>
                     
                     <!-- Financial Details Section -->
                     <div class="card-section">
-                        <div class="section-title">
-                            <i class="bi bi-cash-coin"></i>
+                        <div class="section-title" style="font-size: 20px;">
+                            <i class="bi bi-cash-coin" style="font-size: 20px;"></i>
                             Financial Details
                         </div>
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label for="maximum_amount" class="form-label">Maximum Amount</label>
-                                <div class="input-group">
-                                    <span class="input-group-text">Rs.</span>
-                                    <input type="number" class="form-control" name="maximum_amount" id="maximum_amount" value="<?php echo $row['maximum_amount']; ?>" step="0.01" required>
+                                <label for="maximum_amount" class="form-label" style="font-size: 20px;">Maximum Amount</label>
+                                <div class="input-group" style="font-size: 20px;">
+                                    <span class="input-group-text" style="font-size: 20px;">Rs.</span>
+                                    <input type="number" class="form-control" style="font-size: 20px;" name="maximum_amount" id="maximum_amount" value="<?php echo $row['maximum_amount']; ?>" step="0.01" required>
                                 </div>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label for="interest_rate" class="form-label">Interest Rate</label>
-                                <div class="input-group">
-                                    <input type="number" class="form-control" name="interest_rate" id="interest_rate" value="<?php echo $row['interest_rate']; ?>" step="0.01" required>
-                                    <span class="input-group-text">% p.m.</span>
+                                <label for="interest_rate" class="form-label" style="font-size: 20px;">Interest Rate</label>
+                                <div class="input-group" style="font-size: 20px;">
+                                    <input type="number" class="form-control" style="font-size: 20px;" name="interest_rate" id="interest_rate" value="<?php echo $row['interest_rate']; ?>" step="0.01" required>
+                                    <span class="input-group-text" style="font-size: 20px;">% p.m.</span>
                                 </div>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label for="late_fee" class="form-label">Late Fee</label>
-                                <div class="input-group">
-                                    <span class="input-group-text">Rs.</span>
-                                    <input type="number" class="form-control" name="late_fee" id="late_fee" value="<?php echo isset($row['late_fee']) ? $row['late_fee'] : '0'; ?>" step="0.01" required>
+                                <label for="late_fee" class="form-label" style="font-size: 20px;">Late Fee</label>
+                                <div class="input-group" style="font-size: 20px;">
+                                    <span class="input-group-text" style="font-size: 20px;">Rs.</span>
+                                    <input type="number" class="form-control" style="font-size: 20px;" name="late_fee" id="late_fee" value="<?php echo isset($row['late_fee']) ? $row['late_fee'] : '0'; ?>" step="0.01" required>
                                 </div>
-                                <div class="form-text text-muted">Fixed amount charged for late payments.</div>
+                                <div class="form-text text-muted" style="font-size: 17px;">Fixed amount charged for late payments.</div>
                             </div>
                         </div>
                     </div>
                     
                     <!-- Terms Section -->
                     <div class="card-section">
-                        <div class="section-title">
-                            <i class="bi bi-calendar-date"></i>
+                        <div class="section-title" style="font-size: 20px;">
+                            <i class="bi bi-calendar-date" style="font-size: 20px;"></i>
                             Loan Terms
                         </div>
                         <div class="mb-3">
-                            <label for="max_period" class="form-label">Maximum Period</label>
+                            <label for="max_period" class="form-label" style="font-size: 20px;">Maximum Period</label>
                             <div class="input-group">
-                                <input type="number" class="form-control" name="max_period" id="max_period" value="<?php echo $row['max_period']; ?>" required>
-                                <span class="input-group-text">Months</span>
+                                <input type="number" class="form-control" style="font-size: 20px;" name="max_period" id="max_period" value="<?php echo $row['max_period']; ?>" required>
+                                <span class="input-group-text" style="font-size: 20px;">Months</span>
                             </div>
-                            <div class="form-text text-muted">The maximum duration for this loan type.</div>
+                            <div class="form-text text-muted" style="font-size: 17px;">The maximum duration for this loan type.</div>
                         </div>
                     </div>
                     
                     <!-- Action Buttons -->
                     <div class="mt-4 text-end btn-group">
-                        <a href="loanTypes.php" class="btn btn-outline-secondary">
-                            <i class="bi bi-x-circle me-2"></i> Cancel
+                        <a href="loanTypes.php" class="btn btn-outline-secondary" style="font-size: 20px;">
+                            <i class="bi bi-x-circle me-2" style="font-size: 20px;"></i> Cancel
                         </a>
-                        <button type="submit" class="btn btn-custom">
-                            <i class="bi bi-check-circle me-2"></i> Update Loan Type
+                        <button type="submit" class="btn btn-custom" style="font-size: 20px;">
+                            <i class="bi bi-check-circle me-2" style="font-size: 20px;"></i> Update Loan Type
                         </button>
                     </div>
                 </form>
