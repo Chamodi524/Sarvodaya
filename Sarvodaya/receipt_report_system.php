@@ -556,14 +556,14 @@ $showFiltered = !empty($startDate) || !empty($endDate);
             <h2 style="margin-top: 0;">Filter Options</h2>
             
             <form method="get" class="filter-form">
-                <label for="start_date">Start Date:</label>
-                <input type="date" name="start_date" id="start_date" value="<?php echo htmlspecialchars($startDate ?? ''); ?>">
+                <label for="start_date" style="font-size: 20px;">Start Date:</label>
+                <input type="date" style="font-size: 20px;" name="start_date" id="start_date" value="<?php echo htmlspecialchars($startDate ?? ''); ?>">
                 
-                <label for="end_date">End Date:</label>
-                <input type="date" name="end_date" id="end_date" value="<?php echo htmlspecialchars($endDate ?? ''); ?>">
+                <label for="end_date" style="font-size: 20px;">End Date:</label>
+                <input type="date" style="font-size: 20px;" name="end_date" id="end_date" value="<?php echo htmlspecialchars($endDate ?? ''); ?>">
                 
-                <button type="submit" class="btn btn-primary">Apply Filter</button>
-                <a href="?" class="btn btn-secondary">Clear Filter</a>
+                <button type="submit" class="btn btn-primary" style="font-size: 20px;">Apply Filter</button>
+                <a href="?" class="btn btn-secondary" style="font-size: 20px;">Clear Filter</a>
             </form>
             
             <!-- PDF Download Form -->
@@ -571,13 +571,13 @@ $showFiltered = !empty($startDate) || !empty($endDate);
                 <input type="hidden" name="start_date" value="<?php echo htmlspecialchars($startDate ?? ''); ?>">
                 <input type="hidden" name="end_date" value="<?php echo htmlspecialchars($endDate ?? ''); ?>">
                 <input type="hidden" name="action" value="download_pdf">
-                <button type="submit" class="btn btn-success">📋 Download PDF Report</button>
+                <button type="submit" class="btn btn-success" style="font-size: 20px;">📋 Download PDF Report</button>
             </form>
         </div>
         
         <!-- Filter Status Information -->
         <?php if ($showFiltered): ?>
-            <div class="filter-info">
+            <div class="filter-info" style="font-size: 20px;">
                 <strong>📊 Filtered Results:</strong> 
                 Showing receipt data from 
                 <?php echo $startDate ? date('F j, Y', strtotime($startDate)) : 'beginning'; ?> 
@@ -585,7 +585,7 @@ $showFiltered = !empty($startDate) || !empty($endDate);
                 <?php echo $endDate ? date('F j, Y', strtotime($endDate)) : 'now'; ?>
             </div>
         <?php else: ?>
-            <div class="no-filter-info">
+            <div class="no-filter-info" style="font-size: 20px;">
                 <strong>📋 All Data:</strong> Displaying all available receipt records. Use the filter above to narrow down results.
             </div>
         <?php endif; ?>
@@ -603,15 +603,15 @@ $showFiltered = !empty($startDate) || !empty($endDate);
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-value"><?php echo number_format($totalReceipts['total_transactions']); ?></div>
-                <div class="stat-label">Total Transactions</div>
+                <div class="stat-label" style="font-size: 20px;">Total Transactions</div>
             </div>
             <div class="stat-card">
                 <div class="stat-value">Rs.<?php echo number_format($totalReceipts['total_amount'], 2); ?></div>
-                <div class="stat-label">Total Amount</div>
+                <div class="stat-label" style="font-size: 20px;">Total Amount</div>
             </div>
             <div class="stat-card">
                 <div class="stat-value">Rs.<?php echo number_format($totalReceipts['average_amount'], 2); ?></div>
-                <div class="stat-label">Average Transaction</div>
+                <div class="stat-label" style="font-size: 20px;">Average Transaction</div>
             </div>
         </div>
         
@@ -627,10 +627,10 @@ $showFiltered = !empty($startDate) || !empty($endDate);
             <table>
                 <thead>
                     <tr>
-                        <th>Receipt Type</th>
-                        <th>Transaction Count</th>
-                        <th>Total Amount (Rs.)</th>
-                        <th>Percentage of Total</th>
+                        <th style="font-size: 20px;">Receipt Type</th>
+                        <th style="font-size: 20px;">Transaction Count</th>
+                        <th style="font-size: 20px;">Total Amount (Rs.)</th>
+                        <th style="font-size: 20px;">Percentage of Total</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -640,10 +640,10 @@ $showFiltered = !empty($startDate) || !empty($endDate);
                             ($type['total_amount'] / $totalReceipts['total_amount']) * 100 : 0;
                         ?>
                         <tr>
-                            <td><?php echo htmlspecialchars($type['receipt_type']); ?></td>
-                            <td><?php echo number_format($type['count']); ?></td>
-                            <td>Rs.<?php echo number_format($type['total_amount'], 2); ?></td>
-                            <td><?php echo number_format($percentage, 1); ?>%</td>
+                            <td style="font-size: 20px;"><?php echo htmlspecialchars($type['receipt_type']); ?></td>
+                            <td style="font-size: 20px;"><?php echo number_format($type['count']); ?></td>
+                            <td style="font-size: 20px;">Rs.<?php echo number_format($type['total_amount'], 2); ?></td>
+                            <td style="font-size: 20px;"><?php echo number_format($percentage, 1); ?>%</td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
@@ -662,10 +662,10 @@ $showFiltered = !empty($startDate) || !empty($endDate);
             <table>
                 <thead>
                     <tr>
-                        <th>Year-Month</th>
-                        <th>Transaction Count</th>
-                        <th>Total Amount (Rs.)</th>
-                        <th>Average per Transaction</th>
+                        <th style="font-size: 20px;">Year-Month</th>
+                        <th style="font-size: 20px;">Transaction Count</th>
+                        <th style="font-size: 20px;">Total Amount (Rs.)</th>
+                        <th style="font-size: 20px;">Average per Transaction</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -675,10 +675,10 @@ $showFiltered = !empty($startDate) || !empty($endDate);
                             $month['total_amount'] / $month['transaction_count'] : 0;
                         ?>
                         <tr>
-                            <td><?php echo $month['year'] . '-' . str_pad($month['month'], 2, '0', STR_PAD_LEFT); ?></td>
-                            <td><?php echo number_format($month['transaction_count']); ?></td>
-                            <td>Rs.<?php echo number_format($month['total_amount'], 2); ?></td>
-                            <td>Rs.<?php echo number_format($avgPerTransaction, 2); ?></td>
+                            <td style="font-size: 20px;"><?php echo $month['year'] . '-' . str_pad($month['month'], 2, '0', STR_PAD_LEFT); ?></td>
+                            <td style="font-size: 20px;"><?php echo number_format($month['transaction_count']); ?></td>
+                            <td style="font-size: 20px;">Rs.<?php echo number_format($month['total_amount'], 2); ?></td>
+                            <td style="font-size: 20px;">Rs.<?php echo number_format($avgPerTransaction, 2); ?></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
@@ -689,8 +689,8 @@ $showFiltered = !empty($startDate) || !empty($endDate);
         
         <!-- Footer Information -->
         <div style="text-align: center; color: #666; font-size: 12px; margin-top: 30px;">
-            <p>Report generated on: <?php echo date('F j, Y \a\t g:i A'); ?></p>
-            <p>Sarvodaya Receipt Analysis System</p>
+            <p style="font-size: 17px;">Report generated on: <?php echo date('F j, Y \a\t g:i A'); ?></p>
+            <p style="font-size: 17px;">Sarvodaya Receipt Analysis System</p>
         </div>
     </div>
     
