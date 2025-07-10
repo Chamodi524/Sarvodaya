@@ -34,7 +34,7 @@ if (isset($_GET['download_pdf'])) {
                 0 AS debit_amount,
                 amount AS credit_amount,
                 description AS details,
-                NULL AS reference_id,
+                id AS reference_id,
                 payment_type AS reference_type
               FROM payments
               WHERE DATE(payment_date) BETWEEN ? AND ?
@@ -49,7 +49,7 @@ if (isset($_GET['download_pdf'])) {
                 amount AS debit_amount,
                 0 AS credit_amount,
                 NULL AS details,
-                loan_id AS reference_id,
+                id AS reference_id,
                 receipt_type AS reference_type
               FROM receipts
               WHERE DATE(receipt_date) BETWEEN ? AND ?
@@ -64,7 +64,7 @@ if (isset($_GET['download_pdf'])) {
                 0 AS debit_amount,
                 interest_amount AS credit_amount,
                 CONCAT('Interest for ', period_start_date, ' to ', period_end_date) AS details,
-                account_type_id AS reference_id,
+                id AS reference_id,
                 status AS reference_type
               FROM interest_calculations
               WHERE DATE(created_at) BETWEEN ? AND ?
@@ -1151,7 +1151,7 @@ if (isset($_GET['download_pdf'])) {
                     0 AS debit_amount,
                     amount AS credit_amount,
                     description AS details,
-                    NULL AS reference_id,
+                    id AS reference_id,
                     payment_type AS reference_type
                   FROM payments
                   WHERE DATE(payment_date) BETWEEN ? AND ?
@@ -1166,7 +1166,7 @@ if (isset($_GET['download_pdf'])) {
                     amount AS debit_amount,
                     0 AS credit_amount,
                     NULL AS details,
-                    loan_id AS reference_id,
+                    id AS reference_id,
                     receipt_type AS reference_type
                   FROM receipts
                   WHERE DATE(receipt_date) BETWEEN ? AND ?
@@ -1181,7 +1181,7 @@ if (isset($_GET['download_pdf'])) {
                     0 AS debit_amount,
                     interest_amount AS credit_amount,
                     CONCAT('Interest for ', period_start_date, ' to ', period_end_date) AS details,
-                    account_type_id AS reference_id,
+                    id AS reference_id,
                     status AS reference_type
                   FROM interest_calculations
                   WHERE DATE(created_at) BETWEEN ? AND ?
@@ -1279,8 +1279,8 @@ if (isset($_GET['download_pdf'])) {
                                 </td>
                                 <td style="font-size: 20px;"><span class="member-id" style="font-size: 20px;">#<?= $row['member_id'] ?></span></td>
                                 <td class="reference" style="font-size: 20px;">
-                                    <?= $row['reference_type'] ?>
-                                    <?= $row['reference_id'] ? '<br><small>Ref #' . $row['reference_id'] . '</small>' : '' ?>
+                                    <?= ucfirst($row['transaction_type']) ?> #<?= $row['reference_id'] ?>
+                                    <br><small><?= $row['reference_type'] ?></small>
                                 </td>
                                 <td class="details" style="font-size: 20px;"><?= $row['details'] ? $row['details'] : '&mdash;' ?></td>
                                 <td  style="font-size: 20px;" class="amount <?= $row['debit_amount'] > 0 ? 'debit' : 'zero-amount' ?>">

@@ -77,24 +77,24 @@ $member = $result->fetch_assoc();
                         <h3 style="color: #ffa726;">Personal Information</h3>
                         <table class="table">
                             <tr>
-                                <th>Name</th>
-                                <td><?php echo htmlspecialchars($member['name']); ?></td>
+                                <th style="font-size: 20px;">Name</th>
+                                <td style="font-size: 20px;"><?php echo htmlspecialchars($member['name']); ?></td>
                             </tr>
                             <tr>
-                                <th>Email</th>
-                                <td><?php echo htmlspecialchars($member['email']); ?></td>
+                                <th style="font-size: 20px;">Email</th>
+                                <td style="font-size: 20px;"><?php echo htmlspecialchars($member['email']); ?></td>
                             </tr>
                             <tr>
-                                <th>Phone</th>
-                                <td><?php echo htmlspecialchars($member['phone']); ?></td>
+                                <th style="font-size: 20px;">Phone</th>
+                                <td style="font-size: 20px;"><?php echo htmlspecialchars($member['phone']); ?></td>
                             </tr>
                             <tr>
-                                <th>Address</th>
-                                <td><?php echo htmlspecialchars($member['address']); ?></td>
+                                <th style="font-size: 20px;">Address</th>
+                                <td style="font-size: 20px;"><?php echo htmlspecialchars($member['address']); ?></td>
                             </tr>
                             <tr>
-                                <th>Account Type</th>
-                                <td><?php echo htmlspecialchars($member['account_name']); ?></td>
+                                <th style="font-size: 20px;">Account Type</th>
+                                <td style="font-size: 20px;"><?php echo htmlspecialchars($member['account_name']); ?></td>
                             </tr>
                         </table>
                     </div>
@@ -103,28 +103,28 @@ $member = $result->fetch_assoc();
                             <h3 style="color: #ffa726;">Guardian Information</h3>
                             <table class="table">
                                 <tr>
-                                    <th>Guardian's Name</th>
-                                    <td><?php echo htmlspecialchars($member['guardian_name'] ?? 'N/A'); ?></td>
+                                    <th style="font-size: 20px;">Guardian's Name</th>
+                                    <td style="font-size: 20px;"><?php echo htmlspecialchars($member['guardian_name'] ?? 'N/A'); ?></td>
                                 </tr>
                                 <tr>
-                                    <th>Guardian's NIC</th>
-                                    <td><?php echo htmlspecialchars($member['guardian_nic'] ?? 'N/A'); ?></td>
+                                    <th style="font-size: 20px;">Guardian's NIC</th>
+                                    <td style="font-size: 20px;"><?php echo htmlspecialchars($member['guardian_nic'] ?? 'N/A'); ?></td>
                                 </tr>
                                 <tr>
-                                    <th>Guardian's Occupation</th>
-                                    <td><?php echo htmlspecialchars($member['guardian_occupation'] ?? 'N/A'); ?></td>
+                                    <th style="font-size: 20px;">Guardian's Occupation</th>
+                                    <td style="font-size: 20px;"><?php echo htmlspecialchars($member['guardian_occupation'] ?? 'N/A'); ?></td>
                                 </tr>
                             </table>
                         <?php else: ?>
                             <h3 style="color: #ffa726;">Additional Information</h3>
                             <table class="table">
                                 <tr>
-                                    <th>NIC Number</th>
-                                    <td><?php echo htmlspecialchars($member['nic'] ?? 'N/A'); ?></td>
+                                    <th style="font-size: 20px;">NIC Number</th>
+                                    <td style="font-size: 20px;"><?php echo htmlspecialchars($member['nic'] ?? 'N/A'); ?></td>
                                 </tr>
                                 <tr>
-                                    <th>Occupation</th>
-                                    <td><?php echo htmlspecialchars($member['occupation'] ?? 'N/A'); ?></td>
+                                    <th style="font-size: 20px;">Occupation</th>
+                                    <td style="font-size: 20px;"><?php echo htmlspecialchars($member['occupation'] ?? 'N/A'); ?></td>
                                 </tr>
                             </table>
                         <?php endif; ?>
@@ -151,9 +151,9 @@ $member = $result->fetch_assoc();
                     </div>
                 <?php endif; ?>
 
-                <div class="text-center mt-4">
-                    <a href="member_management.php" class="btn btn-custom" style="background-color: #ffa726; color: white;">
-                        <i class="bi bi-arrow-left"></i> Back to Members List
+                <div class="text-center mt-4" >
+                    <a href="member_management.php" class="btn btn-custom" style="background-color: #ffa726; color: white;" >
+                        <i class="bi bi-arrow-left" ></i> Back to Members List
                     </a>
                 </div>
             </div>
