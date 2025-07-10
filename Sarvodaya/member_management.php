@@ -391,11 +391,11 @@ $account_types_result = $conn->query("SELECT * FROM savings_account_types");
             <div class="card-header">
                 <h2 class="mb-0" style="font-size: 1.5rem;">Members List</h2>
             </div>
-            <div class="card-body p-3">
+            <div class="card-body p-3" style="font-size: 1.25rem;">
                 <!-- Search Bar with NIC/Guardian NIC Search -->
-                <div class="searchbar-container mb-3">
+                <div class="searchbar-container mb-3" style="font-size: 1.25rem;">
                     <i class="bi bi-search"></i>
-                    <input type="text" id="searchInput" class="form-control" placeholder="Search by NIC or Guardian NIC...">
+                    <input type="text" id="searchInput" class="form-control" style="font-size: 1.25rem;" placeholder="Search by NIC or Guardian NIC...">
                 </div>
                 <div class="table-responsive">
                     <table class="table table-custom" id="membersTable" >
