@@ -540,7 +540,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <th>Type</th>
                                     <th>Category</th>
                                     <th>Amount(Rs.)</th>
-                                    <th>Description</th>
+                                    
                                     <th>Date</th>
                                 </tr>
                             </thead>
@@ -553,7 +553,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <td><span class="${typeClass}">${transaction.type}</span></td>
                                 <td>${transaction.category}</td>
                                 <td class="${typeClass}">${transaction.amount}</td>
-                                <td>${transaction.description}</td>
+                                
                                 <td>${transaction.transaction_date}</td>
                             </tr>`;
                     });
