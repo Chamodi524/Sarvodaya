@@ -339,8 +339,8 @@ if ($loan_result->num_rows > 0) {
                     <select class="form-select" id="receipt_type" style="font-size: 20px;" name="receipt_type" required>
                         <option value="" style="font-size: 20px;">Select Receipt Type</option>
                         <option value="deposit" style="font-size: 20px;">Deposit</option>
-                        <option value="loan_repayment" style="font-size: 20px;">Loan Repayment</option>
-                        <option value="late_fee" style="font-size: 20px;">Late Fee</option>
+                        <option value="loan_repayment" style="font-size: 20px;">Other</option>
+                        
                     </select>
                 </div>
                 <!-- Loan type field will be shown only for loan repayment -->
