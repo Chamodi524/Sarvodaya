@@ -136,7 +136,7 @@ $pdf->Ln(5);
 // Loan Details
 $pdf->SectionTitle('2. LOAN DETAILS');
 $pdf->TwoColumnLabelValue('Loan Type', $loan['loan_type_name'] ?? 'N/A', 'Application Date', date('F j, Y', strtotime($loan['application_date'])));
-$pdf->TwoColumnLabelValue('Loan Amount', 'Rs. ' . number_format($loan['amount'], 2), 'Interest Rate', $loan['interest_rate'] . '% per annum');
+$pdf->TwoColumnLabelValue('Loan Amount', 'Rs. ' . number_format($loan['amount'], 2), 'Interest Rate', $loan['interest_rate'] . '% per month');
 $pdf->TwoColumnLabelValue('Repayment Period', $loan['max_period'] . ' months', 'Total Repayment', 'Rs. ' . number_format($loan['total_repayment_amount'], 2));
 $pdf->TwoColumnLabelValue('Start Date', date('F j, Y', strtotime($loan['start_date'])), 'End Date', date('F j, Y', strtotime($loan['end_date'])));
 $pdf->Ln(5);
