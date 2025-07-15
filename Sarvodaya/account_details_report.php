@@ -37,13 +37,13 @@ function generatePDF($conn) {
                 // Report title
                 $this->SetFont('Arial', 'B', 14);
                 $this->SetTextColor(255, 167, 38);
-                $this->Cell(0, 8, 'Member Account Registry Report', 0, 1, 'C');
+                $this->Cell(0, 8, 'Member Information Report', 0, 1, 'C');
                 $this->Ln(10);
             } else {
                 // On subsequent pages, show only a simple continuation header
                 $this->SetFont('Arial', 'B', 12);
                 $this->SetTextColor(255, 167, 38);
-                $this->Cell(0, 8, 'Member Account Registry Report (Continued)', 0, 1, 'C');
+                $this->Cell(0, 8, 'Member Information Report (Continued)', 0, 1, 'C');
                 $this->Ln(10);
             }
         }
@@ -140,7 +140,7 @@ function generatePDF($conn) {
     $pdf->Cell(60, 10, 'Bank Manager', 0, 0, 'C');
 
     // Output the PDF
-    $pdf->Output('Member Account Registry Report.pdf', 'F'); // Save to file
+    $pdf->Output('Member Information Report.pdf', 'F'); // Save to file
 }
 
 // Check if download is requested
@@ -148,7 +148,7 @@ if (isset($_GET['download']) && $_GET['download'] == 'pdf') {
     generatePDF($conn);
     
     // Force download of the generated PDF
-    $file = 'Member Account Registry Report.pdf';
+    $file = 'Member Information Report.pdf';
     if (file_exists($file)) {
         header('Content-Description: File Transfer');
         header('Content-Type: application/octet-stream');
@@ -168,7 +168,7 @@ if (isset($_GET['download']) && $_GET['download'] == 'pdf') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Member Account Registry Report - Sarvodaya Bank</title>
+    <title>Member Information Report - Sarvodaya Bank</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -271,7 +271,7 @@ if (isset($_GET['download']) && $_GET['download'] == 'pdf') {
 
         <!-- Report Title -->
         <div class="report-title">
-            <h3>Member Account Registry Report</h3>
+            <h3>Member Information Report</h3>
         </div>
 
         <!-- Download PDF Button with Orange Color -->

@@ -94,7 +94,7 @@
         <nav class="nav flex-column">
         <a class="nav-link" href="incomeStatement.php">Income Statement</a>
         <a class="nav-link" href="journal.php">General journal</a>
-        <a class="nav-link" href="account_details_report.php">Member Account Registry Report</a>
+        <a class="nav-link" href="account_details_report.php">Member Information Report</a>
         <a class="nav-link" href="payment_report_system.php">Payments Report</a>
         <a class="nav-link" href="receipt_report_system.php">Receipts Report</a>
         <a class="nav-link" href="Account_analysis.php">Account Analysis</a>

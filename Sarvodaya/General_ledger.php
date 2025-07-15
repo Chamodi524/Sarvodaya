@@ -196,7 +196,7 @@ if ($conn->connect_error) {
                                 <th style="font-size: 20px;">Deposit</th>
                                 <th style="font-size: 20px;">Withdrawal</th>
                                 <th style="font-size: 20px;">Interest</th>
-                                <th style="font-size: 20px;">Adjustment/Fee</th>
+                                
                                 <th style="font-size: 20px;">Balance</th>
                             </tr>
                         </thead>
@@ -210,7 +210,7 @@ if ($conn->connect_error) {
                     <td style="font-size: 20px;"></td>
                     <td style="font-size: 20px;"></td>
                     <td style="font-size: 20px;"></td>
-                    <td style="font-size: 20px;"></td>
+                    
                     <td style="font-size: 20px;"><strong>Rs.' . number_format($opening_balance, 2) . '</strong></td>
                 </tr>';
 
@@ -277,15 +277,7 @@ if ($conn->connect_error) {
                             <td>' . ($deposit > 0 ? 'Rs. ' . number_format($deposit, 2) : '') . '</td>
                             <td>' . ($withdrawal > 0 ? 'Rs. ' . number_format($withdrawal, 2) : '') . '</td>
                             <td>' . ($interest > 0 ? 'Rs. ' . number_format($interest, 2) : '') . '</td>
-                            <td>';
-                        
-                        if ($adjustment != 0) {
-                            echo ($adjustment > 0 ? '+' : '-') . ' Rs. ' . number_format(abs($adjustment), 2);
-                        } elseif ($fee > 0) {
-                            echo 'Rs. ' . number_format($fee, 2) . ' (Fee)';
-                        }
-                        
-                        echo '</td>
+                            
                             <td>Rs. ' . number_format($row['running_balance'], 2) . '</td>
                         </tr>';
                     }
@@ -299,7 +291,7 @@ if ($conn->connect_error) {
                     <td style="font-size: 20px;"><strong>Rs. ' . number_format($total_deposits, 2) . '</strong></td>
                     <td style="font-size: 20px;"><strong>Rs. ' . number_format($total_withdrawals, 2) . '</strong></td>
                     <td style="font-size: 20px;"><strong>Rs. ' . number_format($total_interest, 2) . '</strong></td>
-                    <td style="font-size: 20px;"><strong>Rs. ' . number_format($total_adjustments + $total_fees, 2) . '</strong></td>
+                    
                     <td style="font-size: 20px;"><strong>Rs. ' . number_format($closing_balance, 2) . '</strong></td>
                 </tr>';
 

@@ -43,7 +43,7 @@ if ($result->num_rows === 0) {
 $payment = $result->fetch_assoc();
 
 // Receipt number - use payment ID with a prefix
-$receipt_number = 'RCT-' . str_pad($payment['payment_id'], 6, '0', STR_PAD_LEFT);
+$receipt_number = 'V-' . str_pad($payment['payment_id'], 6, '0', STR_PAD_LEFT);
 
 // Function to convert number to words for Indian Rupees
 function numberToWords($number) {
@@ -125,7 +125,7 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment Receipt - Sarvodaya Bank</title>
+    <title>Payment Voucher - Sarvodaya Bank</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -280,18 +280,18 @@ $conn->close();
             
             <div class="row">
                 <div class="col-md-6">
-                    <div class="receipt-number">Receipt No: <?php echo htmlspecialchars($receipt_number); ?></div>
+                    <div class="receipt-number">Voucher No: <?php echo htmlspecialchars($receipt_number); ?></div>
                     <div class="receipt-date">Date: <?php echo htmlspecialchars(date('d-m-Y', strtotime($payment['payment_date']))); ?></div>
                 </div>
                 <div class="col-md-6 text-end">
-                    <div class="receipt-title">PAYMENT RECEIPT</div>
+                    <div class="receipt-title">Payment Voucher</div>
                 </div>
             </div>
         </div>
         
         <div class="receipt-body">
             <div class="receipt-row">
-                <div class="receipt-label">Received From:</div>
+                <div class="receipt-label">Paid To:</div>
                 <div class="receipt-value"><?php echo htmlspecialchars($payment['member_name']); ?></div>
             </div>
             
@@ -341,7 +341,7 @@ $conn->close();
     </div>
     
     <div class="actions">
-        <button onclick="window.print();" class="btn-action">Print Receipt</button>
+        <button onclick="window.print();" class="btn-action">Print Voucher</button>
         <a href="<?php echo $_SERVER['HTTP_REFERER'] ?? 'index.php'; ?>" class="btn-action">Back</a>
     </div>
 </body>

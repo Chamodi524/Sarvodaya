@@ -131,7 +131,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $successMessage = "Payment recorded successfully!";
                     
                     // Generate receipt number
-                    $receipt_number = 'RCT-' . str_pad($payment_id, 6, '0', STR_PAD_LEFT);
+                    $receipt_number = 'V-' . str_pad($payment_id, 6, '0', STR_PAD_LEFT);
                     
                     // Store receipt data in session to pass to receipt view
                     $_SESSION['receipt_data'] = [
@@ -520,19 +520,19 @@ $showReceiptView = (isset($_GET['view']) && $_GET['view'] == 'receipt' && isset(
                     
                     <div class="row">
                         <div class="col-md-6">
-                            <div class="receipt-number">Receipt No: <?php echo htmlspecialchars($receipt['receipt_number']); ?></div>
+                            <div class="receipt-number">Voucher No: <?php echo htmlspecialchars($receipt['receipt_number']); ?></div>
                             <div class="receipt-date">Date: <?php echo htmlspecialchars($receipt['date']); ?></div>
                             <div class="receipt-date">Time: <?php echo htmlspecialchars($receipt['time']); ?></div>
                         </div>
                         <div class="col-md-6 text-end">
-                            <div class="receipt-title">PAYMENT RECEIPT</div>
+                            <div class="receipt-title">Payment Voucher</div>
                         </div>
                     </div>
                 </div>
                 
                 <div class="receipt-body">
                     <div class="receipt-row">
-                        <div class="receipt-label">Received From:</div>
+                        <div class="receipt-label">Paid To:</div>
                         <div class="receipt-value"><?php echo htmlspecialchars($receipt['member_name']); ?></div>
                     </div>
                     

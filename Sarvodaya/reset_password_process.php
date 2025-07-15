@@ -137,8 +137,8 @@ function sendPasswordChangeNotification($email, $username) {
         $mail->isSMTP();
         $mail->Host       = 'smtp.gmail.com';
         $mail->SMTPAuth   = true;
-        $mail->Username   = 'youremail@gmail.com'; // Your email
-        $mail->Password   = 'abcd efgh ijkl mnop'; // Your email app password
+        $mail->Username   = 'kaushalyachamo256@gmail.com'; // Your email
+        $mail->Password   = 'bbco yvbh bohc repm'; // Your email app password
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = 587;
         

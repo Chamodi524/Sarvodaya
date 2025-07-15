@@ -161,7 +161,7 @@ $payment = $result->fetch_assoc();
                         </p>
                     </div>
                     <div class="col-md-6 text-md-end">
-                        <h3>₹<?php echo htmlspecialchars(number_format($payment['amount'], 2)); ?></h3>
+                        <h3>Rs.<?php echo htmlspecialchars(number_format($payment['amount'], 2)); ?></h3>
                     </div>
                 </div>
             </div>
@@ -212,7 +212,7 @@ $payment = $result->fetch_assoc();
                         </div>
                         <div class="mb-2">
                             <span class="detail-label">Amount:</span>
-                            <span class="detail-value">₹<?php echo htmlspecialchars(number_format($payment['amount'], 2)); ?></span>
+                            <span class="detail-value">Rs.<?php echo htmlspecialchars(number_format($payment['amount'], 2)); ?></span>
                         </div>
                     </div>
                 </div>

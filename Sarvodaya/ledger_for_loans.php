@@ -203,7 +203,7 @@ if ($conn->connect_error) {
                     // Get outstanding balance as of start date
                     $outstanding_balance = $total_repayment_amount - $total_repaid;
 
-                    // Fetch installments for the date range
+                    // Fetch installments for the date range - CORRECTED QUERY
                     $installments_sql = "
                         SELECT 
                             id,
@@ -217,16 +217,15 @@ if ($conn->connect_error) {
                             actual_payment_date,
                             actual_payment_amount
                         FROM loan_installments
-                        WHERE loan_id = ? AND member_id = ?
+                        WHERE loan_id = ? 
+                        AND member_id = ?
                         AND (
-                            (payment_status = 'paid' AND actual_payment_date BETWEEN ? AND ?) 
-                            OR (payment_date BETWEEN ? AND ? AND payment_status IN ('pending', 'overdue'))
+                            (payment_status = 'paid' AND actual_payment_date BETWEEN ? AND ?)
+                            OR 
+                            (payment_status IN ('pending', 'overdue') AND payment_date BETWEEN ? AND ?)
                         )
                         ORDER BY 
-                            CASE 
-                                WHEN payment_status = 'paid' THEN actual_payment_date 
-                                ELSE payment_date 
-                            END ASC,
+                            CASE WHEN payment_status = 'paid' THEN actual_payment_date ELSE payment_date END ASC,
                             installment_number ASC
                     ";
                     
@@ -240,8 +239,6 @@ if ($conn->connect_error) {
                         <h2>Loan Ledger for Member ID: ' . htmlspecialchars($member_id) . '</h2>
                         <p style="font-size: 20px;">Period: ' . date('d/m/Y', strtotime($start_date)) . ' to ' . date('d/m/Y', strtotime($end_date)) . '</p>';
 
-                    
-
                     echo '<table class="table table-bordered">
                             <thead>
                                 <tr>
@@ -252,7 +249,6 @@ if ($conn->connect_error) {
                                     <th style="font-size: 20px;">Principal</th>
                                     <th style="font-size: 20px;">Interest</th>
                                     <th style="font-size: 20px;">Status</th>
-                                    
                                 </tr>
                             </thead>
                             <tbody>';
@@ -300,11 +296,10 @@ if ($conn->connect_error) {
                                 <td style="font-size: 20px;">' . ($principal > 0 ? 'Rs. ' . number_format($principal, 2) : '') . '</td>
                                 <td style="font-size: 20px;">' . ($interest > 0 ? 'Rs. ' . number_format($interest, 2) : '') . '</td>
                                 <td style="font-size: 20px;">' . ucfirst($row['payment_status']) . '</td>
-                                
                             </tr>';
                         }
                     } else {
-                        echo '<tr><td colspan="8" class="text-center">No installments found for the selected period.</td></tr>';
+                        echo '<tr><td colspan="7" class="text-center">No installments found for the selected period.</td></tr>';
                     }
 
                     // Initialize additional totals
@@ -366,13 +361,13 @@ if ($conn->connect_error) {
                                 }
 
                                 echo '<tr class="' . $row_class . '">
-                                    <td>' . date('d/m/Y', strtotime($row['transaction_date'])) . '</td>
-                                    <td>' . $row['id'] . '</td>
-                                    <td>' . htmlspecialchars($row['description']) . '</td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>';
+                                    <td style="font-size: 20px;">' . date('d/m/Y', strtotime($row['transaction_date'])) . '</td>
+                                    <td style="font-size: 20px;">' . $row['id'] . '</td>
+                                    <td style="font-size: 20px;">' . htmlspecialchars($row['description']) . '</td>
+                                    <td style="font-size: 20px;">-</td>
+                                    <td style="font-size: 20px;">-</td>
+                                    <td style="font-size: 20px;">-</td>
+                                    <td style="font-size: 20px;">';
                                 
                                 if ($fee > 0) {
                                     echo 'Rs. ' . number_format($fee, 2) . ' (Fee)';
@@ -382,7 +377,6 @@ if ($conn->connect_error) {
                                 }
                                 
                                 echo '</td>
-                                    <td>Rs. ' . number_format($closing_balance, 2) . '</td>
                                 </tr>';
                             }
                         }
@@ -394,8 +388,7 @@ if ($conn->connect_error) {
                         <td style="font-size: 20px;"><strong>Rs. ' . number_format($total_payments, 2) . '</strong></td>
                         <td style="font-size: 20px;"><strong>Rs. ' . number_format($total_principal, 2) . '</strong></td>
                         <td style="font-size: 20px;"><strong>Rs. ' . number_format($total_interest, 2) . '</strong></td>
-                        
-                        
+                        <td style="font-size: 20px;"></td>
                     </tr>';
 
                     echo '</tbody>
