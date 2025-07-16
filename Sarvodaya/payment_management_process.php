@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif (in_array($transaction_type, ['WITHDRAWAL', 'FEE', 'ADJUSTMENT'])) {
             // Check if there are sufficient funds for withdrawal
             if ($transaction_type == 'WITHDRAWAL' && $current_balance < $amount) {
-                throw new Exception("Insufficient funds. Current balance: $" . number_format($current_balance, 2));
+                throw new Exception("Insufficient funds. Current balance: Rs." . number_format($current_balance, 2));
             }
             $new_balance -= $amount;
         }

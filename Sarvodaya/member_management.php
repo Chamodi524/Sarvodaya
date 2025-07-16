@@ -332,7 +332,7 @@ $account_types_result = $conn->query("SELECT * FROM savings_account_types");
                     </div>
                     <div class="mb-3">
                         <label for="address" class="form-label" style="font-size: 20px;">Address</label>
-                        <textarea class="form-control" id="address" name="address" rows="2" required></textarea>
+                        <textarea class="form-control" id="address" style="font-size: 20px;" name="address" rows="2" required></textarea>
                     </div>
                     
                     <!-- Dynamic Fields Container -->
