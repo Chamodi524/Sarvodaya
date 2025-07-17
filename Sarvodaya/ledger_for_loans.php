@@ -84,6 +84,9 @@ if ($conn->connect_error) {
         .fee-row {
             background-color: #fce4ec;
         }
+        .overdue-row {
+            background-color: #ffcdd2;
+        }
         .loader {
             display: none;
             text-align: center;
@@ -203,7 +206,7 @@ if ($conn->connect_error) {
                     // Get outstanding balance as of start date
                     $outstanding_balance = $total_repayment_amount - $total_repaid;
 
-                    // Fetch installments for the date range - CORRECTED QUERY
+                    // Fetch installments for the date range - Updated to use actual_payment_date for overdue
                     $installments_sql = "
                         SELECT 
                             id,
@@ -215,22 +218,25 @@ if ($conn->connect_error) {
                             remaining_balance,
                             payment_status,
                             actual_payment_date,
-                            actual_payment_amount
+                            actual_payment_amount,
+                            late_fee
                         FROM loan_installments
                         WHERE loan_id = ? 
                         AND member_id = ?
                         AND (
                             (payment_status = 'paid' AND actual_payment_date BETWEEN ? AND ?)
                             OR 
-                            (payment_status IN ('pending', 'overdue') AND payment_date BETWEEN ? AND ?)
+                            (payment_status = 'pending' AND payment_date BETWEEN ? AND ?)
+                            OR
+                            (payment_status = 'overdue' AND actual_payment_date BETWEEN ? AND ?)
                         )
                         ORDER BY 
-                            CASE WHEN payment_status = 'paid' THEN actual_payment_date ELSE payment_date END ASC,
+                            CASE WHEN payment_status IN ('paid', 'overdue') THEN actual_payment_date ELSE payment_date END ASC,
                             installment_number ASC
                     ";
                     
                     $stmt = $conn->prepare($installments_sql);
-                    $stmt->bind_param("iissss", $loan_id, $member_id, $start_date, $end_date, $start_date, $end_date);
+                    $stmt->bind_param("iissssss", $loan_id, $member_id, $start_date, $end_date, $start_date, $end_date, $start_date, $end_date);
                     $stmt->execute();
                     $installments_result = $stmt->get_result();
 
@@ -248,7 +254,7 @@ if ($conn->connect_error) {
                                     <th style="font-size: 20px;">Payment</th>
                                     <th style="font-size: 20px;">Principal</th>
                                     <th style="font-size: 20px;">Interest</th>
-                                    <th style="font-size: 20px;">Status</th>
+                                    <th style="font-size: 20px;">Late Fee</th>
                                 </tr>
                             </thead>
                             <tbody>';
@@ -257,6 +263,7 @@ if ($conn->connect_error) {
                     $total_payments = 0;
                     $total_principal = 0;
                     $total_interest = 0;
+                    $total_late_fees = 0;
                     $closing_balance = $outstanding_balance;
 
                     // Process installments
@@ -265,6 +272,7 @@ if ($conn->connect_error) {
                             $payment = 0;
                             $principal = 0;
                             $interest = 0;
+                            $late_fee = $row['late_fee'] ? $row['late_fee'] : 0;
                             $row_class = '';
                             $description = "Installment #" . $row['installment_number'];
 
@@ -276,6 +284,7 @@ if ($conn->connect_error) {
                                 $total_payments += $payment;
                                 $total_principal += $principal;
                                 $total_interest += $interest;
+                                $total_late_fees += $late_fee;
                                 $closing_balance = $row['remaining_balance'];
                                 $row_class = 'payment-row';
                                 $display_date = date('d/m/Y', strtotime($row['actual_payment_date']));
@@ -284,8 +293,19 @@ if ($conn->connect_error) {
                                 $payment = $row['payment_amount'];
                                 $principal = $row['principal_amount'];
                                 $interest = $row['interest_amount'];
-                                $row_class = $row['payment_status'] == 'overdue' ? 'penalty-row' : 'interest-row';
-                                $display_date = date('d/m/Y', strtotime($row['payment_date']));
+                                $total_late_fees += $late_fee;
+                                
+                                if ($row['payment_status'] == 'overdue') {
+                                    $row_class = 'overdue-row';
+                                    $description .= ' (OVERDUE)';
+                                    // Use actual_payment_date for overdue if available, otherwise payment_date
+                                    $display_date = $row['actual_payment_date'] ? 
+                                                  date('d/m/Y', strtotime($row['actual_payment_date'])) : 
+                                                  date('d/m/Y', strtotime($row['payment_date']));
+                                } else {
+                                    $row_class = 'interest-row';
+                                    $display_date = date('d/m/Y', strtotime($row['payment_date']));
+                                }
                             }
 
                             echo '<tr class="' . $row_class . '">
@@ -295,7 +315,7 @@ if ($conn->connect_error) {
                                 <td style="font-size: 20px;">' . ($payment > 0 ? 'Rs. ' . number_format($payment, 2) : '') . '</td>
                                 <td style="font-size: 20px;">' . ($principal > 0 ? 'Rs. ' . number_format($principal, 2) : '') . '</td>
                                 <td style="font-size: 20px;">' . ($interest > 0 ? 'Rs. ' . number_format($interest, 2) : '') . '</td>
-                                <td style="font-size: 20px;">' . ucfirst($row['payment_status']) . '</td>
+                                <td style="font-size: 20px;">' . ($late_fee > 0 ? 'Rs. ' . number_format($late_fee, 2) : '') . '</td>
                             </tr>';
                         }
                     } else {
@@ -370,10 +390,10 @@ if ($conn->connect_error) {
                                     <td style="font-size: 20px;">';
                                 
                                 if ($fee > 0) {
-                                    echo 'Rs. ' . number_format($fee, 2) . ' (Fee)';
+                                    echo 'Rs. ' . number_format($fee, 2);
                                 } elseif ($adjustment != 0) {
                                     $prefix = $adjustment > 0 ? '+' : '';
-                                    echo $prefix . 'Rs. ' . number_format($adjustment, 2) . ' (Adjustment)';
+                                    echo $prefix . 'Rs. ' . number_format($adjustment, 2);
                                 }
                                 
                                 echo '</td>
@@ -388,7 +408,7 @@ if ($conn->connect_error) {
                         <td style="font-size: 20px;"><strong>Rs. ' . number_format($total_payments, 2) . '</strong></td>
                         <td style="font-size: 20px;"><strong>Rs. ' . number_format($total_principal, 2) . '</strong></td>
                         <td style="font-size: 20px;"><strong>Rs. ' . number_format($total_interest, 2) . '</strong></td>
-                        <td style="font-size: 20px;"></td>
+                        <td style="font-size: 20px;"><strong>Rs. ' . number_format($total_late_fees, 2) . '</strong></td>
                     </tr>';
 
                     echo '</tbody>
