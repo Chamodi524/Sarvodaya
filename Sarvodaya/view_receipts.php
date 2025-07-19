@@ -12,6 +12,9 @@ if (isset($_GET['generate_pdf'])) {
     // Initialize variables
     $filterType = isset($_GET['filter_type']) ? $_GET['filter_type'] : '';
     $filterMemberNumber = isset($_GET['filter_member_number']) ? trim($_GET['filter_member_number']) : '';
+    $dateFilter = isset($_GET['date_filter']) ? $_GET['date_filter'] : '';
+    $customDateFrom = isset($_GET['custom_date_from']) ? $_GET['custom_date_from'] : '';
+    $customDateTo = isset($_GET['custom_date_to']) ? $_GET['custom_date_to'] : '';
     
     // Base query for all receipts
     $baseQuery = "
@@ -37,6 +40,45 @@ if (isset($_GET['generate_pdf'])) {
         $query .= " AND members.id = " . (int)$filterMemberNumber;
     }
     
+    // Add date filters
+    if (!empty($dateFilter)) {
+        switch ($dateFilter) {
+            case 'today':
+                $query .= " AND DATE(receipts.receipt_date) = CURDATE()";
+                break;
+            case 'yesterday':
+                $query .= " AND DATE(receipts.receipt_date) = DATE_SUB(CURDATE(), INTERVAL 1 DAY)";
+                break;
+            case 'this_week':
+                $query .= " AND YEARWEEK(receipts.receipt_date, 1) = YEARWEEK(CURDATE(), 1)";
+                break;
+            case 'last_week':
+                $query .= " AND YEARWEEK(receipts.receipt_date, 1) = YEARWEEK(DATE_SUB(CURDATE(), INTERVAL 1 WEEK), 1)";
+                break;
+            case 'this_month':
+                $query .= " AND YEAR(receipts.receipt_date) = YEAR(CURDATE()) AND MONTH(receipts.receipt_date) = MONTH(CURDATE())";
+                break;
+            case 'last_month':
+                $query .= " AND YEAR(receipts.receipt_date) = YEAR(DATE_SUB(CURDATE(), INTERVAL 1 MONTH)) AND MONTH(receipts.receipt_date) = MONTH(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))";
+                break;
+            case 'this_year':
+                $query .= " AND YEAR(receipts.receipt_date) = YEAR(CURDATE())";
+                break;
+            case 'last_year':
+                $query .= " AND YEAR(receipts.receipt_date) = YEAR(DATE_SUB(CURDATE(), INTERVAL 1 YEAR))";
+                break;
+            case 'custom':
+                if (!empty($customDateFrom) && !empty($customDateTo)) {
+                    $query .= " AND DATE(receipts.receipt_date) BETWEEN '" . $conn->real_escape_string($customDateFrom) . "' AND '" . $conn->real_escape_string($customDateTo) . "'";
+                } elseif (!empty($customDateFrom)) {
+                    $query .= " AND DATE(receipts.receipt_date) >= '" . $conn->real_escape_string($customDateFrom) . "'";
+                } elseif (!empty($customDateTo)) {
+                    $query .= " AND DATE(receipts.receipt_date) <= '" . $conn->real_escape_string($customDateTo) . "'";
+                }
+                break;
+        }
+    }
+    
     $query .= " ORDER BY receipts.receipt_date DESC";
     $result = $conn->query($query);
     
@@ -55,7 +97,7 @@ if (isset($_GET['generate_pdf'])) {
     $pdf->Ln(10);
     
     // Filters applied
-    if (!empty($filterType) || !empty($filterMemberNumber)) {
+    if (!empty($filterType) || !empty($filterMemberNumber) || !empty($dateFilter)) {
         $pdf->SetFont('Arial', 'B', 12);
         $pdf->Cell(0, 7, 'Filters Applied:', 0, 1, 'L');
         $pdf->SetFont('Arial', '', 12);
@@ -66,6 +108,19 @@ if (isset($_GET['generate_pdf'])) {
         }
         if (!empty($filterMemberNumber)) {
             $filters[] = "Member Number: " . $filterMemberNumber;
+        }
+        if (!empty($dateFilter)) {
+            $dateFilterText = ucfirst(str_replace('_', ' ', $dateFilter));
+            if ($dateFilter == 'custom' && (!empty($customDateFrom) || !empty($customDateTo))) {
+                if (!empty($customDateFrom) && !empty($customDateTo)) {
+                    $dateFilterText = "Custom Range: " . date('d M Y', strtotime($customDateFrom)) . " to " . date('d M Y', strtotime($customDateTo));
+                } elseif (!empty($customDateFrom)) {
+                    $dateFilterText = "From: " . date('d M Y', strtotime($customDateFrom));
+                } elseif (!empty($customDateTo)) {
+                    $dateFilterText = "Until: " . date('d M Y', strtotime($customDateTo));
+                }
+            }
+            $filters[] = "Date Filter: " . $dateFilterText;
         }
         
         $pdf->MultiCell(0, 7, implode(', ', $filters), 0, 'L');
@@ -141,6 +196,9 @@ if (isset($_GET['generate_pdf'])) {
 // Initialize variables for HTML view
 $filterType = isset($_GET['filter_type']) ? $_GET['filter_type'] : '';
 $filterMemberNumber = isset($_GET['filter_member_number']) ? trim($_GET['filter_member_number']) : '';
+$dateFilter = isset($_GET['date_filter']) ? $_GET['date_filter'] : '';
+$customDateFrom = isset($_GET['custom_date_from']) ? $_GET['custom_date_from'] : '';
+$customDateTo = isset($_GET['custom_date_to']) ? $_GET['custom_date_to'] : '';
 
 // Base query for all receipts
 $baseQuery = "
@@ -160,7 +218,7 @@ $query = $baseQuery . " ORDER BY receipts.receipt_date DESC";
 $result = $conn->query($query);
 
 // Apply filters if provided
-if (!empty($filterType) || !empty($filterMemberNumber)) {
+if (!empty($filterType) || !empty($filterMemberNumber) || !empty($dateFilter)) {
     $filterQuery = $baseQuery . " WHERE 1=1";
     
     if (!empty($filterType)) {
@@ -169,6 +227,45 @@ if (!empty($filterType) || !empty($filterMemberNumber)) {
     
     if (!empty($filterMemberNumber)) {
         $filterQuery .= " AND members.id = " . (int)$filterMemberNumber;
+    }
+    
+    // Add date filters
+    if (!empty($dateFilter)) {
+        switch ($dateFilter) {
+            case 'today':
+                $filterQuery .= " AND DATE(receipts.receipt_date) = CURDATE()";
+                break;
+            case 'yesterday':
+                $filterQuery .= " AND DATE(receipts.receipt_date) = DATE_SUB(CURDATE(), INTERVAL 1 DAY)";
+                break;
+            case 'this_week':
+                $filterQuery .= " AND YEARWEEK(receipts.receipt_date, 1) = YEARWEEK(CURDATE(), 1)";
+                break;
+            case 'last_week':
+                $filterQuery .= " AND YEARWEEK(receipts.receipt_date, 1) = YEARWEEK(DATE_SUB(CURDATE(), INTERVAL 1 WEEK), 1)";
+                break;
+            case 'this_month':
+                $filterQuery .= " AND YEAR(receipts.receipt_date) = YEAR(CURDATE()) AND MONTH(receipts.receipt_date) = MONTH(CURDATE())";
+                break;
+            case 'last_month':
+                $filterQuery .= " AND YEAR(receipts.receipt_date) = YEAR(DATE_SUB(CURDATE(), INTERVAL 1 MONTH)) AND MONTH(receipts.receipt_date) = MONTH(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))";
+                break;
+            case 'this_year':
+                $filterQuery .= " AND YEAR(receipts.receipt_date) = YEAR(CURDATE())";
+                break;
+            case 'last_year':
+                $filterQuery .= " AND YEAR(receipts.receipt_date) = YEAR(DATE_SUB(CURDATE(), INTERVAL 1 YEAR))";
+                break;
+            case 'custom':
+                if (!empty($customDateFrom) && !empty($customDateTo)) {
+                    $filterQuery .= " AND DATE(receipts.receipt_date) BETWEEN '" . $conn->real_escape_string($customDateFrom) . "' AND '" . $conn->real_escape_string($customDateTo) . "'";
+                } elseif (!empty($customDateFrom)) {
+                    $filterQuery .= " AND DATE(receipts.receipt_date) >= '" . $conn->real_escape_string($customDateFrom) . "'";
+                } elseif (!empty($customDateTo)) {
+                    $filterQuery .= " AND DATE(receipts.receipt_date) <= '" . $conn->real_escape_string($customDateTo) . "'";
+                }
+                break;
+        }
     }
     
     $filterQuery .= " ORDER BY receipts.receipt_date DESC";
@@ -310,6 +407,18 @@ while ($type = $typesResult->fetch_assoc()) {
             display: inline-block;
             text-align: center;
         }
+        .custom-date-fields {
+            display: none;
+        }
+        .custom-date-fields.show {
+            display: block;
+        }
+        .date-filter-group {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            background-color: #f8f9fa;
+        }
         @media print {
             .no-print {
                 display: none !important;
@@ -384,9 +493,9 @@ while ($type = $typesResult->fetch_assoc()) {
         <div class="filter-section no-print">
             <form method="GET" action="" class="row g-3">
                 <!-- Receipt Type Filter -->
-                <div class="col-md-4">
-                    <label for="filter_type" class="form-label" style="font-size: 20px;">Filter by Receipt Type:</label>
-                    <select name="filter_type" id="filter_type" style="font-size: 20px;" class="form-select <?php echo (!empty($filterType)) ? 'active-filter' : ''; ?>">
+                <div class="col-md-3">
+                    <label for="filter_type" class="form-label" style="font-size: 18px;">Filter by Receipt Type:</label>
+                    <select name="filter_type" id="filter_type" style="font-size: 18px;" class="form-select <?php echo (!empty($filterType)) ? 'active-filter' : ''; ?>">
                         <option value="">All Receipt Types</option>
                         <?php foreach ($receiptTypes as $type): ?>
                             <option value="<?php echo htmlspecialchars($type); ?>" <?php echo ($filterType == $type) ? 'selected' : ''; ?>>
@@ -397,30 +506,67 @@ while ($type = $typesResult->fetch_assoc()) {
                 </div>
                 
                 <!-- Direct Member Number Input -->
-                <div class="col-md-4">
-                    <label for="filter_member_number" class="form-label" style="font-size: 20px;">Filter by Member Number:</label>
-                    <input type="text" name="filter_member_number" id="filter_member_number" style="font-size: 20px;"ss 
+                <div class="col-md-3">
+                    <label for="filter_member_number" class="form-label" style="font-size: 18px;">Filter by Member Number:</label>
+                    <input type="text" name="filter_member_number" id="filter_member_number" style="font-size: 18px;" 
                            class="form-control <?php echo (!empty($filterMemberNumber)) ? 'active-filter' : ''; ?>" 
                            placeholder="Enter Member ID" 
                            value="<?php echo htmlspecialchars($filterMemberNumber); ?>">
                 </div>
                 
+                <!-- Date Filter Section -->
+                <div class="col-md-6">
+                    <div class="date-filter-group">
+                        <label for="date_filter" class="form-label" style="font-size: 18px;"><i class="bi bi-calendar"></i> Filter by Date:</label>
+                        <select name="date_filter" id="date_filter" style="font-size: 18px;" class="form-select <?php echo (!empty($dateFilter)) ? 'active-filter' : ''; ?>">
+                            <option value="">All Dates</option>
+                            <option value="today" <?php echo ($dateFilter == 'today') ? 'selected' : ''; ?>>Today</option>
+                            <option value="yesterday" <?php echo ($dateFilter == 'yesterday') ? 'selected' : ''; ?>>Yesterday</option>
+                            <option value="this_week" <?php echo ($dateFilter == 'this_week') ? 'selected' : ''; ?>>This Week</option>
+                            <option value="last_week" <?php echo ($dateFilter == 'last_week') ? 'selected' : ''; ?>>Last Week</option>
+                            <option value="this_month" <?php echo ($dateFilter == 'this_month') ? 'selected' : ''; ?>>This Month</option>
+                            <option value="last_month" <?php echo ($dateFilter == 'last_month') ? 'selected' : ''; ?>>Last Month</option>
+                            <option value="this_year" <?php echo ($dateFilter == 'this_year') ? 'selected' : ''; ?>>This Year</option>
+                            <option value="last_year" <?php echo ($dateFilter == 'last_year') ? 'selected' : ''; ?>>Last Year</option>
+                            <option value="custom" <?php echo ($dateFilter == 'custom') ? 'selected' : ''; ?>>Custom Date Range</option>
+                        </select>
+                        
+                        <!-- Custom Date Range Fields -->
+                        <div class="custom-date-fields <?php echo ($dateFilter == 'custom') ? 'show' : ''; ?>" id="customDateFields">
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <label for="custom_date_from" class="form-label" style="font-size: 16px;">From Date:</label>
+                                    <input type="date" name="custom_date_from" id="custom_date_from" 
+                                           class="form-control <?php echo (!empty($customDateFrom)) ? 'active-filter' : ''; ?>" 
+                                           value="<?php echo htmlspecialchars($customDateFrom); ?>">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="custom_date_to" class="form-label" style="font-size: 16px;">To Date:</label>
+                                    <input type="date" name="custom_date_to" id="custom_date_to" 
+                                           class="form-control <?php echo (!empty($customDateTo)) ? 'active-filter' : ''; ?>" 
+                                           value="<?php echo htmlspecialchars($customDateTo); ?>">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- Filter Buttons -->
-                <div class="col-md-4 d-flex align-items-end">
-                    <button type="submit" class="btn-action me-2" style="font-size: 20px;">
-                        <i class="bi bi-filter" style="font-size: 20px;"></i> Apply Filters
+                <div class="col-12 d-flex justify-content-center gap-3 mt-3">
+                    <button type="submit" class="btn-action" style="font-size: 18px;">
+                        <i class="bi bi-filter" style="font-size: 18px;"></i> Apply Filters
                     </button>
-                    <a href="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" class="btn-action btn-pdf" style="font-size: 20px;">
-                        <i class="bi bi-x-circle" style="font-size: 20px;"></i> Reset
+                    <a href="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" class="btn-action btn-pdf" style="font-size: 18px;">
+                        <i class="bi bi-x-circle" style="font-size: 18px;"></i> Reset All
                     </a>
                 </div>
             </form>
         </div>
 
         <!-- Active Filters Display -->
-        <?php if (!empty($filterType) || !empty($filterMemberNumber)): ?>
+        <?php if (!empty($filterType) || !empty($filterMemberNumber) || !empty($dateFilter)): ?>
         <div class="alert alert-info mb-3 no-print">
-            <strong>Active Filters:</strong> 
+            <strong><i class="bi bi-funnel"></i> Active Filters:</strong> 
             <?php 
             $appliedFilters = [];
             if (!empty($filterType)) {
@@ -428,6 +574,19 @@ while ($type = $typesResult->fetch_assoc()) {
             }
             if (!empty($filterMemberNumber)) {
                 $appliedFilters[] = "Member Number: " . htmlspecialchars($filterMemberNumber);
+            }
+            if (!empty($dateFilter)) {
+                $dateFilterText = ucfirst(str_replace('_', ' ', $dateFilter));
+                if ($dateFilter == 'custom' && (!empty($customDateFrom) || !empty($customDateTo))) {
+                    if (!empty($customDateFrom) && !empty($customDateTo)) {
+                        $dateFilterText = "Custom Range: " . date('d M Y', strtotime($customDateFrom)) . " to " . date('d M Y', strtotime($customDateTo));
+                    } elseif (!empty($customDateFrom)) {
+                        $dateFilterText = "From: " . date('d M Y', strtotime($customDateFrom));
+                    } elseif (!empty($customDateTo)) {
+                        $dateFilterText = "Until: " . date('d M Y', strtotime($customDateTo));
+                    }
+                }
+                $appliedFilters[] = "Date Filter: " . $dateFilterText;
             }
             echo implode(' | ', $appliedFilters);
             ?>
@@ -437,11 +596,11 @@ while ($type = $typesResult->fetch_assoc()) {
         <!-- Receipts Table -->
         <div class="card">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3>Receipt Records</h3>
+                <h3><i class="bi bi-receipt"></i> Receipt Records</h3>
                 <div class="no-print">
                     <!-- Only PDF button remains -->
-                    <a href="?generate_pdf=1&<?php echo http_build_query($_GET); ?>" class="btn-action btn-pdf" style="font-size: 20px;">
-                        <i class="bi bi-file-earmark-pdf" style="font-size: 20px;"></i> Generate PDF
+                    <a href="?generate_pdf=1&<?php echo http_build_query($_GET); ?>" class="btn-action btn-pdf" style="font-size: 18px;">
+                        <i class="bi bi-file-earmark-pdf" style="font-size: 18px;"></i> Generate PDF
                     </a>
                 </div>
             </div>
@@ -488,7 +647,11 @@ while ($type = $typesResult->fetch_assoc()) {
                             <?php endwhile; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="7" class="text-center">No receipts found matching your filter criteria.</td>
+                                <td colspan="7" class="text-center" style="font-size: 18px; padding: 30px;">
+                                    <i class="bi bi-search" style="font-size: 48px; color: #ccc;"></i><br>
+                                    No receipts found matching your filter criteria.<br>
+                                    <small class="text-muted">Try adjusting your filters or check back later.</small>
+                                </td>
                             </tr>
                         <?php endif; ?>
                     </tbody>
@@ -500,11 +663,11 @@ while ($type = $typesResult->fetch_assoc()) {
                 <div class="row">
                     <div class="col-md-6 text-start">
                         <?php if ($result): ?>
-                            <span>Total Records: <?php echo $result->num_rows; ?></span>
+                            <span><i class="bi bi-list-ol"></i> Total Records: <?php echo $result->num_rows; ?></span>
                         <?php endif; ?>
                     </div>
                     <div class="col-md-6 text-end">
-                        Total Amount: (Rs.)<?php echo number_format($totalAmount, 2); ?>
+                        <i class="bi bi-currency-rupee"></i> Total Amount: Rs. <?php echo number_format($totalAmount, 2); ?>
                     </div>
                 </div>
             </div>
@@ -537,11 +700,73 @@ while ($type = $typesResult->fetch_assoc()) {
                     // Only navigate if the click wasn't on a button or link
                     if (!e.target.closest('a') && !e.target.closest('button')) {
                         const receiptId = this.querySelector('td:first-child').textContent;
-                        window.location.href = 'view_receipt_detail.php?receipt_id=' + receiptId;
+                        if (receiptId && receiptId.trim() !== '') {
+                            window.location.href = 'view_receipt_detail.php?receipt_id=' + receiptId;
+                        }
                     }
                 });
                 row.style.cursor = 'pointer';
             });
+
+            // Handle date filter dropdown change
+            const dateFilterSelect = document.getElementById('date_filter');
+            const customDateFields = document.getElementById('customDateFields');
+            
+            dateFilterSelect.addEventListener('change', function() {
+                if (this.value === 'custom') {
+                    customDateFields.classList.add('show');
+                } else {
+                    customDateFields.classList.remove('show');
+                    // Clear custom date values if not using custom filter
+                    document.getElementById('custom_date_from').value = '';
+                    document.getElementById('custom_date_to').value = '';
+                }
+            });
+
+            // Set max date for custom date inputs to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('custom_date_from').setAttribute('max', today);
+            document.getElementById('custom_date_to').setAttribute('max', today);
+
+            // Validate date range
+            const dateFromInput = document.getElementById('custom_date_from');
+            const dateToInput = document.getElementById('custom_date_to');
+            
+            dateFromInput.addEventListener('change', function() {
+                dateToInput.setAttribute('min', this.value);
+            });
+            
+            dateToInput.addEventListener('change', function() {
+                dateFromInput.setAttribute('max', this.value);
+            });
+        });
+
+        // Quick date filter shortcuts
+        function setQuickDateFilter(filter) {
+            document.getElementById('date_filter').value = filter;
+            document.getElementById('customDateFields').classList.remove('show');
+            // Auto-submit form
+            document.querySelector('form').submit();
+        }
+
+        // Add keyboard shortcuts for common filters
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey) {
+                switch(e.key) {
+                    case '1':
+                        e.preventDefault();
+                        setQuickDateFilter('today');
+                        break;
+                    case '2':
+                        e.preventDefault();
+                        setQuickDateFilter('this_week');
+                        break;
+                    case '3':
+                        e.preventDefault();
+                        setQuickDateFilter('this_month');
+                        break;
+                }
+            }
         });
     </script>
 </body>
