@@ -12,6 +12,8 @@ if (isset($_GET['generate_pdf'])) {
     // Initialize variables
     $filterType = isset($_GET['filter_type']) ? $_GET['filter_type'] : '';
     $filterMemberNumber = isset($_GET['filter_member_number']) ? trim($_GET['filter_member_number']) : '';
+    $filterDateFrom = isset($_GET['filter_date_from']) ? $_GET['filter_date_from'] : '';
+    $filterDateTo = isset($_GET['filter_date_to']) ? $_GET['filter_date_to'] : '';
 
     // Base query for all payments
     $baseQuery = "
@@ -35,6 +37,14 @@ if (isset($_GET['generate_pdf'])) {
     
     if (!empty($filterMemberNumber)) {
         $query .= " AND members.id = " . (int)$filterMemberNumber;
+    }
+    
+    if (!empty($filterDateFrom)) {
+        $query .= " AND payments.payment_date >= '" . $conn->real_escape_string($filterDateFrom) . "'";
+    }
+    
+    if (!empty($filterDateTo)) {
+        $query .= " AND payments.payment_date <= '" . $conn->real_escape_string($filterDateTo) . " 23:59:59'";
     }
     
     $query .= " ORDER BY payments.payment_date DESC";
@@ -80,8 +90,8 @@ if (isset($_GET['generate_pdf'])) {
             $this->Ln(5);
             
             // Print filters if any (Dark Blue)
-            global $filterType, $filterMemberNumber;
-            if (!empty($filterType) || !empty($filterMemberNumber)) {
+            global $filterType, $filterMemberNumber, $filterDateFrom, $filterDateTo;
+            if (!empty($filterType) || !empty($filterMemberNumber) || !empty($filterDateFrom) || !empty($filterDateTo)) {
                 $this->SetFont('Arial','I',10);
                 $this->SetTextColor(0, 51, 102); // Dark Blue
                 $this->Cell(0,6,'FILTERS APPLIED:',0,1,'L');
@@ -92,6 +102,12 @@ if (isset($_GET['generate_pdf'])) {
                 }
                 if (!empty($filterMemberNumber)) {
                     $this->Cell(0,6,'Member Number: ' . $filterMemberNumber,0,1,'L');
+                }
+                if (!empty($filterDateFrom)) {
+                    $this->Cell(0,6,'Date From: ' . date('d M Y', strtotime($filterDateFrom)),0,1,'L');
+                }
+                if (!empty($filterDateTo)) {
+                    $this->Cell(0,6,'Date To: ' . date('d M Y', strtotime($filterDateTo)),0,1,'L');
                 }
                 $this->Ln(5);
             }
@@ -205,6 +221,8 @@ if (isset($_GET['generate_pdf'])) {
 // Initialize variables for HTML view
 $filterType = isset($_GET['filter_type']) ? $_GET['filter_type'] : '';
 $filterMemberNumber = isset($_GET['filter_member_number']) ? trim($_GET['filter_member_number']) : '';
+$filterDateFrom = isset($_GET['filter_date_from']) ? $_GET['filter_date_from'] : '';
+$filterDateTo = isset($_GET['filter_date_to']) ? $_GET['filter_date_to'] : '';
 
 // Base query for all payments
 $baseQuery = "
@@ -224,7 +242,7 @@ $query = $baseQuery . " ORDER BY payments.payment_date DESC";
 $result = $conn->query($query);
 
 // Apply filters if provided
-if (!empty($filterType) || !empty($filterMemberNumber)) {
+if (!empty($filterType) || !empty($filterMemberNumber) || !empty($filterDateFrom) || !empty($filterDateTo)) {
     $filterQuery = $baseQuery . " WHERE 1=1";
     
     if (!empty($filterType)) {
@@ -233,6 +251,14 @@ if (!empty($filterType) || !empty($filterMemberNumber)) {
     
     if (!empty($filterMemberNumber)) {
         $filterQuery .= " AND members.id = " . (int)$filterMemberNumber;
+    }
+    
+    if (!empty($filterDateFrom)) {
+        $filterQuery .= " AND payments.payment_date >= '" . $conn->real_escape_string($filterDateFrom) . "'";
+    }
+    
+    if (!empty($filterDateTo)) {
+        $filterQuery .= " AND payments.payment_date <= '" . $conn->real_escape_string($filterDateTo) . " 23:59:59'";
     }
     
     $filterQuery .= " ORDER BY payments.payment_date DESC";
@@ -273,7 +299,7 @@ while ($type = $typesResult->fetch_assoc()) {
             font-family: 'Arial', sans-serif;
         }
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
         
@@ -406,6 +432,41 @@ while ($type = $typesResult->fetch_assoc()) {
             border-color: #b8e2fb;
             color: var(--dark-blue);
         }
+
+        /* Date range filters */
+        .date-filter-section {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: #f8f9fa;
+        }
+        .date-filter-title {
+            font-weight: 600;
+            color: var(--dark-blue);
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        .quick-date-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .quick-date-btn {
+            background-color: var(--teal);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .quick-date-btn:hover {
+            background-color: #006666;
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
@@ -423,11 +484,46 @@ while ($type = $typesResult->fetch_assoc()) {
         <!-- Filter Section -->
         <div class="filter-section">
             <form method="GET" action="" class="row g-3">
+                <!-- Date Range Filter Section -->
+                <div class="col-12">
+                    <div class="date-filter-section">
+                        <div class="date-filter-title">Date Range Filter</div>
+                        
+                        <!-- Quick Date Buttons -->
+                        <div class="quick-date-buttons">
+                            <button type="button" class="quick-date-btn" onclick="setDateRange('today')">Today</button>
+                            <button type="button" class="quick-date-btn" onclick="setDateRange('yesterday')">Yesterday</button>
+                            <button type="button" class="quick-date-btn" onclick="setDateRange('this_week')">This Week</button>
+                            <button type="button" class="quick-date-btn" onclick="setDateRange('last_week')">Last Week</button>
+                            <button type="button" class="quick-date-btn" onclick="setDateRange('this_month')">This Month</button>
+                            <button type="button" class="quick-date-btn" onclick="setDateRange('last_month')">Last Month</button>
+                            <button type="button" class="quick-date-btn" onclick="setDateRange('this_year')">This Year</button>
+                            <button type="button" class="quick-date-btn" onclick="clearDates()">Clear Dates</button>
+                        </div>
+                        
+                        <!-- Custom Date Range -->
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="filter_date_from" class="form-label" style="font-size: 16px;">From Date:</label>
+                                <input type="date" name="filter_date_from" id="filter_date_from" style="font-size: 16px;"
+                                       class="form-control <?php echo (!empty($filterDateFrom)) ? 'active-filter' : ''; ?>" 
+                                       value="<?php echo htmlspecialchars($filterDateFrom); ?>">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="filter_date_to" class="form-label" style="font-size: 16px;">To Date:</label>
+                                <input type="date" name="filter_date_to" id="filter_date_to" style="font-size: 16px;"
+                                       class="form-control <?php echo (!empty($filterDateTo)) ? 'active-filter' : ''; ?>" 
+                                       value="<?php echo htmlspecialchars($filterDateTo); ?>">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Payment Type Filter -->
                 <div class="col-md-4">
                     <label for="filter_type" class="form-label" style="font-size: 20px;">Filter by Payment Type:</label>
                     <select name="filter_type" id="filter_type" style="font-size: 20px;" class="form-select <?php echo (!empty($filterType)) ? 'active-filter' : ''; ?>">
-                        <option value="" style="font-size: 20px;" >All Payment Types</option>
+                        <option value="" style="font-size: 20px;">All Payment Types</option>
                         <?php foreach ($paymentTypes as $type): ?>
                             <option value="<?php echo htmlspecialchars($type); ?>" <?php echo ($filterType == $type) ? 'selected' : ''; ?>>
                                 <?php echo htmlspecialchars(ucfirst(str_replace('_', ' ', $type))); ?>
@@ -447,13 +543,13 @@ while ($type = $typesResult->fetch_assoc()) {
                 
                 <!-- Filter Buttons -->
                 <div class="col-md-4 d-flex align-items-end">
-                    <button type="submit" class="btn-action me-2" style="font-size: 20px;"sss>
+                    <button type="submit" class="btn-action me-2" style="font-size: 20px;">
                         <i class="bi bi-filter" style="font-size: 20px;"></i> Apply Filters
                     </button>
                     <a href="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" class="btn-action" style="font-size: 20px;">
                         <i class="bi bi-x-circle" style="font-size: 20px;"></i> Reset
                     </a>
-                    <button type="submit" name="generate_pdf" value="1" class="btn-action btn-pdf ms-2" >
+                    <button type="submit" name="generate_pdf" value="1" class="btn-action btn-pdf ms-2">
                         <i class="bi bi-file-earmark-pdf" style="font-size: 20px;"></i> Generate PDF
                     </button>
                 </div>
@@ -461,7 +557,7 @@ while ($type = $typesResult->fetch_assoc()) {
         </div>
 
         <!-- Active Filters Display -->
-        <?php if (!empty($filterType) || !empty($filterMemberNumber)): ?>
+        <?php if (!empty($filterType) || !empty($filterMemberNumber) || !empty($filterDateFrom) || !empty($filterDateTo)): ?>
         <div class="alert alert-info mb-3">
             <strong>Active Filters:</strong> 
             <?php 
@@ -471,6 +567,12 @@ while ($type = $typesResult->fetch_assoc()) {
             }
             if (!empty($filterMemberNumber)) {
                 $appliedFilters[] = "Member Number: " . htmlspecialchars($filterMemberNumber);
+            }
+            if (!empty($filterDateFrom)) {
+                $appliedFilters[] = "From Date: " . date('d M Y', strtotime($filterDateFrom));
+            }
+            if (!empty($filterDateTo)) {
+                $appliedFilters[] = "To Date: " . date('d M Y', strtotime($filterDateTo));
             }
             echo implode(' | ', $appliedFilters);
             ?>
@@ -522,7 +624,7 @@ while ($type = $typesResult->fetch_assoc()) {
                             <?php endwhile; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="7" class="text-center" style="font-size: 20px;"s>No payments found matching your filter criteria.</td>
+                                <td colspan="7" class="text-center" style="font-size: 20px;">No payments found matching your filter criteria.</td>
                             </tr>
                         <?php endif; ?>
                     </tbody>
@@ -560,6 +662,120 @@ while ($type = $typesResult->fetch_assoc()) {
                 });
                 row.style.cursor = 'pointer';
             });
+        });
+
+        // Date range quick selection functions
+        function setDateRange(period) {
+            const today = new Date();
+            const dateFromInput = document.getElementById('filter_date_from');
+            const dateToInput = document.getElementById('filter_date_to');
+            
+            let fromDate, toDate;
+            
+            switch(period) {
+                case 'today':
+                    fromDate = toDate = today;
+                    break;
+                    
+                case 'yesterday':
+                    fromDate = toDate = new Date(today);
+                    fromDate.setDate(today.getDate() - 1);
+                    toDate.setDate(today.getDate() - 1);
+                    break;
+                    
+                case 'this_week':
+                    fromDate = new Date(today);
+                    const dayOfWeek = today.getDay();
+                    const diff = today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); // Start from Monday
+                    fromDate.setDate(diff);
+                    toDate = today;
+                    break;
+                    
+                case 'last_week':
+                    const lastWeekEnd = new Date(today);
+                    const lastWeekStart = new Date(today);
+                    const currentDayOfWeek = today.getDay();
+                    const daysToSubtractForStart = currentDayOfWeek === 0 ? 6 : currentDayOfWeek - 1;
+                    lastWeekStart.setDate(today.getDate() - daysToSubtractForStart - 7);
+                    lastWeekEnd.setDate(today.getDate() - daysToSubtractForStart - 1);
+                    fromDate = lastWeekStart;
+                    toDate = lastWeekEnd;
+                    break;
+                    
+                case 'this_month':
+                    fromDate = new Date(today.getFullYear(), today.getMonth(), 1);
+                    toDate = today;
+                    break;
+                    
+                case 'last_month':
+                    fromDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                    toDate = new Date(today.getFullYear(), today.getMonth(), 0);
+                    break;
+                    
+                case 'this_year':
+                    fromDate = new Date(today.getFullYear(), 0, 1);
+                    toDate = today;
+                    break;
+                    
+                default:
+                    return;
+            }
+            
+            // Format dates for input fields (YYYY-MM-DD)
+            dateFromInput.value = formatDateForInput(fromDate);
+            dateToInput.value = formatDateForInput(toDate);
+            
+            // Add active filter styling
+            dateFromInput.classList.add('active-filter');
+            dateToInput.classList.add('active-filter');
+        }
+        
+        function clearDates() {
+            const dateFromInput = document.getElementById('filter_date_from');
+            const dateToInput = document.getElementById('filter_date_to');
+            
+            dateFromInput.value = '';
+            dateToInput.value = '';
+            
+            // Remove active filter styling
+            dateFromInput.classList.remove('active-filter');
+            dateToInput.classList.remove('active-filter');
+        }
+        
+        function formatDateForInput(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        
+        // Add event listeners for date inputs to toggle active styling
+        document.getElementById('filter_date_from').addEventListener('input', function() {
+            if (this.value) {
+                this.classList.add('active-filter');
+            } else {
+                this.classList.remove('active-filter');
+            }
+        });
+        
+        document.getElementById('filter_date_to').addEventListener('input', function() {
+            if (this.value) {
+                this.classList.add('active-filter');
+            } else {
+                this.classList.remove('active-filter');
+            }
+        });
+        
+        // Validate date range
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const dateFrom = document.getElementById('filter_date_from').value;
+            const dateTo = document.getElementById('filter_date_to').value;
+            
+            if (dateFrom && dateTo && new Date(dateFrom) > new Date(dateTo)) {
+                e.preventDefault();
+                alert('From Date cannot be later than To Date. Please check your date range.');
+                return false;
+            }
         });
     </script>
 </body>
