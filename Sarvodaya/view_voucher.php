@@ -76,7 +76,7 @@ if (isset($_GET['generate_pdf'])) {
             $this->Ln(5);
             $this->SetFont('Arial','B',14);
             $this->SetTextColor(230, 81, 0); // Dark Orange
-            $this->Cell(0,8,'PAYMENT RECORDS REPORT',0,1,'C');
+            $this->Cell(0,8,'Payment Details Report',0,1,'C');
             $this->Ln(5);
             
             // Print filters if any (Dark Blue)
