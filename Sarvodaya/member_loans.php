@@ -184,7 +184,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 // Insert loan application details into the database
                 $stmt = $conn->prepare("INSERT INTO loans(member_id, loan_type_id, amount, interest_rate, max_period, total_repayment_amount, start_date, end_date, guarantor1_id, guarantor2_id, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'defaulted')");
-                $stmt->bind_param("iiddiissii", $memberId, $loanTypeId, $amount, $interestRate, $maxPeriod, $totalAmount, $startDate, $endDate, $guarantor1Id, $guarantor2Id);
+                $stmt->bind_param("iidddsssii", $memberId, $loanTypeId, $amount, $interestRate, $maxPeriod, $totalAmount, $startDate, $endDate, $guarantor1Id, $guarantor2Id);
                 $stmt->execute();
                 $stmt->close();
 
