@@ -667,7 +667,7 @@ while ($type = $typesResult->fetch_assoc()) {
                         <?php endif; ?>
                     </div>
                     <div class="col-md-6 text-end">
-                        <i class="bi bi-currency-rupee"></i> Total Amount: Rs. <?php echo number_format($totalAmount, 2); ?>
+                        Total Amount: Rs. <?php echo number_format($totalAmount, 2); ?>
                     </div>
                 </div>
             </div>
