@@ -452,6 +452,8 @@ while ($type = $typesResult->fetch_assoc()) {
             gap: 10px;
             flex-wrap: wrap;
             margin-bottom: 15px;
+            
+            
         }
         .quick-date-btn {
             background-color: var(--teal);
@@ -459,13 +461,14 @@ while ($type = $typesResult->fetch_assoc()) {
             border: none;
             padding: 6px 12px;
             border-radius: 4px;
-            font-size: 14px;
+            font-size: 20px;
             cursor: pointer;
             transition: all 0.3s ease;
         }
         .quick-date-btn:hover {
             background-color: #006666;
             transform: scale(1.05);
+            
         }
     </style>
 </head>
@@ -490,28 +493,28 @@ while ($type = $typesResult->fetch_assoc()) {
                         <div class="date-filter-title">Date Range Filter</div>
                         
                         <!-- Quick Date Buttons -->
-                        <div class="quick-date-buttons">
-                            <button type="button" class="quick-date-btn" onclick="setDateRange('today')">Today</button>
-                            <button type="button" class="quick-date-btn" onclick="setDateRange('yesterday')">Yesterday</button>
-                            <button type="button" class="quick-date-btn" onclick="setDateRange('this_week')">This Week</button>
-                            <button type="button" class="quick-date-btn" onclick="setDateRange('last_week')">Last Week</button>
-                            <button type="button" class="quick-date-btn" onclick="setDateRange('this_month')">This Month</button>
-                            <button type="button" class="quick-date-btn" onclick="setDateRange('last_month')">Last Month</button>
+                        <div class="quick-date-buttons" >
+                            <button type="button"  class="quick-date-btn" onclick="setDateRange('today')"  >Today</button>
+                            <button type="button"  class="quick-date-btn" onclick="setDateRange('yesterday')">Yesterday</button>
+                            <button type="button"  class="quick-date-btn" onclick="setDateRange('this_week')">This Week</button>
+                            <button type="button"  class="quick-date-btn" onclick="setDateRange('last_week')">Last Week</button>
+                            <button type="button"  class="quick-date-btn" onclick="setDateRange('this_month')">This Month</button>
+                            <button type="button"  class="quick-date-btn" onclick="setDateRange('last_month')">Last Month</button>
                             <button type="button" class="quick-date-btn" onclick="setDateRange('this_year')">This Year</button>
-                            <button type="button" class="quick-date-btn" onclick="clearDates()">Clear Dates</button>
+                            <button type="button"  class="quick-date-btn" onclick="clearDates()">Clear Dates</button>
                         </div>
                         
                         <!-- Custom Date Range -->
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label for="filter_date_from" class="form-label" style="font-size: 16px;">From Date:</label>
-                                <input type="date" name="filter_date_from" id="filter_date_from" style="font-size: 16px;"
+                                <label for="filter_date_from" class="form-label" style="font-size: 20px;">From Date:</label>
+                                <input type="date" name="filter_date_from" id="filter_date_from" style="font-size: 20px;"
                                        class="form-control <?php echo (!empty($filterDateFrom)) ? 'active-filter' : ''; ?>" 
                                        value="<?php echo htmlspecialchars($filterDateFrom); ?>">
                             </div>
                             <div class="col-md-6">
-                                <label for="filter_date_to" class="form-label" style="font-size: 16px;">To Date:</label>
-                                <input type="date" name="filter_date_to" id="filter_date_to" style="font-size: 16px;"
+                                <label for="filter_date_to" class="form-label" style="font-size: 20px;">To Date:</label>
+                                <input type="date" name="filter_date_to" id="filter_date_to" style="font-size: 20px;"
                                        class="form-control <?php echo (!empty($filterDateTo)) ? 'active-filter' : ''; ?>" 
                                        value="<?php echo htmlspecialchars($filterDateTo); ?>">
                             </div>

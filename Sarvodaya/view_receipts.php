@@ -494,8 +494,8 @@ while ($type = $typesResult->fetch_assoc()) {
             <form method="GET" action="" class="row g-3">
                 <!-- Receipt Type Filter -->
                 <div class="col-md-3">
-                    <label for="filter_type" class="form-label" style="font-size: 18px;">Filter by Receipt Type:</label>
-                    <select name="filter_type" id="filter_type" style="font-size: 18px;" class="form-select <?php echo (!empty($filterType)) ? 'active-filter' : ''; ?>">
+                    <label for="filter_type" class="form-label" style="font-size: 20px;">Filter by Receipt Type:</label>
+                    <select name="filter_type" id="filter_type" style="font-size: 20px;" class="form-select <?php echo (!empty($filterType)) ? 'active-filter' : ''; ?>">
                         <option value="">All Receipt Types</option>
                         <?php foreach ($receiptTypes as $type): ?>
                             <option value="<?php echo htmlspecialchars($type); ?>" <?php echo ($filterType == $type) ? 'selected' : ''; ?>>
@@ -507,8 +507,8 @@ while ($type = $typesResult->fetch_assoc()) {
                 
                 <!-- Direct Member Number Input -->
                 <div class="col-md-3">
-                    <label for="filter_member_number" class="form-label" style="font-size: 18px;">Filter by Member Number:</label>
-                    <input type="text" name="filter_member_number" id="filter_member_number" style="font-size: 18px;" 
+                    <label for="filter_member_number" class="form-label" style="font-size: 20px;">Filter by Member Number:</label>
+                    <input type="text" name="filter_member_number" id="filter_member_number" style="font-size: 20px;" 
                            class="form-control <?php echo (!empty($filterMemberNumber)) ? 'active-filter' : ''; ?>" 
                            placeholder="Enter Member ID" 
                            value="<?php echo htmlspecialchars($filterMemberNumber); ?>">
@@ -517,8 +517,8 @@ while ($type = $typesResult->fetch_assoc()) {
                 <!-- Date Filter Section -->
                 <div class="col-md-6">
                     <div class="date-filter-group">
-                        <label for="date_filter" class="form-label" style="font-size: 18px;"><i class="bi bi-calendar"></i> Filter by Date:</label>
-                        <select name="date_filter" id="date_filter" style="font-size: 18px;" class="form-select <?php echo (!empty($dateFilter)) ? 'active-filter' : ''; ?>">
+                        <label for="date_filter" class="form-label" style="font-size: 20px;"><i class="bi bi-calendar"></i> Filter by Date:</label>
+                        <select name="date_filter" id="date_filter" style="font-size: 20px;" class="form-select <?php echo (!empty($dateFilter)) ? 'active-filter' : ''; ?>">
                             <option value="">All Dates</option>
                             <option value="today" <?php echo ($dateFilter == 'today') ? 'selected' : ''; ?>>Today</option>
                             <option value="yesterday" <?php echo ($dateFilter == 'yesterday') ? 'selected' : ''; ?>>Yesterday</option>
@@ -554,10 +554,10 @@ while ($type = $typesResult->fetch_assoc()) {
                 <!-- Filter Buttons -->
                 <div class="col-12 d-flex justify-content-center gap-3 mt-3">
                     <button type="submit" class="btn-action" style="font-size: 18px;">
-                        <i class="bi bi-filter" style="font-size: 18px;"></i> Apply Filters
+                        <i class="bi bi-filter" style="font-size: 20px;"></i> Apply Filters
                     </button>
                     <a href="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" class="btn-action btn-pdf" style="font-size: 18px;">
-                        <i class="bi bi-x-circle" style="font-size: 18px;"></i> Reset All
+                        <i class="bi bi-x-circle" style="font-size: 20px;"></i> Reset All
                     </a>
                 </div>
             </form>
@@ -666,7 +666,7 @@ while ($type = $typesResult->fetch_assoc()) {
                             <span><i class="bi bi-list-ol"></i> Total Records: <?php echo $result->num_rows; ?></span>
                         <?php endif; ?>
                     </div>
-                    <div class="col-md-6 text-end">
+                    <div class="col-md-6 text-end" >
                         Total Amount: Rs. <?php echo number_format($totalAmount, 2); ?>
                     </div>
                 </div>
