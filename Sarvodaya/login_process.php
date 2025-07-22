@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Redirect based on position             
             switch ($position) {                 
                 case 'loan_handling_clerk':                     
-                    header('Location: loan_home.php');                     
+                    header('Location: loan_handing_home.php');                     
                     break;                 
                 case 'transaction_handling_clerk':                     
                     header('Location: transaction_handling_home.php');                     
