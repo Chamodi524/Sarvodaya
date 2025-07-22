@@ -281,10 +281,6 @@ if ($conn->connect_error) {
                                 $payment = $row['actual_payment_amount'];
                                 $principal = ($row['principal_amount'] / $row['payment_amount']) * $payment;
                                 $interest = ($row['interest_amount'] / $row['payment_amount']) * $payment;
-                                $total_payments += $payment;
-                                $total_principal += $principal;
-                                $total_interest += $interest;
-                                $total_late_fees += $late_fee;
                                 $closing_balance = $row['remaining_balance'];
                                 $row_class = 'payment-row';
                                 $display_date = date('d/m/Y', strtotime($row['actual_payment_date']));
@@ -293,7 +289,6 @@ if ($conn->connect_error) {
                                 $payment = $row['payment_amount'];
                                 $principal = $row['principal_amount'];
                                 $interest = $row['interest_amount'];
-                                $total_late_fees += $late_fee;
                                 
                                 if ($row['payment_status'] == 'overdue') {
                                     $row_class = 'overdue-row';
@@ -307,6 +302,12 @@ if ($conn->connect_error) {
                                     $display_date = date('d/m/Y', strtotime($row['payment_date']));
                                 }
                             }
+
+                            // ADD ALL AMOUNTS TO TOTALS (regardless of payment status)
+                            $total_payments += $payment;
+                            $total_principal += $principal;
+                            $total_interest += $interest;
+                            $total_late_fees += $late_fee;
 
                             echo '<tr class="' . $row_class . '">
                                 <td style="font-size: 20px;">' . $display_date . '</td>
@@ -415,8 +416,7 @@ if ($conn->connect_error) {
                         </table>
                         
                         <div class="loan-details mt-3">
-                            <h4>Closing Balance as of ' . date('d/m/Y', strtotime($end_date)) . ': 
-                            <span class="text-primary">Rs. ' . number_format($closing_balance, 2) . '</span></h4>
+                            
                         </div>
                     </div>';
                 } else {

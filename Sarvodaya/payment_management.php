@@ -476,9 +476,7 @@ if (isset($_SESSION['transaction_details'])) {
                     <div class="mb-3">
                         <label for="amount" class="form-label" style="font-size: 20px;">Amount</label>
                         <input type="number" class="form-control" id="amount" style="font-size: 20px;"name="amount" step="0.01" required>
-                        <div id="amount_warning" class="text-danger mt-1" style="display: none;">
-                            Warning: Amount exceeds current balance!
-                        </div>
+                        
                     </div>
                     <div class="mb-3">
                         <label for="description" class="form-label" style="font-size: 20px;">Description</label>
