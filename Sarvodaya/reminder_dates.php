@@ -515,7 +515,7 @@ $result->close();
                         <?php for ($i = 1; $i <= 12; $i++): ?>
                             <div class="date-item" >
                                 <label for="date<?php echo $i; ?>" style="font-size: 20px;">
-                                    <i class="fas fa-calendar-day" style="font-size: 20px;"></i> Date <?php echo $i; ?>
+                                    <i class="fas fa-calendar-day" style="font-size: 20px;"></i> Month <?php echo $i; ?>
                                 </label>
                                 <input type="date" 
                                        id="date<?php echo $i; ?>" 
@@ -548,7 +548,7 @@ $result->close();
                         <?php foreach ($saved_dates as $num => $date): ?>
                             <div class="date-card">
                                 <div class="date-card-header">
-                                    <span class="date-number" style="font-size: 20px;">Date <?php echo $num; ?></span>
+                                    <span class="date-number" style="font-size: 20px;">Month <?php echo $num; ?></span>
                                     <form method="POST" style="display: inline;" style="font-size: 20px;">
                                         <button type="submit" 
                                                 name="delete"

@@ -305,17 +305,17 @@ $account_types_result = $conn->query("SELECT * FROM savings_account_types");
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="name" class="form-label" style="font-size: 20px;">Name</label>
-                            <input type="text" class="form-control" id="name" name="name" required>
+                            <input type="text" class="form-control" id="name" style="font-size: 20px;" name="name" required>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="email" class="form-label" style="font-size: 20px;">Email</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
+                            <input type="email" class="form-control" id="email" style="font-size: 20px;" name="email" required>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="phone" class="form-label" style="font-size: 20px;">Phone</label>
-                            <input type="tel" class="form-control" id="phone" name="phone" maxlength="10" pattern="[0-9]{10}" title="Please enter exactly 10 digits" required>
+                            <input type="tel" class="form-control" id="phone" style="font-size: 20px;" name="phone" maxlength="10" pattern="[0-9]{10}" title="Please enter exactly 10 digits" required>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="account_type" class="form-label" style="font-size: 20px;">Account Type</label>
@@ -343,16 +343,16 @@ $account_types_result = $conn->query("SELECT * FROM savings_account_types");
                             <div class="row">
                                 <div class="col-md-6 mb-2">
                                     <label for="guardian_name" class="form-label" style="font-size: 1.25rem;">Guardian's Name</label>
-                                    <input type="text" class="form-control" id="guardian_name" name="guardian_name" >
+                                    <input type="text" class="form-control" id="guardian_name" style="font-size: 20px;" name="guardian_name" >
                                 </div>
                                 <div class="col-md-6 mb-2">
                                     <label for="guardian_nic" class="form-label" style="font-size: 1.25rem;">Guardian's NIC</label>
-                                    <input type="tel" class="form-control" id="guardian_nic" name="guardian_nic" maxlength="12" pattern="[0-9]{12}" title="Please enter exactly 12 digits">
+                                    <input type="tel" class="form-control" id="guardian_nic" style="font-size: 20px;" name="guardian_nic" maxlength="12" pattern="[0-9]{12}" title="Please enter exactly 12 digits">
                                 </div>
                             </div>
                             <div class="mb-2">
                                 <label for="guardian_occupation" class="form-label" style="font-size: 1.25rem;">Guardian's Occupation</label>
-                                <input type="text" class="form-control" id="guardian_occupation" name="guardian_occupation">
+                                <input type="text" class="form-control" id="guardian_occupation" style="font-size: 20px;" name="guardian_occupation">
                             </div>
                             <div class="mb-2">
                                 <label for="birth_certificate" class="form-label" style="font-size: 1.25rem;">Upload Birth Certificate</label>
@@ -367,11 +367,11 @@ $account_types_result = $conn->query("SELECT * FROM savings_account_types");
                             <div class="row">
                                 <div class="col-md-6 mb-2">
                                     <label for="nic" class="form-label" style="font-size: 1.25rem;">NIC Number</label>
-                                    <input type="tel" class="form-control" id="nic" name="nic" maxlength="12" pattern="[0-9]{12}" title="Please enter exactly 12 digits">
+                                    <input type="tel" class="form-control" id="nic" style="font-size: 20px;" name="nic" maxlength="12" pattern="[0-9]{12}" title="Please enter exactly 12 digits">
                                 </div>
                                 <div class="col-md-6 mb-2">
                                     <label for="occupation" class="form-label" style="font-size: 1.25rem;">Occupation</label>
-                                    <input type="text" class="form-control" id="occupation" name="occupation">
+                                    <input type="text" class="form-control" id="occupation" style="font-size: 20px;" name="occupation">
                                 </div>
                             </div>
                             <div class="mb-2">
