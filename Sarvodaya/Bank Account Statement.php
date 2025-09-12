@@ -205,11 +205,202 @@ function getInterestSummary($pdo, $member_id, $start_date = null, $end_date = nu
     return $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
+// Function to generate PDF report
+function generatePDFReport($member, $transactions, $total_credits, $total_debits, $net_balance, $total_interest, $interest_transactions, $start_date = null, $end_date = null) {
+    require_once('fpdf/fpdf.php');
+    
+    class PDF extends FPDF {
+        function Header() {
+            $this->SetFont('Arial','B',16);
+            $this->SetTextColor(255, 140, 0);
+            $this->Cell(0,10,'Sarvodaya Transaction Statement',0,1,'C');
+            $this->Ln(5);
+        }
+        
+        function Footer() {
+            $this->SetY(-15);
+            $this->SetFont('Arial','I',8);
+            $this->SetTextColor(128);
+            $this->Cell(0,10,'Generated on ' . date('M d, Y H:i A') . ' - Page '.$this->PageNo(),0,0,'C');
+        }
+    }
+    
+    $pdf = new PDF();
+    $pdf->AddPage();
+    $pdf->SetFont('Arial','',10);
+    
+    // Member Information
+    $pdf->SetFont('Arial','B',12);
+    $pdf->SetTextColor(45, 55, 72);
+    $pdf->Cell(0,8,'Member Information',0,1);
+    $pdf->Ln(2);
+    
+    $pdf->SetFont('Arial','',10);
+    $pdf->SetTextColor(0);
+    $pdf->Cell(30,6,'Member ID:',0,0);
+    $pdf->Cell(0,6,'#' . $member['id'],0,1);
+    $pdf->Cell(30,6,'Name:',0,0);
+    $pdf->Cell(0,6,$member['name'],0,1);
+    $pdf->Cell(30,6,'Email:',0,0);
+    $pdf->Cell(0,6,$member['email'],0,1);
+    $pdf->Cell(30,6,'Phone:',0,0);
+    $pdf->Cell(0,6,$member['phone'],0,1);
+    $pdf->Ln(5);
+    
+    // Date Range
+    if ($start_date || $end_date) {
+        $pdf->SetFont('Arial','B',10);
+        $pdf->Cell(0,6,'Report Period: ',0,0);
+        $pdf->SetFont('Arial','',10);
+        if ($start_date && $end_date) {
+            $pdf->Cell(0,6,'From ' . date('M d, Y', strtotime($start_date)) . ' to ' . date('M d, Y', strtotime($end_date)),0,1);
+        } elseif ($start_date) {
+            $pdf->Cell(0,6,'From ' . date('M d, Y', strtotime($start_date)) . ' onwards',0,1);
+        } else {
+            $pdf->Cell(0,6,'Up to ' . date('M d, Y', strtotime($end_date)),0,1);
+        }
+        $pdf->Ln(3);
+    }
+    
+    // Summary
+    $pdf->SetFont('Arial','B',12);
+    $pdf->SetTextColor(45, 55, 72);
+    $pdf->Cell(0,8,'Transaction Summary',0,1);
+    $pdf->Ln(2);
+    
+    $pdf->SetFont('Arial','',10);
+    $pdf->SetTextColor(0);
+    $pdf->Cell(50,6,'Total Credits:',0,0);
+    $pdf->SetTextColor(72, 187, 120);
+    $pdf->Cell(40,6,'Rs. ' . number_format($total_credits, 2),0,0,'R');
+    $pdf->SetTextColor(0);
+    $pdf->Cell(50,6,'Total Debits:',0,0);
+    $pdf->SetTextColor(245, 101, 101);
+    $pdf->Cell(0,6,'Rs. ' . number_format($total_debits, 2),0,1,'R');
+    
+    $pdf->SetTextColor(0);
+    $pdf->Cell(50,6,'Net Balance:',0,0);
+    $pdf->SetTextColor($net_balance >= 0 ? [72, 187, 120] : [245, 101, 101]);
+    $pdf->Cell(40,6,'Rs. ' . number_format($net_balance, 2),0,0,'R');
+    
+    if ($interest_transactions > 0) {
+        $pdf->SetTextColor(0);
+        $pdf->Cell(50,6,'Interest Earned:',0,0);
+        $pdf->SetTextColor(159, 122, 234);
+        $pdf->Cell(0,6,'Rs. ' . number_format($total_interest, 2),0,1,'R');
+    } else {
+        $pdf->Ln(6);
+    }
+    
+    $pdf->SetTextColor(0);
+    $pdf->Ln(5);
+    
+    // Transactions Table
+    if (!empty($transactions)) {
+        $pdf->SetFont('Arial','B',12);
+        $pdf->SetTextColor(45, 55, 72);
+        $pdf->Cell(0,8,'Transaction History (' . count($transactions) . ' transactions)',0,1);
+        $pdf->Ln(2);
+        
+        // Table headers
+        $pdf->SetFont('Arial','B',8);
+        $pdf->SetFillColor(247, 250, 252);
+        $pdf->Cell(20,8,'Date',1,0,'C',true);
+        $pdf->Cell(25,8,'Type',1,0,'C',true);
+        $pdf->Cell(50,8,'Description',1,0,'C',true);
+        $pdf->Cell(20,8,'Loan ID',1,0,'C',true);
+        $pdf->Cell(25,8,'Debit',1,0,'C',true);
+        $pdf->Cell(25,8,'Credit',1,0,'C',true);
+        $pdf->Cell(25,8,'Balance',1,1,'C',true);
+        
+        $pdf->SetFont('Arial','',7);
+        $transactionsWithBalance = calculateRunningBalance($transactions);
+        
+        foreach ($transactionsWithBalance as $transaction) {
+            // Check if we need a new page
+            if ($pdf->GetY() > 250) {
+                $pdf->AddPage();
+                // Repeat headers
+                $pdf->SetFont('Arial','B',8);
+                $pdf->SetFillColor(247, 250, 252);
+                $pdf->Cell(20,8,'Date',1,0,'C',true);
+                $pdf->Cell(25,8,'Type',1,0,'C',true);
+                $pdf->Cell(50,8,'Description',1,0,'C',true);
+                $pdf->Cell(20,8,'Loan ID',1,0,'C',true);
+                $pdf->Cell(25,8,'Debit',1,0,'C',true);
+                $pdf->Cell(25,8,'Credit',1,0,'C',true);
+                $pdf->Cell(25,8,'Balance',1,1,'C',true);
+                $pdf->SetFont('Arial','',7);
+            }
+            
+            $pdf->Cell(20,6,date('m/d/Y', strtotime($transaction['transaction_date'])),1,0,'C');
+            $pdf->Cell(25,6,substr(ucfirst(str_replace('_', ' ', $transaction['transaction_type'])), 0, 12),1,0,'C');
+            $pdf->Cell(50,6,substr($transaction['description'], 0, 30) . (strlen($transaction['description']) > 30 ? '...' : ''),1,0,'L');
+            $pdf->Cell(20,6,$transaction['loan_id'] ? $transaction['loan_id'] : '-',1,0,'C');
+            
+            // Debit
+            if ($transaction['entry_type'] == 'Debit') {
+                $pdf->Cell(25,6,number_format($transaction['amount'], 2),1,0,'R');
+            } else {
+                $pdf->Cell(25,6,'-',1,0,'C');
+            }
+            
+            // Credit
+            if ($transaction['entry_type'] == 'Credit') {
+                $pdf->Cell(25,6,number_format($transaction['amount'], 2),1,0,'R');
+            } else {
+                $pdf->Cell(25,6,'-',1,0,'C');
+            }
+            
+            // Balance
+            $pdf->Cell(25,6,number_format($transaction['running_balance'], 2),1,1,'R');
+        }
+    } else {
+        $pdf->SetFont('Arial','I',10);
+        $pdf->SetTextColor(113, 128, 150);
+        $pdf->Cell(0,10,'No transactions found for the selected criteria.',0,1,'C');
+    }
+    
+    $filename = 'transaction_statement_' . $member['id'] . '_' . date('Ymd_His') . '.pdf';
+    $pdf->Output('D', $filename);
+    exit;
+}
+
 // Get parameters from request
 $member_id = isset($_REQUEST['member_id']) ? (int)$_REQUEST['member_id'] : null;
 $start_date = isset($_REQUEST['start_date']) && !empty($_REQUEST['start_date']) ? $_REQUEST['start_date'] : null;
 $end_date = isset($_REQUEST['end_date']) && !empty($_REQUEST['end_date']) ? $_REQUEST['end_date'] : null;
 $search_term = isset($_REQUEST['search']) ? trim($_REQUEST['search']) : '';
+
+// Handle PDF download request
+if (isset($_GET['action']) && $_GET['action'] === 'download_pdf' && $member_id) {
+    $member = getMemberInfo($pdo, $member_id);
+    if ($member) {
+        $transactions = getMemberTransactions($pdo, $member_id, $start_date, $end_date);
+        
+        // Calculate totals
+        $total_credits = 0;
+        $total_debits = 0;
+        $total_interest = 0;
+        $interest_transactions = 0;
+        
+        foreach ($transactions as $transaction) {
+            if ($transaction['entry_type'] == 'Credit') {
+                $total_credits += $transaction['amount'];
+                if ($transaction['source_table'] == 'interest') {
+                    $interest_transactions++;
+                    $total_interest += $transaction['amount'];
+                }
+            } else {
+                $total_debits += $transaction['amount'];
+            }
+        }
+        
+        $net_balance = $total_credits - $total_debits;
+        
+        generatePDFReport($member, $transactions, $total_credits, $total_debits, $net_balance, $total_interest, $interest_transactions, $start_date, $end_date);
+    }
+}
 
 // Handle AJAX search request
 if (isset($_GET['action']) && $_GET['action'] === 'search_members') {
@@ -673,6 +864,12 @@ foreach ($transactions as $transaction) {
 }
 
 $net_balance = $total_credits - $total_debits;
+
+// Build the current URL for PDF download
+$pdf_url_params = ['action' => 'download_pdf', 'member_id' => $member_id];
+if ($start_date) $pdf_url_params['start_date'] = $start_date;
+if ($end_date) $pdf_url_params['end_date'] = $end_date;
+$pdf_download_url = '?' . http_build_query($pdf_url_params);
 ?>
 
 <!DOCTYPE html>
@@ -815,6 +1012,11 @@ $net_balance = $total_credits - $total_debits;
             color: #4a5568;
         }
 
+        .btn-success {
+            background: #48bb78;
+            color: white;
+        }
+
         .btn:hover {
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -822,6 +1024,10 @@ $net_balance = $total_credits - $total_debits;
 
         .btn-primary:hover {
             box-shadow: 0 4px 12px rgba(255, 140, 0, 0.4);
+        }
+
+        .btn-success:hover {
+            box-shadow: 0 4px 12px rgba(72, 187, 120, 0.4);
         }
 
         .quick-filters {
@@ -1181,6 +1387,27 @@ $net_balance = $total_credits - $total_debits;
             font-size: 0.75rem;
         }
 
+        .download-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #48bb78;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(72, 187, 120, 0.3);
+            display: none;
+            align-items: center;
+            gap: 8px;
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 1.5rem;
@@ -1261,6 +1488,11 @@ $net_balance = $total_credits - $total_debits;
     </style>
 </head>
 <body>
+    <div id="downloadNotification" class="download-notification">
+        <i class="fas fa-check-circle"></i>
+        <span>PDF report is being prepared for download...</span>
+    </div>
+
     <div class="header">
         <div class="header-content">
             <h1>
@@ -1274,6 +1506,10 @@ $net_balance = $total_credits - $total_debits;
                     <i class="fas fa-search"></i>
                     New Search
                 </button>
+                <a href="<?php echo htmlspecialchars($pdf_download_url); ?>" class="btn btn-success" onclick="showDownloadNotification()">
+                    <i class="fas fa-download"></i>
+                    Download PDF
+                </a>
             </div>
         </div>
     </div>
@@ -1579,6 +1815,15 @@ $net_balance = $total_credits - $total_debits;
             document.getElementById('end_date').value = '';
             const form = document.querySelector('.filter-form');
             form.submit();
+        }
+
+        function showDownloadNotification() {
+            const notification = document.getElementById('downloadNotification');
+            notification.style.display = 'flex';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
         }
 
         // Date validation
