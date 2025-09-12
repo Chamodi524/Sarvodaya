@@ -815,12 +815,6 @@ $net_balance = $total_credits - $total_debits;
             color: #4a5568;
         }
 
-        .btn-outline {
-            background: transparent;
-            color: rgb(255, 140, 0);
-            border: 2px solid rgb(255, 140, 0);
-        }
-
         .btn:hover {
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -1280,16 +1274,6 @@ $net_balance = $total_credits - $total_debits;
                     <i class="fas fa-search"></i>
                     New Search
                 </button>
-                <?php if (!empty($transactions)): ?>
-                <button class="btn btn-outline" onclick="window.print();">
-                    <i class="fas fa-print"></i>
-                    Print
-                </button>
-                <button class="btn btn-outline" onclick="exportToCSV();">
-                    <i class="fas fa-download"></i>
-                    Export CSV
-                </button>
-                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -1595,51 +1579,6 @@ $net_balance = $total_credits - $total_debits;
             document.getElementById('end_date').value = '';
             const form = document.querySelector('.filter-form');
             form.submit();
-        }
-
-        function exportToCSV() {
-            const table = document.querySelector('.transactions-card table');
-            if (!table) return;
-            
-            const memberName = "<?php echo addslashes($member['name']); ?>";
-            const memberId = "<?php echo $member['id']; ?>";
-            const dateRange = "<?php echo ($start_date || $end_date) ? ($start_date && $end_date ? date('Y-m-d', strtotime($start_date)) . '_to_' . date('Y-m-d', strtotime($end_date)) : ($start_date ? 'from_' . date('Y-m-d', strtotime($start_date)) : 'until_' . date('Y-m-d', strtotime($end_date)))) : 'all_transactions'; ?>";
-            
-            let csv = 'Member Name,Member ID,Date,Type,Description,Loan ID,Debit,Credit,Balance,Interest Rate,Days Calculated,Period\n';
-            
-            const rows = table.querySelectorAll('tbody tr');
-            rows.forEach(row => {
-                const cells = row.querySelectorAll('td');
-                const interestRate = row.querySelector('.interest-rate') ? row.querySelector('.interest-rate').textContent.replace('%', '') : '';
-                const daysCalculated = row.querySelector('.interest-details') ? row.querySelector('.interest-details').textContent.match(/(\d+) days/) : null;
-                const period = row.querySelector('.period-info') ? row.querySelector('.period-info').textContent : '';
-                
-                const rowData = [
-                    `"${memberName}"`,
-                    memberId,
-                    `"${cells[0].textContent.trim().replace(/\s+/g, ' ')}"`,
-                    `"${cells[1].textContent.trim().replace(/\s+/g, ' ')}"`,
-                    `"${cells[2].textContent.trim().replace(/\s+/g, ' ')}"`,
-                    `"${cells[3].textContent.trim()}"`,
-                    `"${cells[4].textContent.trim()}"`,
-                    `"${cells[5].textContent.trim()}"`,
-                    `"${cells[6].textContent.trim()}"`,
-                    `"${interestRate}"`,
-                    `"${daysCalculated ? daysCalculated[1] : ''}"`,
-                    `"${period}"`
-                ];
-                csv += rowData.join(',') + '\n';
-            });
-            
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', `transactions_${memberName.replace(/\s+/g, '_')}_${dateRange}.csv`);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
         }
 
         // Date validation
