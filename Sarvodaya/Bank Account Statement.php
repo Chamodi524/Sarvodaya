@@ -211,9 +211,30 @@ function generatePDFReport($member, $transactions, $total_credits, $total_debits
     
     class PDF extends FPDF {
         function Header() {
-            $this->SetFont('Arial','B',16);
+            // Organization Logo/Header
+            $this->SetFont('Arial','B',18);
             $this->SetTextColor(255, 140, 0);
-            $this->Cell(0,10,'Sarvodaya Transaction Statement',0,1,'C');
+            $this->Cell(0,8,'SARVODAYA SHRAMADHANA SOCIETY',0,1,'C');
+            
+            $this->SetFont('Arial','B',14);
+            $this->SetTextColor(45, 55, 72);
+            $this->Cell(0,6,'Samaghi Sarvodaya Shramadhana Society',0,1,'C');
+            
+            $this->SetFont('Arial','',10);
+            $this->SetTextColor(128);
+            $this->Cell(0,5,'Kubaloluwa, Veyangoda | Phone: 077 690 6605 | Email: info@sarvodayabank.com',0,1,'C');
+            $this->Ln(5);
+            
+            // Draw line
+            $this->SetDrawColor(255, 140, 0);
+            $this->SetLineWidth(0.5);
+            $this->Line(20, $this->GetY(), 190, $this->GetY());
+            $this->Ln(8);
+            
+            // Report Title
+            $this->SetFont('Arial','B',16);
+            $this->SetTextColor(45, 55, 72);
+            $this->Cell(0,8,'TRANSACTION STATEMENT',0,1,'C');
             $this->Ln(5);
         }
         
@@ -280,7 +301,11 @@ function generatePDFReport($member, $transactions, $total_credits, $total_debits
     
     $pdf->SetTextColor(0);
     $pdf->Cell(50,6,'Net Balance:',0,0);
-    $pdf->SetTextColor($net_balance >= 0 ? [72, 187, 120] : [245, 101, 101]);
+    if ($net_balance >= 0) {
+        $pdf->SetTextColor(72, 187, 120);
+    } else {
+        $pdf->SetTextColor(245, 101, 101);
+    }
     $pdf->Cell(40,6,'Rs. ' . number_format($net_balance, 2),0,0,'R');
     
     if ($interest_transactions > 0) {
@@ -333,6 +358,7 @@ function generatePDFReport($member, $transactions, $total_credits, $total_debits
                 $pdf->SetFont('Arial','',7);
             }
             
+            $pdf->SetTextColor(0);
             $pdf->Cell(20,6,date('m/d/Y', strtotime($transaction['transaction_date'])),1,0,'C');
             $pdf->Cell(25,6,substr(ucfirst(str_replace('_', ' ', $transaction['transaction_type'])), 0, 12),1,0,'C');
             $pdf->Cell(50,6,substr($transaction['description'], 0, 30) . (strlen($transaction['description']) > 30 ? '...' : ''),1,0,'L');
@@ -418,7 +444,7 @@ if (!$member_id) {
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Transaction Statement - Sarvodaya</title>
+        <title>Transaction Statement - Sarvodaya Shramadhana Society</title>
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
         <style>
             * {
@@ -442,9 +468,36 @@ if (!$member_id) {
                 border-radius: 16px;
                 padding: 40px;
                 width: 100%;
-                max-width: 500px;
+                max-width: 580px;
                 box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
                 text-align: center;
+            }
+
+            .organization-header {
+                margin-bottom: 32px;
+                padding-bottom: 24px;
+                border-bottom: 2px solid #f1f5f9;
+            }
+
+            .organization-title {
+                font-size: 1.8rem;
+                font-weight: 700;
+                color: rgb(255, 140, 0);
+                margin-bottom: 4px;
+                letter-spacing: -0.5px;
+            }
+
+            .organization-subtitle {
+                font-size: 1.2rem;
+                font-weight: 600;
+                color: #2d3748;
+                margin-bottom: 8px;
+            }
+
+            .organization-details {
+                font-size: 0.9rem;
+                color: #718096;
+                line-height: 1.5;
             }
 
             .logo {
@@ -594,6 +647,14 @@ if (!$member_id) {
                     padding: 30px 25px;
                 }
                 
+                .organization-title {
+                    font-size: 1.5rem;
+                }
+                
+                .organization-subtitle {
+                    font-size: 1rem;
+                }
+                
                 h1 {
                     font-size: 1.8rem;
                 }
@@ -602,6 +663,15 @@ if (!$member_id) {
     </head>
     <body>
         <div class="search-container">
+            <div class="organization-header">
+                <div class="organization-title">SARVODAYA SHRAMADHANA SOCIETY</div>
+                <div class="organization-subtitle">Samaghi Sarvodaya Shramadhana Society</div>
+                <div class="organization-details">
+                    Kubaloluwa, Veyangoda<br>
+                    Phone: 077 690 6605 | Email: info@sarvodayabank.com
+                </div>
+            </div>
+            
             <div class="logo">
                 <i class="fas fa-chart-line"></i>
             </div>
@@ -744,7 +814,7 @@ if (!$member) {
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Member Not Found - Sarvodaya</title>
+        <title>Member Not Found - Sarvodaya Shramadhana Society</title>
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
         <style>
             * {
@@ -877,7 +947,7 @@ $pdf_download_url = '?' . http_build_query($pdf_url_params);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transaction Statement - <?php echo htmlspecialchars($member['name']); ?></title>
+    <title>Transaction Statement - <?php echo htmlspecialchars($member['name']); ?> | Sarvodaya Shramadhana Society</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
@@ -891,6 +961,34 @@ $pdf_download_url = '?' . http_build_query($pdf_url_params);
             background: #f8fafc;
             color: #2d3748;
             line-height: 1.6;
+        }
+
+        .organization-header {
+            background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+            color: white;
+            padding: 16px 0;
+            text-align: center;
+            border-bottom: 4px solid rgb(255, 140, 0);
+        }
+
+        .org-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: rgb(255, 140, 0);
+            margin-bottom: 4px;
+            letter-spacing: -0.5px;
+        }
+
+        .org-subtitle {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .org-details {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            line-height: 1.4;
         }
 
         .header {
@@ -1409,6 +1507,18 @@ $pdf_download_url = '?' . http_build_query($pdf_url_params);
         }
 
         @media (max-width: 768px) {
+            .org-title {
+                font-size: 1.3rem;
+            }
+            
+            .org-subtitle {
+                font-size: 1rem;
+            }
+            
+            .org-details {
+                font-size: 0.8rem;
+            }
+            
             .header h1 {
                 font-size: 1.5rem;
             }
@@ -1458,7 +1568,7 @@ $pdf_download_url = '?' . http_build_query($pdf_url_params);
         }
 
         @media print {
-            .header, .controls, .quick-filters, .date-range-info {
+            .organization-header, .header, .controls, .quick-filters, .date-range-info {
                 display: none !important;
             }
             
@@ -1488,6 +1598,14 @@ $pdf_download_url = '?' . http_build_query($pdf_url_params);
     </style>
 </head>
 <body>
+    <div class="organization-header">
+        <div class="org-title">SARVODAYA SHRAMADHANA SOCIETY</div>
+        <div class="org-subtitle">Samaghi Sarvodaya Shramadhana Society</div>
+        <div class="org-details">
+            Kubaloluwa, Veyangoda | Phone: 077 690 6605 | Email: info@sarvodayabank.com
+        </div>
+    </div>
+
     <div id="downloadNotification" class="download-notification">
         <i class="fas fa-check-circle"></i>
         <span>PDF report is being prepared for download...</span>
@@ -1800,7 +1918,7 @@ $pdf_download_url = '?' . http_build_query($pdf_url_params);
         
         <div style="margin-top: 32px; text-align: center; padding: 16px; color: #718096; font-size: 0.85rem;">
             <i class="fas fa-shield-alt" style="margin-right: 6px; color: rgb(255, 140, 0);"></i>
-            Sarvodaya Transaction Management System
+            Sarvodaya Shramadhana Society - Transaction Management System
             <?php if ($start_date || $end_date): ?>
                 <div style="margin-top: 6px; font-size: 0.75rem;">
                     Report generated on <?php echo date('M d, Y H:i A'); ?>
