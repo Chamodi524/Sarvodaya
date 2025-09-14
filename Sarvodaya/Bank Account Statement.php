@@ -234,7 +234,7 @@ function generatePDFReport($member, $transactions, $total_credits, $total_debits
             // Report Title
             $this->SetFont('Arial','B',16);
             $this->SetTextColor(45, 55, 72);
-            $this->Cell(0,8,'TRANSACTION STATEMENT',0,1,'C');
+            $this->Cell(0,8,'Bank Account Statement',0,1,'C');
             $this->Ln(5);
         }
         
@@ -444,7 +444,7 @@ if (!$member_id) {
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Transaction Statement - Sarvodaya Shramadhana Society</title>
+        <title>Bank Account Statement - Sarvodaya Shramadhana Society</title>
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
         <style>
             * {
@@ -675,7 +675,7 @@ if (!$member_id) {
             <div class="logo">
                 <i class="fas fa-chart-line"></i>
             </div>
-            <h1>Transaction Statement</h1>
+            <h1>Bank Account Statement</h1>
             <p class="subtitle">Search and select a member to view their transaction history including interest calculations</p>
             
             <div class="search-section">
@@ -947,7 +947,7 @@ $pdf_download_url = '?' . http_build_query($pdf_url_params);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transaction Statement - <?php echo htmlspecialchars($member['name']); ?> | Sarvodaya Shramadhana Society</title>
+    <title>Bank Account Statement- <?php echo htmlspecialchars($member['name']); ?> | Sarvodaya Shramadhana Society</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
@@ -964,17 +964,18 @@ $pdf_download_url = '?' . http_build_query($pdf_url_params);
         }
 
         .organization-header {
-            background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+            background: linear-gradient(135deg, rgb(255, 140, 0) 0%, rgb(255, 165, 0) 100%);
             color: white;
             padding: 16px 0;
             text-align: center;
-            border-bottom: 4px solid rgb(255, 140, 0);
+            border-bottom: 4px solid #2d3748;
+            box-shadow: 0 4px 20px rgba(255, 140, 0, 0.3);
         }
 
         .org-title {
             font-size: 1.5rem;
             font-weight: 700;
-            color: rgb(255, 140, 0);
+            color: white;
             margin-bottom: 4px;
             letter-spacing: -0.5px;
         }
@@ -992,12 +993,13 @@ $pdf_download_url = '?' . http_build_query($pdf_url_params);
         }
 
         .header {
-            background: linear-gradient(135deg, rgb(255, 140, 0) 0%, rgb(255, 165, 0) 100%);
-            color: white;
+            background: transparent;
+            color: inherit;
             padding: 1.5rem 0;
             margin-bottom: 2rem;
-            box-shadow: 0 4px 20px rgba(255, 140, 0, 0.3);
+            border-bottom: 4px solid rgb(255, 140, 0);
         }
+
 
         .header-content {
             max-width: 1200px;
@@ -1297,12 +1299,13 @@ $pdf_download_url = '?' . http_build_query($pdf_url_params);
         }
 
         .transactions-header {
-            background: #2d3748;
-            color: white;
+            background: transparent;
+            color: inherit;
             padding: 16px 20px;
             display: flex;
             align-items: center;
             gap: 10px;
+            border-bottom: 2px solid #e2e8f0;
         }
 
         .table-wrapper {
@@ -1617,7 +1620,7 @@ $pdf_download_url = '?' . http_build_query($pdf_url_params);
                 <div class="header-icon">
                     <i class="fas fa-chart-line"></i>
                 </div>
-                Transaction Statement
+                Bank Account Statement
             </h1>
             <div class="header-actions">
                 <button class="btn btn-secondary" onclick="window.location.href = window.location.pathname;">
