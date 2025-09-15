@@ -210,6 +210,14 @@ function generatePDFReport($member, $transactions, $total_credits, $total_debits
     require_once('fpdf/fpdf.php');
     
     class PDF extends FPDF {
+        private $colWidths = [25, 30, 55, 25, 30, 30]; // Adjusted column widths
+        private $totalWidth;
+        
+        function __construct() {
+            parent::__construct();
+            $this->totalWidth = array_sum($this->colWidths);
+        }
+        
         function Header() {
             // Organization Logo/Header
             $this->SetFont('Arial','B',18);
@@ -243,6 +251,145 @@ function generatePDFReport($member, $transactions, $total_credits, $total_debits
             $this->SetFont('Arial','I',8);
             $this->SetTextColor(128);
             $this->Cell(0,10,'Generated on ' . date('M d, Y H:i A') . ' - Page '.$this->PageNo(),0,0,'C');
+        }
+        
+        // Add signature section with improved spacing
+        function addSignatureSection() {
+            // Add space before the signature section
+            $this->Ln(15);
+            
+            // Check if we need a new page for the signature
+            if ($this->GetY() > 220) {
+                $this->AddPage();
+            }
+            
+            // Position signature section with proper spacing from content
+            $currentY = $this->GetY();
+            if ($currentY < 200) {
+                $this->SetY(200); // Force positioning near bottom if there's space
+            } else {
+                $this->SetY($currentY + 15); // Add space after content
+            }
+            
+            $this->SetFont('Arial','',10);
+            $this->SetTextColor(0);
+            
+            // Date section
+            $this->Cell(80,6,'Date: _________________________',0,0,'L');
+            
+            // Manager signature section
+            $this->Cell(0,6,'Manager Signature: _________________________',0,1,'R');
+            $this->Ln(10); // Space before stamp
+            
+            // Stamp area with proper spacing
+            $this->Cell(0,6,'Official Stamp:',0,1,'L');
+            $this->Ln(3); // Space before stamp box
+            $this->Rect(20, $this->GetY(), 40, 40);
+            $this->SetY($this->GetY() + 45); // Space after stamp
+        }
+        
+        // Improved table header with orange theme
+        function ImprovedTableHeader() {
+            // Colors, line width and bold font
+            $this->SetFillColor(255, 140, 0); // Orange background
+            $this->SetTextColor(255); // White text
+            $this->SetDrawColor(220, 120, 0); // Darker orange border
+            $this->SetLineWidth(0.3);
+            $this->SetFont('Arial','B',9);
+            
+            // Header
+            $headers = ['Date', 'Type', 'Description', 'Loan ID', 'Debit', 'Credit'];
+            for($i = 0; $i < count($headers); $i++) {
+                $this->Cell($this->colWidths[$i], 8, $headers[$i], 1, 0, 'C', true);
+            }
+            $this->Ln();
+            
+            // Color and font restoration
+            $this->SetFillColor(255, 237, 214); // Light orange for row alternation
+            $this->SetTextColor(0); // Black text
+            $this->SetFont('Arial','',8);
+        }
+        
+        // Improved table row with orange accents
+        function ImprovedTableRow($transaction, $fill) {
+            $fillColor = $fill ? array(255, 237, 214) : array(255, 255, 255); // Alternate row colors
+            
+            // Date
+            $this->SetFillColor($fillColor[0], $fillColor[1], $fillColor[2]);
+            $this->Cell($this->colWidths[0], 6, date('m/d/Y', strtotime($transaction['transaction_date'])), 'LR', 0, 'C', true);
+            
+            // Type
+            $this->Cell($this->colWidths[1], 6, substr(ucfirst(str_replace('_', ' ', $transaction['transaction_type'])), 0, 15), 'LR', 0, 'C', true);
+            
+            // Description
+            $this->Cell($this->colWidths[2], 6, substr($transaction['description'], 0, 35) . (strlen($transaction['description']) > 35 ? '...' : ''), 'LR', 0, 'L', true);
+            
+            // Loan ID
+            $this->Cell($this->colWidths[3], 6, $transaction['loan_id'] ? $transaction['loan_id'] : '-', 'LR', 0, 'C', true);
+            
+            // Debit
+            if ($transaction['entry_type'] == 'Debit') {
+                $this->SetTextColor(200, 0, 0); // Red for debits
+                $this->Cell($this->colWidths[4], 6, number_format($transaction['amount'], 2), 'LR', 0, 'R', true);
+            } else {
+                $this->SetTextColor(0);
+                $this->Cell($this->colWidths[4], 6, '-', 'LR', 0, 'C', true);
+            }
+            
+            // Credit - with improved spacing
+            if ($transaction['entry_type'] == 'Credit') {
+                $this->SetTextColor(0, 128, 0); // Green for credits
+                $this->Cell($this->colWidths[5], 6, number_format($transaction['amount'], 2), 'LR', 0, 'R', true);
+            } else {
+                $this->SetTextColor(0);
+                $this->Cell($this->colWidths[5], 6, '-', 'LR', 0, 'C', true);
+            }
+            
+            // Add small space after credit column with border
+            $this->SetFillColor($fillColor[0], $fillColor[1], $fillColor[2]);
+            $this->Cell(5, 6, '', 'LR', 1, 'C', true);
+            
+            // Reset text color
+            $this->SetTextColor(0);
+        }
+        
+        // Improved table footer with orange theme
+        function ImprovedTableFooter($total_debits, $total_credits) {
+            // Closing line
+            $this->SetFillColor(255, 200, 150); // Light orange
+            $this->Cell($this->totalWidth + 5, 0, '', 'T'); // Added 5px for the space column
+            $this->Ln(4);
+            
+            // Totals row
+            $this->SetFont('Arial', 'B', 9);
+            $this->SetFillColor(255, 220, 180); // Medium orange
+            
+            // Calculate width for the "TOTALS:" label (all columns except debit, credit and space)
+            $labelWidth = $this->colWidths[0] + $this->colWidths[1] + $this->colWidths[2] + $this->colWidths[3];
+            $this->Cell($labelWidth, 8, 'TOTALS:', 1, 0, 'R', true);
+            
+            // Debit total
+            $this->SetTextColor(200, 0, 0);
+            $this->Cell($this->colWidths[4], 8, number_format($total_debits, 2), 1, 0, 'R', true);
+            
+            // Credit total
+            $this->SetTextColor(0, 128, 0);
+            $this->Cell($this->colWidths[5], 8, number_format($total_credits, 2), 1, 0, 'R', true);
+            
+            // Space column in footer
+            $this->Cell(5, 8, '', 1, 1, 'C', true);
+            
+            // Reset text color
+            $this->SetTextColor(0);
+        }
+        
+        // Check if we need a page break before adding content
+        function checkPageBreak($heightNeeded) {
+            if ($this->GetY() + $heightNeeded > $this->PageBreakTrigger) {
+                $this->AddPage();
+                return true;
+            }
+            return false;
         }
     }
     
@@ -292,21 +439,12 @@ function generatePDFReport($member, $transactions, $total_credits, $total_debits
     $pdf->SetFont('Arial','',10);
     $pdf->SetTextColor(0);
     $pdf->Cell(50,6,'Total Credits:',0,0);
-    $pdf->SetTextColor(72, 187, 120);
+    $pdf->SetTextColor(0, 128, 0); // Green for credits
     $pdf->Cell(40,6,'Rs. ' . number_format($total_credits, 2),0,0,'R');
     $pdf->SetTextColor(0);
     $pdf->Cell(50,6,'Total Debits:',0,0);
-    $pdf->SetTextColor(245, 101, 101);
+    $pdf->SetTextColor(200, 0, 0); // Red for debits
     $pdf->Cell(0,6,'Rs. ' . number_format($total_debits, 2),0,1,'R');
-    
-    $pdf->SetTextColor(0);
-    $pdf->Cell(50,6,'Net Balance:',0,0);
-    if ($net_balance >= 0) {
-        $pdf->SetTextColor(72, 187, 120);
-    } else {
-        $pdf->SetTextColor(245, 101, 101);
-    }
-    $pdf->Cell(40,6,'Rs. ' . number_format($net_balance, 2),0,0,'R');
     
     if ($interest_transactions > 0) {
         $pdf->SetTextColor(0);
@@ -318,7 +456,7 @@ function generatePDFReport($member, $transactions, $total_credits, $total_debits
     }
     
     $pdf->SetTextColor(0);
-    $pdf->Ln(5);
+    $pdf->Ln(8);
     
     // Transactions Table
     if (!empty($transactions)) {
@@ -327,65 +465,39 @@ function generatePDFReport($member, $transactions, $total_credits, $total_debits
         $pdf->Cell(0,8,'Transaction History (' . count($transactions) . ' transactions)',0,1);
         $pdf->Ln(2);
         
-        // Table headers
-        $pdf->SetFont('Arial','B',8);
-        $pdf->SetFillColor(247, 250, 252);
-        $pdf->Cell(20,8,'Date',1,0,'C',true);
-        $pdf->Cell(25,8,'Type',1,0,'C',true);
-        $pdf->Cell(50,8,'Description',1,0,'C',true);
-        $pdf->Cell(20,8,'Loan ID',1,0,'C',true);
-        $pdf->Cell(25,8,'Debit',1,0,'C',true);
-        $pdf->Cell(25,8,'Credit',1,0,'C',true);
-        $pdf->Cell(25,8,'Balance',1,1,'C',true);
+        // Improved table header
+        $pdf->ImprovedTableHeader();
         
-        $pdf->SetFont('Arial','',7);
-        $transactionsWithBalance = calculateRunningBalance($transactions);
-        
-        foreach ($transactionsWithBalance as $transaction) {
+        // Data
+        $fill = false;
+        foreach ($transactions as $transaction) {
             // Check if we need a new page
-            if ($pdf->GetY() > 250) {
+            if ($pdf->GetY() > 200) {
                 $pdf->AddPage();
-                // Repeat headers
-                $pdf->SetFont('Arial','B',8);
-                $pdf->SetFillColor(247, 250, 252);
-                $pdf->Cell(20,8,'Date',1,0,'C',true);
-                $pdf->Cell(25,8,'Type',1,0,'C',true);
-                $pdf->Cell(50,8,'Description',1,0,'C',true);
-                $pdf->Cell(20,8,'Loan ID',1,0,'C',true);
-                $pdf->Cell(25,8,'Debit',1,0,'C',true);
-                $pdf->Cell(25,8,'Credit',1,0,'C',true);
-                $pdf->Cell(25,8,'Balance',1,1,'C',true);
-                $pdf->SetFont('Arial','',7);
+                $pdf->ImprovedTableHeader();
             }
             
-            $pdf->SetTextColor(0);
-            $pdf->Cell(20,6,date('m/d/Y', strtotime($transaction['transaction_date'])),1,0,'C');
-            $pdf->Cell(25,6,substr(ucfirst(str_replace('_', ' ', $transaction['transaction_type'])), 0, 12),1,0,'C');
-            $pdf->Cell(50,6,substr($transaction['description'], 0, 30) . (strlen($transaction['description']) > 30 ? '...' : ''),1,0,'L');
-            $pdf->Cell(20,6,$transaction['loan_id'] ? $transaction['loan_id'] : '-',1,0,'C');
-            
-            // Debit
-            if ($transaction['entry_type'] == 'Debit') {
-                $pdf->Cell(25,6,number_format($transaction['amount'], 2),1,0,'R');
-            } else {
-                $pdf->Cell(25,6,'-',1,0,'C');
-            }
-            
-            // Credit
-            if ($transaction['entry_type'] == 'Credit') {
-                $pdf->Cell(25,6,number_format($transaction['amount'], 2),1,0,'R');
-            } else {
-                $pdf->Cell(25,6,'-',1,0,'C');
-            }
-            
-            // Balance
-            $pdf->Cell(25,6,number_format($transaction['running_balance'], 2),1,1,'R');
+            $pdf->ImprovedTableRow($transaction, $fill);
+            $fill = !$fill;
         }
+        
+        // Improved table footer with totals
+        $pdf->ImprovedTableFooter($total_debits, $total_credits);
     } else {
         $pdf->SetFont('Arial','I',10);
         $pdf->SetTextColor(113, 128, 150);
         $pdf->Cell(0,10,'No transactions found for the selected criteria.',0,1,'C');
     }
+    
+    // Add space before signature section based on content height
+    $contentHeight = $pdf->GetY();
+    if ($contentHeight < 180) {
+        // If content is short, add space to push signature to bottom
+        $pdf->SetY(180);
+    }
+    
+    // Add signature section at the end of the document with proper spacing
+    $pdf->addSignatureSection();
     
     $filename = 'transaction_statement_' . $member['id'] . '_' . date('Ymd_His') . '.pdf';
     $pdf->Output('D', $filename);
