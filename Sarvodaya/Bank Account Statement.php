@@ -574,218 +574,232 @@ if (!$member_id) {
         <title>Bank Account Statement - Sarvodaya Shramadhana Society</title>
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
         <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
+                    * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-            body {
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                background: linear-gradient(135deg, rgb(255, 140, 0) 0%, rgb(255, 165, 0) 100%);
-                min-height: 100vh;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                padding: 20px;
-            }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, rgb(255, 140, 0) 0%, rgb(255, 165, 0) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            font-size: 20px; /* Base font size increased */
+        }
 
+        .search-container {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            width: 100%;
+            max-width: 650px; /* Increased to accommodate larger text */
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .organization-header {
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .organization-title {
+            font-size: 2.2rem; /* Increased from 1.8rem */
+            font-weight: 700;
+            color: rgb(255, 140, 0);
+            margin-bottom: 4px;
+            letter-spacing: -0.5px;
+        }
+
+        .organization-subtitle {
+            font-size: 1.6rem; /* Increased from 1.2rem */
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+
+        .organization-details {
+            font-size: 1.2rem; /* Increased from 0.9rem */
+            color: #718096;
+            line-height: 1.5;
+        }
+
+        .logo {
+            width: 90px; /* Increased from 70px */
+            height: 90px; /* Increased from 70px */
+            background: linear-gradient(135deg, rgb(255, 140, 0), rgb(255, 165, 0));
+            border-radius: 16px;
+            margin: 0 auto 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2.2rem; /* Increased from 1.8rem */
+        }
+
+        h1 {
+            color: #1a202c;
+            font-size: 2.5rem; /* Increased from 2rem */
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #718096;
+            margin-bottom: 32px;
+            font-size: 1.2rem; /* Increased from 1rem */
+        }
+
+        .search-section {
+            position: relative;
+            margin-bottom: 24px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 20px 20px 20px 60px; /* Increased padding */
+            font-size: 1.2rem; /* Increased from 1rem */
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            background: #f7fafc;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .search-input:focus {
+            border-color: rgb(255, 140, 0);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 20px; /* Increased from 16px */
+            top: 50%;
+            transform: translateY(-50%);
+            color: #a0aec0;
+            font-size: 1.4rem; /* Increased from 1.1rem */
+        }
+
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+            max-height: 300px; /* Increased from 250px */
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        .search-result-item {
+            padding: 16px 20px; /* Increased padding */
+            cursor: pointer;
+            transition: background 0.2s ease;
+            border-bottom: 1px solid #f7fafc;
+            text-align: left;
+        }
+
+        .search-result-item:hover {
+            background: #f7fafc;
+        }
+
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .member-name {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 6px; /* Increased from 4px */
+            font-size: 1.2rem; /* Added font size */
+        }
+
+        .member-details {
+            font-size: 1.1rem; /* Increased from 0.85rem */
+            color: #718096;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, rgb(255, 140, 0), rgb(255, 165, 0));
+            color: white;
+            padding: 18px 32px; /* Increased padding */
+            font-size: 1.2rem; /* Increased from 1rem */
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px; /* Increased from 8px */
+            min-width: 160px; /* Increased from 140px */
+            justify-content: center;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 140, 0, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            color: #718096;
+            font-size: 1.1rem; /* Increased from 0.9rem */
+            margin-top: 16px; /* Increased from 12px */
+        }
+
+        .no-results {
+            padding: 24px; /* Increased from 20px */
+            text-align: center;
+            color: #718096;
+            font-style: italic;
+            font-size: 1.2rem; /* Added font size */
+        }
+
+        @media (max-width: 480px) {
             .search-container {
-                background: white;
-                border-radius: 16px;
-                padding: 40px;
-                width: 100%;
-                max-width: 580px;
-                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-                text-align: center;
+                padding: 30px 25px;
             }
-
-            .organization-header {
-                margin-bottom: 32px;
-                padding-bottom: 24px;
-                border-bottom: 2px solid #f1f5f9;
-            }
-
+            
             .organization-title {
-                font-size: 1.8rem;
-                font-weight: 700;
-                color: rgb(255, 140, 0);
-                margin-bottom: 4px;
-                letter-spacing: -0.5px;
+                font-size: 1.8rem; /* Increased from 1.5rem */
             }
-
+            
             .organization-subtitle {
-                font-size: 1.2rem;
-                font-weight: 600;
-                color: #2d3748;
-                margin-bottom: 8px;
+                font-size: 1.4rem; /* Increased from 1rem */
             }
-
-            .organization-details {
-                font-size: 0.9rem;
-                color: #718096;
-                line-height: 1.5;
-            }
-
-            .logo {
-                width: 70px;
-                height: 70px;
-                background: linear-gradient(135deg, rgb(255, 140, 0), rgb(255, 165, 0));
-                border-radius: 16px;
-                margin: 0 auto 24px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: white;
-                font-size: 1.8rem;
-            }
-
+            
             h1 {
-                color: #1a202c;
-                font-size: 2rem;
-                font-weight: 600;
-                margin-bottom: 8px;
+                font-size: 2rem; /* Increased from 1.8rem */
             }
-
-            .subtitle {
-                color: #718096;
-                margin-bottom: 32px;
-                font-size: 1rem;
-            }
-
-            .search-section {
-                position: relative;
-                margin-bottom: 24px;
-            }
-
+            
+            /* Additional mobile adjustments for larger text */
             .search-input {
-                width: 100%;
-                padding: 16px 20px 16px 50px;
-                font-size: 1rem;
-                border: 2px solid #e2e8f0;
-                border-radius: 12px;
-                background: #f7fafc;
-                transition: all 0.2s ease;
-                outline: none;
-            }
-
-            .search-input:focus {
-                border-color: rgb(255, 140, 0);
-                background: white;
-                box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.1);
-            }
-
-            .search-icon {
-                position: absolute;
-                left: 16px;
-                top: 50%;
-                transform: translateY(-50%);
-                color: #a0aec0;
+                padding: 18px 18px 18px 55px;
                 font-size: 1.1rem;
             }
-
-            .search-results {
-                position: absolute;
-                top: 100%;
-                left: 0;
-                right: 0;
-                background: white;
-                border: 2px solid #e2e8f0;
-                border-top: none;
-                border-radius: 0 0 12px 12px;
-                max-height: 250px;
-                overflow-y: auto;
-                z-index: 1000;
-                display: none;
-            }
-
-            .search-result-item {
-                padding: 12px 16px;
-                cursor: pointer;
-                transition: background 0.2s ease;
-                border-bottom: 1px solid #f7fafc;
-                text-align: left;
-            }
-
-            .search-result-item:hover {
-                background: #f7fafc;
-            }
-
-            .search-result-item:last-child {
-                border-bottom: none;
-            }
-
-            .member-name {
-                font-weight: 600;
-                color: #2d3748;
-                margin-bottom: 4px;
-            }
-
-            .member-details {
-                font-size: 0.85rem;
-                color: #718096;
-            }
-
+            
             .btn {
-                background: linear-gradient(135deg, rgb(255, 140, 0), rgb(255, 165, 0));
-                color: white;
-                padding: 14px 28px;
-                font-size: 1rem;
-                font-weight: 600;
-                border: none;
-                border-radius: 10px;
-                cursor: pointer;
-                transition: all 0.2s ease;
-                text-decoration: none;
-                display: inline-flex;
-                align-items: center;
-                gap: 8px;
-                min-width: 140px;
-                justify-content: center;
+                padding: 16px 28px;
+                font-size: 1.1rem;
             }
-
-            .btn:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 8px 25px rgba(255, 140, 0, 0.3);
-            }
-
-            .btn:disabled {
-                opacity: 0.6;
-                cursor: not-allowed;
-                transform: none;
-            }
-
-            .loading {
-                display: none;
-                color: #718096;
-                font-size: 0.9rem;
-                margin-top: 12px;
-            }
-
-            .no-results {
-                padding: 20px;
-                text-align: center;
-                color: #718096;
-                font-style: italic;
-            }
-
-            @media (max-width: 480px) {
-                .search-container {
-                    padding: 30px 25px;
-                }
-                
-                .organization-title {
-                    font-size: 1.5rem;
-                }
-                
-                .organization-subtitle {
-                    font-size: 1rem;
-                }
-                
-                h1 {
-                    font-size: 1.8rem;
-                }
-            }
+        }
         </style>
     </head>
     <body>
