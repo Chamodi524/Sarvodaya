@@ -430,29 +430,32 @@ function generatePDFReport($member, $transactions, $total_credits, $total_debits
         $pdf->Ln(3);
     }
     
-    // Summary
+    // Summary - Each item on its own line
     $pdf->SetFont('Arial','B',12);
     $pdf->SetTextColor(45, 55, 72);
     $pdf->Cell(0,8,'Transaction Summary',0,1);
     $pdf->Ln(2);
     
     $pdf->SetFont('Arial','',10);
+    
+    // Total Credits - full line
     $pdf->SetTextColor(0);
     $pdf->Cell(50,6,'Total Credits:',0,0);
     $pdf->SetTextColor(0, 128, 0); // Green for credits
-    $pdf->Cell(40,6,'Rs. ' . number_format($total_credits, 2),0,0,'R');
+    $pdf->Cell(0,6,'Rs. ' . number_format($total_credits, 2),0,1,'R');
+    
+    // Total Debits - full line
     $pdf->SetTextColor(0);
     $pdf->Cell(50,6,'Total Debits:',0,0);
     $pdf->SetTextColor(200, 0, 0); // Red for debits
     $pdf->Cell(0,6,'Rs. ' . number_format($total_debits, 2),0,1,'R');
     
+    // Interest Earned - full line (if applicable)
     if ($interest_transactions > 0) {
         $pdf->SetTextColor(0);
         $pdf->Cell(50,6,'Interest Earned:',0,0);
         $pdf->SetTextColor(159, 122, 234);
         $pdf->Cell(0,6,'Rs. ' . number_format($total_interest, 2),0,1,'R');
-    } else {
-        $pdf->Ln(6);
     }
     
     $pdf->SetTextColor(0);
@@ -460,6 +463,13 @@ function generatePDFReport($member, $transactions, $total_credits, $total_debits
     
     // Transactions Table
     if (!empty($transactions)) {
+        // Very minimal check - only start new page if we absolutely can't fit title + header
+        $minRequiredSpace = 8 + 2 + 8; // just title + spacing + header
+        
+        if ($pdf->GetY() + $minRequiredSpace > 260) {
+            $pdf->AddPage();
+        }
+        
         $pdf->SetFont('Arial','B',12);
         $pdf->SetTextColor(45, 55, 72);
         $pdf->Cell(0,8,'Transaction History (' . count($transactions) . ' transactions)',0,1);
@@ -468,17 +478,22 @@ function generatePDFReport($member, $transactions, $total_credits, $total_debits
         // Improved table header
         $pdf->ImprovedTableHeader();
         
-        // Data
+        // Data with very generous page breaks
         $fill = false;
         foreach ($transactions as $transaction) {
-            // Check if we need a new page
-            if ($pdf->GetY() > 200) {
+            // Only break if we're really at the bottom - leave just enough for footer
+            if ($pdf->GetY() > 255) {
                 $pdf->AddPage();
                 $pdf->ImprovedTableHeader();
             }
             
             $pdf->ImprovedTableRow($transaction, $fill);
             $fill = !$fill;
+        }
+        
+        // Only break for footer if absolutely necessary
+        if ($pdf->GetY() > 250) {
+            $pdf->AddPage();
         }
         
         // Improved table footer with totals
