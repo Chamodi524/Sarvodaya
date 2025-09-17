@@ -534,7 +534,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'download_pdf' && $member_id) 
             }
         }
         
-        $net_balance = $total_credits - $total_debits;
+        
         
         generatePDFReport($member, $transactions, $total_credits, $total_debits, $net_balance, $total_interest, $interest_transactions, $start_date, $end_date);
     }
@@ -1045,7 +1045,7 @@ foreach ($transactions as $transaction) {
     }
 }
 
-$net_balance = $total_credits - $total_debits;
+
 
 // Build the current URL for PDF download
 $pdf_url_params = ['action' => 'download_pdf', 'member_id' => $member_id];
@@ -1920,18 +1920,7 @@ $pdf_download_url = '?' . http_build_query($pdf_url_params);
                         <?php echo count(array_filter($transactions, function($t) { return $t['entry_type'] == 'Debit'; })); ?> transactions
                     </div>
                 </div>
-                <div class="summary-card balance">
-                    <div class="summary-icon">
-                        <i class="fas fa-balance-scale"></i>
-                    </div>
-                    <div class="summary-label">Net Balance</div>
-                    <div class="summary-value">
-                        Rs. <?php echo number_format($net_balance, 2); ?>
-                    </div>
-                    <div style="font-size: 0.75rem; color: #718096;">
-                        <?php if ($start_date || $end_date): ?>For selected period<?php else: ?>All time<?php endif; ?>
-                    </div>
-                </div>
+                
                 <?php if ($interest_transactions > 0): ?>
                 <div class="summary-card interest">
                     <div class="summary-icon">
@@ -1964,7 +1953,7 @@ $pdf_download_url = '?' . http_build_query($pdf_url_params);
                                 <th>Loan ID</th>
                                 <th>Debit</th>
                                 <th>Credit</th>
-                                <th>Balance</th>
+                                
                             </tr>
                         </thead>
                         <tbody>
@@ -2020,9 +2009,7 @@ $pdf_download_url = '?' . http_build_query($pdf_url_params);
                                             <span style="color: #a0aec0;">-</span>
                                         <?php endif; ?>
                                     </td>
-                                    <td class="amount <?php echo $transaction['running_balance'] >= 0 ? 'balance-positive' : 'balance-negative'; ?>">
-                                        <?php echo number_format($transaction['running_balance'], 2); ?>
-                                    </td>
+                                    
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
