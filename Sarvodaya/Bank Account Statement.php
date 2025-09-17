@@ -206,7 +206,10 @@ function getInterestSummary($pdo, $member_id, $start_date = null, $end_date = nu
 }
 
 // Function to generate PDF report
-function generatePDFReport($member, $transactions, $total_credits, $total_debits, $net_balance, $total_interest, $interest_transactions, $start_date = null, $end_date = null) {
+function generatePDFReport($member, $transactions, $total_credits, $total_debits, $total_interest, $interest_transactions, $start_date = null, $end_date = null) {
+    // Suppress any output that might interfere with PDF generation
+    ob_clean();
+    
     require_once('fpdf/fpdf.php');
     
     class PDF extends FPDF {
@@ -393,6 +396,10 @@ function generatePDFReport($member, $transactions, $total_credits, $total_debits
         }
     }
     
+    // Clean and validate date inputs - simplified for debugging
+    $clean_start_date = null;
+    $clean_end_date = null;
+    
     $pdf = new PDF();
     $pdf->AddPage();
     $pdf->SetFont('Arial','',10);
@@ -415,20 +422,13 @@ function generatePDFReport($member, $transactions, $total_credits, $total_debits
     $pdf->Cell(0,6,$member['phone'],0,1);
     $pdf->Ln(5);
     
-    // Date Range
-    if ($start_date || $end_date) {
-        $pdf->SetFont('Arial','B',10);
-        $pdf->Cell(0,6,'Report Period: ',0,0);
-        $pdf->SetFont('Arial','',10);
-        if ($start_date && $end_date) {
-            $pdf->Cell(0,6,'From ' . date('M d, Y', strtotime($start_date)) . ' to ' . date('M d, Y', strtotime($end_date)),0,1);
-        } elseif ($start_date) {
-            $pdf->Cell(0,6,'From ' . date('M d, Y', strtotime($start_date)) . ' onwards',0,1);
-        } else {
-            $pdf->Cell(0,6,'Up to ' . date('M d, Y', strtotime($end_date)),0,1);
-        }
-        $pdf->Ln(3);
-    }
+    // Date Range - Show only "All available transactions" 
+    $pdf->SetFont('Arial','B',10);
+    $pdf->SetTextColor(0);
+    $pdf->Cell(30,6,'Report Period:',0,0);
+    $pdf->SetFont('Arial','',10);
+    $pdf->Cell(0,6,'All available transactions',0,1);
+    $pdf->Ln(3);
     
     // Summary
     $pdf->SetFont('Arial','B',12);
@@ -436,24 +436,42 @@ function generatePDFReport($member, $transactions, $total_credits, $total_debits
     $pdf->Cell(0,8,'Transaction Summary',0,1);
     $pdf->Ln(2);
     
+    // Calculate interest earned from transactions
+    $calculated_interest = 0;
+    if (!empty($transactions)) {
+        foreach ($transactions as $transaction) {
+            if (isset($transaction['transaction_type']) && 
+                (strtolower($transaction['transaction_type']) == 'interest' || 
+                 strtolower($transaction['transaction_type']) == 'interest_earned' ||
+                 stripos($transaction['description'], 'interest') !== false) &&
+                $transaction['entry_type'] == 'Credit') {
+                $calculated_interest += $transaction['amount'];
+            }
+        }
+    }
+    
+    // Use calculated interest instead of passed parameter
+    $total_interest = $calculated_interest;
+    
     $pdf->SetFont('Arial','',10);
     $pdf->SetTextColor(0);
+    
+    // Total Credits
     $pdf->Cell(50,6,'Total Credits:',0,0);
     $pdf->SetTextColor(0, 128, 0); // Green for credits
-    $pdf->Cell(40,6,'Rs. ' . number_format($total_credits, 2),0,0,'R');
+    $pdf->Cell(0,6,'Rs. ' . number_format($total_credits, 2),0,1,'R');
+    
+    // Total Debits
     $pdf->SetTextColor(0);
     $pdf->Cell(50,6,'Total Debits:',0,0);
     $pdf->SetTextColor(200, 0, 0); // Red for debits
     $pdf->Cell(0,6,'Rs. ' . number_format($total_debits, 2),0,1,'R');
     
-    if ($interest_transactions > 0) {
-        $pdf->SetTextColor(0);
-        $pdf->Cell(50,6,'Interest Earned:',0,0);
-        $pdf->SetTextColor(159, 122, 234);
-        $pdf->Cell(0,6,'Rs. ' . number_format($total_interest, 2),0,1,'R');
-    } else {
-        $pdf->Ln(6);
-    }
+    // Interest Earned (always show, even if 0)
+    $pdf->SetTextColor(0);
+    $pdf->Cell(50,6,'Interest Earned:',0,0);
+    $pdf->SetTextColor(159, 122, 234);
+    $pdf->Cell(0,6,'Rs. ' . number_format($total_interest, 2),0,1,'R');
     
     $pdf->SetTextColor(0);
     $pdf->Ln(8);
