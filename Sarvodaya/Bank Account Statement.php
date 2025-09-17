@@ -430,32 +430,29 @@ function generatePDFReport($member, $transactions, $total_credits, $total_debits
         $pdf->Ln(3);
     }
     
-    // Summary - Each item on its own line
+    // Summary
     $pdf->SetFont('Arial','B',12);
     $pdf->SetTextColor(45, 55, 72);
     $pdf->Cell(0,8,'Transaction Summary',0,1);
     $pdf->Ln(2);
     
     $pdf->SetFont('Arial','',10);
-    
-    // Total Credits - full line
     $pdf->SetTextColor(0);
     $pdf->Cell(50,6,'Total Credits:',0,0);
     $pdf->SetTextColor(0, 128, 0); // Green for credits
-    $pdf->Cell(0,6,'Rs. ' . number_format($total_credits, 2),0,1,'R');
-    
-    // Total Debits - full line
+    $pdf->Cell(40,6,'Rs. ' . number_format($total_credits, 2),0,0,'R');
     $pdf->SetTextColor(0);
     $pdf->Cell(50,6,'Total Debits:',0,0);
     $pdf->SetTextColor(200, 0, 0); // Red for debits
     $pdf->Cell(0,6,'Rs. ' . number_format($total_debits, 2),0,1,'R');
     
-    // Interest Earned - full line (if applicable)
     if ($interest_transactions > 0) {
         $pdf->SetTextColor(0);
         $pdf->Cell(50,6,'Interest Earned:',0,0);
         $pdf->SetTextColor(159, 122, 234);
         $pdf->Cell(0,6,'Rs. ' . number_format($total_interest, 2),0,1,'R');
+    } else {
+        $pdf->Ln(6);
     }
     
     $pdf->SetTextColor(0);
@@ -463,13 +460,6 @@ function generatePDFReport($member, $transactions, $total_credits, $total_debits
     
     // Transactions Table
     if (!empty($transactions)) {
-        // Very minimal check - only start new page if we absolutely can't fit title + header
-        $minRequiredSpace = 8 + 2 + 8; // just title + spacing + header
-        
-        if ($pdf->GetY() + $minRequiredSpace > 260) {
-            $pdf->AddPage();
-        }
-        
         $pdf->SetFont('Arial','B',12);
         $pdf->SetTextColor(45, 55, 72);
         $pdf->Cell(0,8,'Transaction History (' . count($transactions) . ' transactions)',0,1);
@@ -478,22 +468,17 @@ function generatePDFReport($member, $transactions, $total_credits, $total_debits
         // Improved table header
         $pdf->ImprovedTableHeader();
         
-        // Data with very generous page breaks
+        // Data
         $fill = false;
         foreach ($transactions as $transaction) {
-            // Only break if we're really at the bottom - leave just enough for footer
-            if ($pdf->GetY() > 255) {
+            // Check if we need a new page
+            if ($pdf->GetY() > 200) {
                 $pdf->AddPage();
                 $pdf->ImprovedTableHeader();
             }
             
             $pdf->ImprovedTableRow($transaction, $fill);
             $fill = !$fill;
-        }
-        
-        // Only break for footer if absolutely necessary
-        if ($pdf->GetY() > 250) {
-            $pdf->AddPage();
         }
         
         // Improved table footer with totals
@@ -574,232 +559,218 @@ if (!$member_id) {
         <title>Bank Account Statement - Sarvodaya Shramadhana Society</title>
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
         <style>
-                    * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, rgb(255, 140, 0) 0%, rgb(255, 165, 0) 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            font-size: 20px; /* Base font size increased */
-        }
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                background: linear-gradient(135deg, rgb(255, 140, 0) 0%, rgb(255, 165, 0) 100%);
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+            }
 
-        .search-container {
-            background: white;
-            border-radius: 16px;
-            padding: 40px;
-            width: 100%;
-            max-width: 650px; /* Increased to accommodate larger text */
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-            text-align: center;
-        }
-
-        .organization-header {
-            margin-bottom: 32px;
-            padding-bottom: 24px;
-            border-bottom: 2px solid #f1f5f9;
-        }
-
-        .organization-title {
-            font-size: 2.2rem; /* Increased from 1.8rem */
-            font-weight: 700;
-            color: rgb(255, 140, 0);
-            margin-bottom: 4px;
-            letter-spacing: -0.5px;
-        }
-
-        .organization-subtitle {
-            font-size: 1.6rem; /* Increased from 1.2rem */
-            font-weight: 600;
-            color: #2d3748;
-            margin-bottom: 8px;
-        }
-
-        .organization-details {
-            font-size: 1.2rem; /* Increased from 0.9rem */
-            color: #718096;
-            line-height: 1.5;
-        }
-
-        .logo {
-            width: 90px; /* Increased from 70px */
-            height: 90px; /* Increased from 70px */
-            background: linear-gradient(135deg, rgb(255, 140, 0), rgb(255, 165, 0));
-            border-radius: 16px;
-            margin: 0 auto 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 2.2rem; /* Increased from 1.8rem */
-        }
-
-        h1 {
-            color: #1a202c;
-            font-size: 2.5rem; /* Increased from 2rem */
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .subtitle {
-            color: #718096;
-            margin-bottom: 32px;
-            font-size: 1.2rem; /* Increased from 1rem */
-        }
-
-        .search-section {
-            position: relative;
-            margin-bottom: 24px;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 20px 20px 20px 60px; /* Increased padding */
-            font-size: 1.2rem; /* Increased from 1rem */
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            background: #f7fafc;
-            transition: all 0.2s ease;
-            outline: none;
-        }
-
-        .search-input:focus {
-            border-color: rgb(255, 140, 0);
-            background: white;
-            box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.1);
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 20px; /* Increased from 16px */
-            top: 50%;
-            transform: translateY(-50%);
-            color: #a0aec0;
-            font-size: 1.4rem; /* Increased from 1.1rem */
-        }
-
-        .search-results {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border: 2px solid #e2e8f0;
-            border-top: none;
-            border-radius: 0 0 12px 12px;
-            max-height: 300px; /* Increased from 250px */
-            overflow-y: auto;
-            z-index: 1000;
-            display: none;
-        }
-
-        .search-result-item {
-            padding: 16px 20px; /* Increased padding */
-            cursor: pointer;
-            transition: background 0.2s ease;
-            border-bottom: 1px solid #f7fafc;
-            text-align: left;
-        }
-
-        .search-result-item:hover {
-            background: #f7fafc;
-        }
-
-        .search-result-item:last-child {
-            border-bottom: none;
-        }
-
-        .member-name {
-            font-weight: 600;
-            color: #2d3748;
-            margin-bottom: 6px; /* Increased from 4px */
-            font-size: 1.2rem; /* Added font size */
-        }
-
-        .member-details {
-            font-size: 1.1rem; /* Increased from 0.85rem */
-            color: #718096;
-        }
-
-        .btn {
-            background: linear-gradient(135deg, rgb(255, 140, 0), rgb(255, 165, 0));
-            color: white;
-            padding: 18px 32px; /* Increased padding */
-            font-size: 1.2rem; /* Increased from 1rem */
-            font-weight: 600;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px; /* Increased from 8px */
-            min-width: 160px; /* Increased from 140px */
-            justify-content: center;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(255, 140, 0, 0.3);
-        }
-
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .loading {
-            display: none;
-            color: #718096;
-            font-size: 1.1rem; /* Increased from 0.9rem */
-            margin-top: 16px; /* Increased from 12px */
-        }
-
-        .no-results {
-            padding: 24px; /* Increased from 20px */
-            text-align: center;
-            color: #718096;
-            font-style: italic;
-            font-size: 1.2rem; /* Added font size */
-        }
-
-        @media (max-width: 480px) {
             .search-container {
-                padding: 30px 25px;
+                background: white;
+                border-radius: 16px;
+                padding: 40px;
+                width: 100%;
+                max-width: 580px;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+                text-align: center;
             }
-            
+
+            .organization-header {
+                margin-bottom: 32px;
+                padding-bottom: 24px;
+                border-bottom: 2px solid #f1f5f9;
+            }
+
             .organization-title {
-                font-size: 1.8rem; /* Increased from 1.5rem */
+                font-size: 1.8rem;
+                font-weight: 700;
+                color: rgb(255, 140, 0);
+                margin-bottom: 4px;
+                letter-spacing: -0.5px;
             }
-            
+
             .organization-subtitle {
-                font-size: 1.4rem; /* Increased from 1rem */
+                font-size: 1.2rem;
+                font-weight: 600;
+                color: #2d3748;
+                margin-bottom: 8px;
             }
-            
+
+            .organization-details {
+                font-size: 0.9rem;
+                color: #718096;
+                line-height: 1.5;
+            }
+
+            .logo {
+                width: 70px;
+                height: 70px;
+                background: linear-gradient(135deg, rgb(255, 140, 0), rgb(255, 165, 0));
+                border-radius: 16px;
+                margin: 0 auto 24px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-size: 1.8rem;
+            }
+
             h1 {
-                font-size: 2rem; /* Increased from 1.8rem */
+                color: #1a202c;
+                font-size: 2rem;
+                font-weight: 600;
+                margin-bottom: 8px;
             }
-            
-            /* Additional mobile adjustments for larger text */
+
+            .subtitle {
+                color: #718096;
+                margin-bottom: 32px;
+                font-size: 1rem;
+            }
+
+            .search-section {
+                position: relative;
+                margin-bottom: 24px;
+            }
+
             .search-input {
-                padding: 18px 18px 18px 55px;
+                width: 100%;
+                padding: 16px 20px 16px 50px;
+                font-size: 1rem;
+                border: 2px solid #e2e8f0;
+                border-radius: 12px;
+                background: #f7fafc;
+                transition: all 0.2s ease;
+                outline: none;
+            }
+
+            .search-input:focus {
+                border-color: rgb(255, 140, 0);
+                background: white;
+                box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.1);
+            }
+
+            .search-icon {
+                position: absolute;
+                left: 16px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: #a0aec0;
                 font-size: 1.1rem;
             }
-            
+
+            .search-results {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: white;
+                border: 2px solid #e2e8f0;
+                border-top: none;
+                border-radius: 0 0 12px 12px;
+                max-height: 250px;
+                overflow-y: auto;
+                z-index: 1000;
+                display: none;
+            }
+
+            .search-result-item {
+                padding: 12px 16px;
+                cursor: pointer;
+                transition: background 0.2s ease;
+                border-bottom: 1px solid #f7fafc;
+                text-align: left;
+            }
+
+            .search-result-item:hover {
+                background: #f7fafc;
+            }
+
+            .search-result-item:last-child {
+                border-bottom: none;
+            }
+
+            .member-name {
+                font-weight: 600;
+                color: #2d3748;
+                margin-bottom: 4px;
+            }
+
+            .member-details {
+                font-size: 0.85rem;
+                color: #718096;
+            }
+
             .btn {
-                padding: 16px 28px;
-                font-size: 1.1rem;
+                background: linear-gradient(135deg, rgb(255, 140, 0), rgb(255, 165, 0));
+                color: white;
+                padding: 14px 28px;
+                font-size: 1rem;
+                font-weight: 600;
+                border: none;
+                border-radius: 10px;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                text-decoration: none;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                min-width: 140px;
+                justify-content: center;
             }
-        }
+
+            .btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(255, 140, 0, 0.3);
+            }
+
+            .btn:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+                transform: none;
+            }
+
+            .loading {
+                display: none;
+                color: #718096;
+                font-size: 0.9rem;
+                margin-top: 12px;
+            }
+
+            .no-results {
+                padding: 20px;
+                text-align: center;
+                color: #718096;
+                font-style: italic;
+            }
+
+            @media (max-width: 480px) {
+                .search-container {
+                    padding: 30px 25px;
+                }
+                
+                .organization-title {
+                    font-size: 1.5rem;
+                }
+                
+                .organization-subtitle {
+                    font-size: 1rem;
+                }
+                
+                h1 {
+                    font-size: 1.8rem;
+                }
+            }
         </style>
     </head>
     <body>
@@ -1114,7 +1085,7 @@ $pdf_download_url = '?' . http_build_query($pdf_url_params);
         }
 
         .org-title {
-            font-size: 1.5rem;
+            font-size: 3rem;
             font-weight: 700;
             color: white;
             margin-bottom: 4px;
@@ -1122,13 +1093,13 @@ $pdf_download_url = '?' . http_build_query($pdf_url_params);
         }
 
         .org-subtitle {
-            font-size: 1.1rem;
+            font-size: 2rem;
             font-weight: 600;
             margin-bottom: 6px;
         }
 
         .org-details {
-            font-size: 0.85rem;
+            font-size: 20px;
             opacity: 0.9;
             line-height: 1.4;
         }
@@ -1204,14 +1175,14 @@ $pdf_download_url = '?' . http_build_query($pdf_url_params);
             font-weight: 600;
             color: #4a5568;
             margin-bottom: 6px;
-            font-size: 0.875rem;
+            font-size: 20px;
         }
 
         .form-group input {
             padding: 12px 14px;
             border: 2px solid #e2e8f0;
             border-radius: 8px;
-            font-size: 0.95rem;
+            font-size: 20px;
             transition: border-color 0.2s ease;
             background: #f7fafc;
         }
@@ -1232,7 +1203,7 @@ $pdf_download_url = '?' . http_build_query($pdf_url_params);
             padding: 10px 16px;
             border: none;
             border-radius: 8px;
-            font-size: 0.9rem;
+            font-size: 20px;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -1285,7 +1256,7 @@ $pdf_download_url = '?' . http_build_query($pdf_url_params);
             border-radius: 20px;
             color: rgb(255, 140, 0);
             text-decoration: none;
-            font-size: 0.8rem;
+            font-size:20px;
             font-weight: 500;
             transition: all 0.2s ease;
         }
@@ -1324,7 +1295,7 @@ $pdf_download_url = '?' . http_build_query($pdf_url_params);
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 0.9rem;
+            font-size: 20px;
         }
 
         .info-text {
@@ -1332,13 +1303,13 @@ $pdf_download_url = '?' . http_build_query($pdf_url_params);
         }
 
         .info-label {
-            font-size: 0.8rem;
+            font-size: 20px;
             color: #718096;
             font-weight: 500;
         }
 
         .info-value {
-            font-size: 1rem;
+            font-size: 20px;
             font-weight: 600;
             color: #2d3748;
         }
@@ -1383,7 +1354,7 @@ $pdf_download_url = '?' . http_build_query($pdf_url_params);
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 1.2rem;
+            font-size: 20px;
             margin: 0 auto 12px;
         }
 
@@ -1404,14 +1375,14 @@ $pdf_download_url = '?' . http_build_query($pdf_url_params);
         }
 
         .summary-label {
-            font-size: 0.85rem;
+            font-size: 20px;
             color: #718096;
             margin-bottom: 4px;
             font-weight: 500;
         }
 
         .summary-value {
-            font-size: 1.6rem;
+            font-size: 20px;
             font-weight: 700;
             margin-bottom: 8px;
         }
@@ -1465,13 +1436,13 @@ $pdf_download_url = '?' . http_build_query($pdf_url_params);
             font-weight: 600;
             color: #4a5568;
             border-bottom: 2px solid #e2e8f0;
-            font-size: 0.85rem;
+            font-size: 20px;
         }
 
         td {
             padding: 12px;
             border-bottom: 1px solid #e2e8f0;
-            font-size: 0.9rem;
+            font-size: 20px;
         }
 
         tr:hover {
@@ -1510,7 +1481,7 @@ $pdf_download_url = '?' . http_build_query($pdf_url_params);
             display: inline-block;
             padding: 4px 8px;
             border-radius: 4px;
-            font-size: 0.8rem;
+            font-size: 20px;
             font-weight: 500;
         }
 
@@ -1537,12 +1508,12 @@ $pdf_download_url = '?' . http_build_query($pdf_url_params);
             color: white;
             padding: 2px 6px;
             border-radius: 10px;
-            font-size: 0.75rem;
+            font-size:20px;
             font-weight: 600;
         }
 
         .interest-details {
-            font-size: 0.75rem;
+            font-size: 20px;
             color: #718096;
             margin-top: 2px;
         }
@@ -1553,7 +1524,7 @@ $pdf_download_url = '?' . http_build_query($pdf_url_params);
         }
 
         .period-info {
-            font-size: 0.75rem;
+            font-size: 20px;
             color: #a0aec0;
             font-style: italic;
         }
@@ -1573,7 +1544,7 @@ $pdf_download_url = '?' . http_build_query($pdf_url_params);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
+            font-size: 20px;
             color: #a0aec0;
         }
 
@@ -1584,7 +1555,7 @@ $pdf_download_url = '?' . http_build_query($pdf_url_params);
             margin-bottom: 16px;
             border: 1px solid rgba(255, 140, 0, 0.3);
             text-align: center;
-            font-size: 0.9rem;
+            font-size: 20px;
         }
 
         .date-range-info strong {
@@ -1611,7 +1582,7 @@ $pdf_download_url = '?' . http_build_query($pdf_url_params);
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 12px;
-            font-size: 0.85rem;
+            font-size: 20px;
         }
 
         .interest-stat {
@@ -1621,12 +1592,12 @@ $pdf_download_url = '?' . http_build_query($pdf_url_params);
         .interest-stat-value {
             font-weight: 700;
             color: #9f7aea;
-            font-size: 1.1rem;
+            font-size: 20px;
         }
 
         .interest-stat-label {
             color: #718096;
-            font-size: 0.75rem;
+            font-size: 20px;
         }
 
         .download-notification {
@@ -1652,19 +1623,19 @@ $pdf_download_url = '?' . http_build_query($pdf_url_params);
 
         @media (max-width: 768px) {
             .org-title {
-                font-size: 1.3rem;
+                font-size: 20px;
             }
             
             .org-subtitle {
-                font-size: 1rem;
+                font-size: 20px;
             }
             
             .org-details {
-                font-size: 0.8rem;
+                font-size: 20px;
             }
             
             .header h1 {
-                font-size: 1.5rem;
+                font-size: 20px;
             }
             
             .filter-form {
@@ -1684,7 +1655,7 @@ $pdf_download_url = '?' . http_build_query($pdf_url_params);
             }
             
             .table-wrapper {
-                font-size: 0.85rem;
+                font-size: 20px;
             }
             
             th, td {
